@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix — Daily Ops · Cost Ceiling · SLO Burn</title>
+<style>
+  :root{
+    --bg:#0c1116; --panel:#121821; --panel2:#0e131a; --ink:#dbe3ee; --dim:#7a8aa0; --line:#1c2533;
+    --green:#5af28a; --amber:#ffb86b; --red:#ff6b7a; --blue:#7aa5ff; --purple:#b07aff;
+    --mono:'JetBrains Mono','Fira Code',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13.5px/1.55 'Inter','Helvetica Neue',Arial,sans-serif}
+  .top{background:#070a0e;border-bottom:1px solid var(--line);padding:10px 20px;display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;color:#a4b2c8}
+  .top .live{color:var(--green)}
+  .top .right{margin-left:auto;display:flex;gap:14px}
+  .wrap{max-width:1280px;margin:14px auto 60px;padding:0 20px}
+  .strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+  .strip .c{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .strip .lab{color:var(--dim);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+  .strip .v{font:800 20px/1 'Inter';margin-top:6px}
+  .strip .delta{font-size:11px;margin-top:4px}
+  .ok{color:var(--green)}.warn{color:var(--amber)}.err{color:var(--red)}.acc{color:var(--blue)}.pur{color:var(--purple)}
+  .grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .panel h3{margin:0 0 8px;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+  .panel h3 small{color:var(--green);font:600 11px/1 var(--mono);letter-spacing:.04em;text-transform:none;margin-left:8px}
+
+  .ledger{font-size:13px}
+  .ledger table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+  .ledger th,.ledger td{padding:6px 6px;text-align:left;border-bottom:1px solid var(--line)}
+  .ledger th{color:var(--dim);font-weight:500;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid #243047}
+  .ledger td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .ledger tr.tot td{font-weight:700;border-top:1px solid #243047;color:#fff}
+  .ledger .ceil{background:#1e1410;border:1px solid #5a3320;color:#ffb88a;border-radius:8px;padding:8px 10px;margin-top:10px;font-size:12px}
+
+  .gauge{position:relative;height:14px;background:#1a2230;border-radius:7px;overflow:hidden;border:1px solid #243047;margin-top:6px}
+  .gauge i{display:block;height:100%;background:linear-gradient(90deg,#5af28a 0%,#ffb86b 70%,#ff6b7a 100%)}
+  .gauge .label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 10px/1 var(--mono);color:#0c1116}
+
+  .sparkrow{display:grid;grid-template-columns:1fr;gap:14px}
+  .spark-row{display:grid;grid-template-columns:160px 1fr 80px;gap:10px;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line)}
+  .spark-row:last-child{border-bottom:0}
+  .spark-row .nm{color:#cfd6e5}
+  .spark-row .nm small{display:block;color:var(--dim);font-size:11px}
+  .spark{height:34px}
+  .spark-row .v{text-align:right;font-family:var(--mono);font-weight:700}
+
+  .runbook{font-family:var(--mono);font-size:12.5px;background:#070a0e;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:#bccae0}
+  .runbook .l{display:block}
+  .runbook .ok{color:var(--green)}.runbook .warn{color:var(--amber)}.runbook .err{color:var(--red)}.runbook .dim{color:var(--dim)}
+
+  .alert{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:#0e131a;margin-bottom:8px;font-size:12.5px}
+  .alert .sev{width:24px;height:24px;border-radius:50%;background:#3a1f24;color:var(--red);display:flex;align-items:center;justify-content:center;font-weight:800}
+  .alert.warn .sev{background:#3a2f1a;color:var(--amber)}
+  .alert.ok .sev{background:#1a3a24;color:var(--green)}
+  .alert .ts{color:var(--dim);font-family:var(--mono);font-size:11px}
+
+  .creditbar{height:24px;border-radius:8px;background:#1a2230;border:1px solid var(--line);overflow:hidden;position:relative;margin-top:8px}
+  .creditbar i{display:block;height:100%;background:linear-gradient(90deg,#1d6c70,#5af28a 60%,#ffb86b 90%);width:77.2%}
+  .creditbar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 11px/1 var(--mono);color:#0c1116}
+
+  .col2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+</style>
+</head>
+<body>
+<div class="top">
+  <span class="live">●</span> NOC · ShortFlix prod · asia-northeast3
+  <span class="right">
+    <span><b>Day 14 / 30</b></span>
+    <span class="ok">SLO: 99.91% (target 99.5%)</span>
+    <span class="warn">Burn rate: 1.7×</span>
+    <span>On-call: <b>jisu</b> (sole)</span>
+  </span>
+</div>
+
+<div class="wrap">
+  <section class="strip">
+    <div class="c"><div class="lab">GCP $500 credit</div><div class="v ok">$ 386.10 / 500</div><div class="delta warn">▲ $24.40 / day · runs out D+18</div></div>
+    <div class="c"><div class="lab">RapidAPI bill</div><div class="v warn">$ 132.40</div><div class="delta">ceiling $200/mo · 66% used</div></div>
+    <div class="c"><div class="lab">p50 latency</div><div class="v ok">1.18 s</div><div class="delta">budget 1.5 s · 21% headroom</div></div>
+    <div class="c"><div class="lab">p95 latency</div><div class="v warn">1.94 s</div><div class="delta">budget 2.0 s · 3% headroom</div></div>
+    <div class="c"><div class="lab">Cost / DAU / mo</div><div class="v ok">$ 0.038</div><div class="delta">ceiling $0.05 · 24% margin</div></div>
+    <div class="c"><div class="lab">Open incidents</div><div class="v err">1</div><div class="delta">SEV-3 · trend-safety latency</div></div>
+  </section>
+
+  <div class="grid">
+    <section class="panel ledger">
+      <h3>$500 GCP credit ledger <small>· 30-day projection</small></h3>
+      <div class="creditbar"><i></i><span>$ 386.10 / $ 500.00 · D+14 of 30 · projected EOM $ 632 (over by $132)</span></div>
+      <div class="ceil"><b>Ceiling guard:</b> if projected EOM &gt; $500, auto-cut Vertex grounding to ko-only and downgrade trend-safety to flash-lite. Lever owner: jisu.</div>
+      <table style="margin-top:10px">
+        <thead><tr><th>Line</th><th>So far</th><th>Daily run-rate</th><th class="num">Projected EOM</th><th class="num">Ceiling</th></tr></thead>
+        <tbody>
+          <tr><td>Cloud Run · asia-NE3 (min=1)</td><td>$ 88.20</td><td>$ 6.30 / d</td><td class="num">$ 189</td><td class="num ok">$ 220</td></tr>
+          <tr><td>Gemini-2.0-flash</td><td>$ 121.40</td><td>$ 8.67 / d</td><td class="num warn">$ 260</td><td class="num warn">$ 240</td></tr>
+          <tr><td>Vertex AI Search</td><td>$ 41.10</td><td>$ 2.94 / d</td><td class="num">$ 88</td><td class="num ok">$ 100</td></tr>
+          <tr><td>Cloud SQL f1-micro</td><td>$ 4.20</td><td>$ 0.30 / d</td><td class="num">$ 9</td><td class="num ok">$ 12</td></tr>
+          <tr><td>Egress · CDN</td><td>$ 18.40</td><td>$ 1.31 / d</td><td class="num">$ 39</td><td class="num ok">$ 60</td></tr>
+          <tr><td>Logging · Cloud Tasks · misc</td><td>$ 12.80</td><td>$ 0.91 / d</td><td class="num">$ 27</td><td class="num ok">$ 40</td></tr>
+          <tr class="tot"><td>GCP subtotal</td><td>$ 286.10</td><td>$ 20.43 / d</td><td class="num warn">$ 612</td><td class="num">$ 500 credit</td></tr>
+        </tbody>
+      </table>
+      <table style="margin-top:10px">
+        <thead><tr><th>3rd-party (out of credit)</th><th>So far</th><th class="num">Projected EOM</th><th class="num">Ceiling</th></tr></thead>
+        <tbody>
+          <tr><td>RapidAPI · YT Shorts plan</td><td>$ 49.00</td><td class="num">$ 49.00</td><td class="num ok">$ 60</td></tr>
+          <tr><td>RapidAPI · IG Reels plan</td><td>$ 49.00</td><td class="num">$ 49.00</td><td class="num ok">$ 60</td></tr>
+          <tr><td>RapidAPI · TikTok plan</td><td>$ 34.40</td><td class="num warn">$ 88.00</td><td class="num warn">$ 80</td></tr>
+          <tr class="tot"><td>RapidAPI subtotal</td><td>$ 132.40</td><td class="num">$ 186.00</td><td class="num">$ 200</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="col2" style="grid-template-columns:1fr">
+      <section class="panel">
+        <h3>SLO burn · 7-day window</h3>
+        <div class="sparkrow">
+          <div class="spark-row">
+            <div class="nm">orchestrator p95<small>budget 2.0 s</small></div>
+            <svg class="spark" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <polyline fill="none" stroke="#5af28a" stroke-width="1.5" points="0,22 18,20 36,18 54,17 72,16 90,18 108,15 126,14 144,18 162,16 180,15 200,14"/>
+            </svg>
+            <div class="v ok">1.94 s</div>
+          </div>
+          <div class="spark-row">
+            <div class="nm">curator agent p95<small>nightly batch</small></div>
+            <svg class="spark" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <polyline fill="none" stroke="#7aa5ff" stroke-width="1.5" points="0,22 30,20 60,18 90,16 120,15 150,14 180,15 200,14"/>
+            </svg>
+            <div class="v ok">3m12s</div>
+          </div>
+          <div class="spark-row">
+            <div class="nm">trend-safety p95<small>budget 600 ms</small></div>
+            <svg class="spark" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <polyline fill="none" stroke="#ffb86b" stroke-width="1.5" points="0,18 25,17 50,16 75,18 100,16 125,12 150,9 175,7 200,6"/>
+            </svg>
+            <div class="v warn">714 ms</div>
+          </div>
+          <div class="spark-row">
+            <div class="nm">unified-search p95<small>3 MCP fanout</small></div>
+            <svg class="spark" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <polyline fill="none" stroke="#b07aff" stroke-width="1.5" points="0,16 25,17 50,15 75,16 100,14 125,15 150,15 175,14 200,15"/>
+            </svg>
+            <div class="v ok">312 ms</div>
+          </div>
+          <div class="spark-row">
+            <div class="nm">RapidAPI 5xx rate<small>over all 3 plans</small></div>
+            <svg class="spark" viewBox="0 0 200 30" preserveAspectRatio="none">
+              <polyline fill="none" stroke="#ff6b7a" stroke-width="1.5" points="0,28 30,27 60,28 90,24 120,22 150,18 180,16 200,17"/>
+            </svg>
+            <div class="v warn">2.1 %</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>Open alerts</h3>
+        <div class="alert warn"><span class="sev">!</span><div><b>SEV-3 · trend-safety p95 over budget</b><div class="ts">14:08 KST · firing 22 min · runbook: switch flash-lite</div></div><span class="warn">+19%</span></div>
+        <div class="alert"><span class="sev">●</span><div><b>SEV-4 · TikTok RapidAPI 5xx spike</b><div class="ts">11:46 KST · 16 occurrences · 3 retries succeeded</div></div><span class="warn">2.1%</span></div>
+        <div class="alert ok"><span class="sev">✓</span><div><b>RESOLVED · curator nightly batch overran 60s window</b><div class="ts">04:22 KST · increased Cloud Scheduler timeout 60→120s</div></div><span class="ok">closed</span></div>
+        <div class="alert ok"><span class="sev">✓</span><div><b>RESOLVED · Vertex AI Search 429</b><div class="ts">02:14 KST · backed off 2x · within budget</div></div><span class="ok">closed</span></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <h3>Today's runbook</h3>
+      <div class="runbook">
+<span class="l"><span class="dim"># 14:30 KST · operator: jisu</span></span>
+<span class="l"><span class="dim">$</span> sf ops cost --ledger</span>
+<span class="l"><span class="ok">→ projected EOM exceeds $500 by $132 — engaging tier-1 lever</span></span>
+<span class="l"><span class="dim">$</span> sf ops lever apply tier1 --tag credit-ceiling</span>
+<span class="l"><span class="ok">+ vertex.search corpus = ko-only (was ko+en+ja)</span></span>
+<span class="l"><span class="ok">+ trend-safety = gemini-2.0-flash-lite (was -flash)</span></span>
+<span class="l"><span class="warn">! novelty drift expected: 0.86 → ~0.83 (acceptable, &gt; 0.80 floor)</span></span>
+<span class="l"><span class="dim">$</span> sf ops slo refresh</span>
+<span class="l"><span class="ok">→ p95 1.94s · burn 1.7× → 0.9× by 16:00</span></span>
+<span class="l"><span class="dim">$</span> sf ops lever rollback --in 24h</span>
+<span class="l"><span class="ok">scheduled</span> rollback at 14:30 +1d if EOM projection back under $500</span>
+      </div>
+      <p style="color:var(--dim);font-size:12px;margin-top:8px">Multi-agent superiority on the ops axis: each lever (corpus, model size, fanout depth) maps to one agent — single-agent has no levers, only a kill switch.</p>
+    </section>
+
+    <section class="panel">
+      <h3>Capacity plan · D+14 → D+30</h3>
+      <table>
+        <thead><tr><th>Risk</th><th>Trigger</th><th>Lever</th><th>Owner</th></tr></thead>
+        <tbody>
+          <tr><td>$500 credit overrun</td><td>EOM &gt; $500</td><td>Tier 1 (corpus + flash-lite)</td><td>jisu</td></tr>
+          <tr><td>RapidAPI ceiling</td><td>TikTok plan &gt; $80</td><td>nightly cache only on TT</td><td>jisu</td></tr>
+          <tr><td>p95 over budget</td><td>p95 &gt; 2.0 s 5 min</td><td>parallel fanout disable</td><td>jisu</td></tr>
+          <tr><td>Solo-dev fatigue</td><td>on-call paged 3+ in 24h</td><td>SEV-3 → email-only</td><td>jisu</td></tr>
+          <tr><td>Demo day freeze</td><td>D+27 onward</td><td>code freeze · CFR-only deploy</td><td>jisu</td></tr>
+        </tbody>
+      </table>
+      <p style="color:var(--dim);font-size:12px;margin-top:10px">No headcount. No PagerDuty. One operator, one Cloud Run service, four agents, six levers, $500 ceiling.</p>
+    </section>
+  </div>
+</div>
+</body></html>

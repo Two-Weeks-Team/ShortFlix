@@ -1,0 +1,120 @@
+{
+  "_schema_version": "1.0.0",
+  "run_id": "r-20260506T121945Z",
+  "panel": "BP",
+  "stage": "3b-vote",
+  "lens": "business_case",
+  "weight_scheme": "rank_weighted (1st=5pts, 2nd=4, 3rd=3, 4th=2, 5th=1)",
+  "ballot_pool": ["the-indie-hacker", "the-enterprise-buyer", "the-cost-conscious", "the-community-builder", "the-slack-native"],
+  "members": [
+    {
+      "id": "BP01",
+      "role": "CEO",
+      "ballot": ["the-indie-hacker", "the-enterprise-buyer", "the-community-builder", "the-cost-conscious", "the-slack-native"],
+      "rationale": "Indie-hacker's $10K MRR receipt IS the Business Case slide judges remember. Enterprise-buyer adds the upside narrative (consumer→B2B without code split). Community-builder is the long-term moat. Cost-conscious validates margins. Slack-native is a distribution wedge."
+    },
+    {
+      "id": "BP02",
+      "role": "CFO",
+      "ballot": ["the-cost-conscious", "the-indie-hacker", "the-enterprise-buyer", "the-community-builder", "the-slack-native"],
+      "rationale": "Unit economics first. Cost-conscious proves $0.038/DAU sustainable on $500 credit. Indie-hacker closes the ARPU side ($4.99 × 3.1%). Enterprise-buyer is the multiplier ($1.2K/brief). Without cost ledger, all revenue claims float."
+    },
+    {
+      "id": "BP03",
+      "role": "Sales",
+      "ballot": ["the-enterprise-buyer", "the-slack-native", "the-indie-hacker", "the-community-builder", "the-cost-conscious"],
+      "rationale": "Enterprise-buyer = sellable artifact: SAML+audit+CSV-with-watermark = 50-logo pipeline I can demo to brand managers tomorrow. Slack-native = team-led growth. Indie-hacker self-serve. Community = referral. Cost = pricing floor."
+    },
+    {
+      "id": "BP04",
+      "role": "Marketing",
+      "ballot": ["the-community-builder", "the-slack-native", "the-indie-hacker", "the-enterprise-buyer", "the-cost-conscious"],
+      "rationale": "Network effect + public curator profiles = organic CAC≈$0. Slack-native is viral-by-channel-share. Indie-hacker has clear Pro upgrade copy beat at 0:46. Enterprise needs outbound. Cost is internal."
+    },
+    {
+      "id": "BP05",
+      "role": "CS / Retention",
+      "ballot": ["the-community-builder", "the-indie-hacker", "the-enterprise-buyer", "the-slack-native", "the-cost-conscious"],
+      "rationale": "Community = friends create switching cost. Indie's nightly cache = consistent value, low churn driver. Enterprise = high-touch, tickets manageable. Slack = sticky if pinned to channel. Cost ledger irrelevant to CS."
+    },
+    {
+      "id": "BP06",
+      "role": "Competitor Analyst",
+      "ballot": ["the-enterprise-buyer", "the-community-builder", "the-indie-hacker", "the-cost-conscious", "the-slack-native"],
+      "rationale": "Differentiation strongest where competitor weakest: Brand Cloud has no direct rival (CreatorIQ, Tagger lack cross-platform multi-agent). Community curator profiles = unique moat vs Feedly/Flipboard. Indie pricing competitive. Slack space crowded."
+    },
+    {
+      "id": "BP07",
+      "role": "Market Researcher",
+      "ballot": ["the-indie-hacker", "the-community-builder", "the-enterprise-buyer", "the-slack-native", "the-cost-conscious"],
+      "rationale": "TAM defensible: short-form discovery global (locked persona) = 1.4B viewers × i18n. Indie's 8.4K DAU at M+6 is conservative SOM. Community expands SAM via social graph. Enterprise opens parallel TAM. Slack = niche. Cost = constraint, not market."
+    },
+    {
+      "id": "BP08",
+      "role": "Pricing",
+      "ballot": ["the-indie-hacker", "the-enterprise-buyer", "the-cost-conscious", "the-community-builder", "the-slack-native"],
+      "rationale": "Indie's $4.99 anchored to Spotify/Netflix mental model — frictionless. Enterprise $1,200/brief is correctly priced (10× lower than CreatorIQ enterprise tier = land/expand). Cost-conscious validates 92% gross margin. Community could add tipped curator subscriptions ($2-5/mo)."
+    },
+    {
+      "id": "BP09",
+      "role": "GTM",
+      "ballot": ["the-slack-native", "the-community-builder", "the-indie-hacker", "the-enterprise-buyer", "the-cost-conscious"],
+      "rationale": "Channel-existence test: Slack App Directory = real channel today. Community = Twitter/X curator-share loop. Indie = Product Hunt + Reddit r/sideproject. Enterprise = outbound LinkedIn (slowest). Cost = no GTM."
+    },
+    {
+      "id": "BP10",
+      "role": "Board Observer",
+      "ballot": ["the-enterprise-buyer", "the-indie-hacker", "the-community-builder", "the-cost-conscious", "the-slack-native"],
+      "rationale": "Investability lens: Enterprise-buyer shows multi-revenue thesis ($60K/mo at 50 logos = 5× consumer ARR) — story VCs fund. Indie proves the consumer engine works. Community = defensibility narrative for Series A. Cost = capital efficiency. Slack = optionality."
+    }
+  ],
+  "tally": {
+    "method": "rank_weighted_sum (1st=5, 2nd=4, 3rd=3, 4th=2, 5th=1); max possible = 50",
+    "results": [
+      {"advocate": "the-indie-hacker", "points": 38, "rank_1_count": 3, "rank_5_count": 0},
+      {"advocate": "the-enterprise-buyer", "points": 36, "rank_1_count": 4, "rank_5_count": 0},
+      {"advocate": "the-community-builder", "points": 30, "rank_1_count": 2, "rank_5_count": 0},
+      {"advocate": "the-cost-conscious", "points": 23, "rank_1_count": 1, "rank_5_count": 5},
+      {"advocate": "the-slack-native", "points": 23, "rank_1_count": 1, "rank_5_count": 5}
+    ]
+  },
+  "verdict_top3": [
+    {
+      "rank": 1,
+      "advocate": "the-indie-hacker",
+      "points": 38,
+      "headline": "Business Case 30% rendered as a Stripe receipt + MRR ladder — the single most judge-legible artifact in the panel. $4.99 × 3.1% × 8.4K DAU − $0.038/DAU cost = positive without VC."
+    },
+    {
+      "rank": 2,
+      "advocate": "the-enterprise-buyer",
+      "points": 36,
+      "headline": "Same code, two markets: $4.99 consumer + $1,200/brief B2B (50-logo pipeline). Stays Track 1 (no code fork). Unique competitive whitespace vs CreatorIQ. Investability story strongest in panel."
+    },
+    {
+      "rank": 3,
+      "advocate": "the-community-builder",
+      "points": 30,
+      "headline": "Defensibility via network effect: friends-as-signal compounds curator quality (0.82→0.86 in 3 days). Public curator profiles = organic CAC. Long-term moat consumer variants lack."
+    }
+  ],
+  "dissent_log": [
+    {
+      "dissenter": "BP02 (CFO)",
+      "objection": "Indie-hacker's 3.1% conversion is unvalidated; if real conv = 1.0%, MRR ladder collapses to $3.5K not $10.8K. Cost-conscious should rank higher because it's the ONLY math judges can verify in 30 days."
+    },
+    {
+      "dissenter": "BP03 (Sales)",
+      "objection": "Indie's $4.99 Pro tier has no demonstrable willingness-to-pay evidence. Enterprise-buyer's $1,200/brief has clearer comp (Tagger.media, CreatorIQ pricing benchmarks). Risk: judges see consumer subscription fatigue and discount Indie's MRR ladder."
+    },
+    {
+      "dissenter": "BP06 (Competitor Analyst)",
+      "objection": "Community-builder vs network effects already won by TikTok/Instagram. Cold-start problem: with 0 friends, curator profile is empty for 90 days. Cost-conscious or Slack-native have lower cold-start risk."
+    },
+    {
+      "dissenter": "BP09 (GTM)",
+      "objection": "Slack-native should rank top-3 — channel exists, 0-install, viral pin-to-channel. Community-builder requires social graph that doesn't exist at launch."
+    }
+  ],
+  "winning_business_case_one_liner": "A 2-minute demo that PROVES Business Case 30% must show ONE Stripe receipt ($4.99 Pro) + ONE B2B brief invoice ($1,200) + ONE cost ledger ($0.038/DAU) on a single screen — same multi-agent code, two revenue lines, math closes without VC. Anything narrative-only loses to this artifact stack."
+}

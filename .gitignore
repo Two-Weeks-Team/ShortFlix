@@ -1,0 +1,16 @@
+# Preview Forge internal state
+.pf-current-run
+runs/*/blackboard.db
+runs/*/trace.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local Claude config (project permissions — keep private)
+.claude/settings.local.json
+
+# Editor
+.vscode/
+.idea/
+*.swp

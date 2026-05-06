@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>shortflix/curator-agent — community-owned</title>
+<style>
+  :root{
+    --bg:#f6f8fa; --paper:#fff; --ink:#1f2328; --muted:#656d76; --rule:#d0d7de; --acc:#0969da; --green:#1a7f37; --red:#d1242f; --pur:#8250df; --warn:#9a6700;
+    --card:#fff; --soft:#f6f8fa;
+    --mono:'JetBrains Mono','Fira Code',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif}
+  header{background:#24292f;color:#fff;padding:10px 22px;display:flex;align-items:center;gap:14px;font-size:13px}
+  header .repo{font-weight:600}
+  header .repo span{color:#8b949e}
+  header .right{margin-left:auto;display:flex;gap:10px}
+  header .btn{background:#21262d;border:1px solid #30363d;color:#fff;padding:5px 9px;border-radius:6px;font-size:12px;font-weight:600}
+  header .btn b{color:#8b949e;font-weight:500;margin-left:6px}
+  .subhead{background:var(--paper);border-bottom:1px solid var(--rule);padding:10px 22px;display:flex;gap:14px;font-size:13px;color:var(--muted)}
+  .subhead a{color:var(--ink);text-decoration:none;font-weight:500;padding:4px 6px;border-radius:6px}
+  .subhead a.on{border-bottom:2px solid #fd8c73;color:var(--ink);padding-bottom:8px;border-radius:0}
+  .subhead .count{background:#eaeef2;color:var(--muted);font-size:11px;padding:1px 7px;border-radius:999px;margin-left:4px}
+
+  .wrap{max-width:1280px;margin:18px auto;padding:0 22px 60px;display:grid;grid-template-columns:1fr 320px;gap:24px}
+
+  .readme{background:var(--paper);border:1px solid var(--rule);border-radius:8px}
+  .readme .filebar{background:var(--soft);border-bottom:1px solid var(--rule);padding:8px 14px;font-family:var(--mono);font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .readme .filebar b{color:var(--ink)}
+  .readme .body{padding:24px 28px}
+  .readme h1{margin:0 0 10px;font-size:26px;letter-spacing:-.4px;border-bottom:1px solid var(--rule);padding-bottom:8px}
+  .readme h2{margin:18px 0 10px;font-size:18px;border-bottom:1px solid var(--rule);padding-bottom:6px}
+  .readme p{margin:0 0 10px;color:#1f2328}
+  .readme code{font-family:var(--mono);background:#eaeef2;padding:1px 6px;border-radius:4px;font-size:12.5px}
+  .readme pre{background:var(--soft);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;font:12.5px/1.6 var(--mono);overflow:auto;margin:0 0 12px}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .badge{display:inline-flex;align-items:center;background:#24292f;color:#fff;font-size:11px;border-radius:4px;overflow:hidden}
+  .badge b{padding:3px 7px;font-weight:500}
+  .badge span{padding:3px 7px;background:#0969da;font-weight:600}
+  .badge.green span{background:#1a7f37}
+  .badge.gold span{background:#bf8700}
+  .badge.red span{background:#d1242f}
+  .badge.pur span{background:#8250df}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 12px}
+  .grid .b{background:var(--soft);border:1px solid var(--rule);border-radius:6px;padding:10px 12px}
+  .grid .b h4{margin:0 0 4px;font-size:13px}
+  .grid .b small{color:var(--muted)}
+
+  ul{margin:0 0 12px;padding-left:22px}
+  ul li{margin-bottom:4px}
+
+  .right h3{margin:0 0 8px;font-size:13px;color:var(--ink);font-weight:700}
+  .panel{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:14px;margin-bottom:14px;font-size:13px}
+  .panel .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--rule);font-size:12.5px}
+  .panel .row:last-child{border-bottom:0}
+  .panel .row b{font-variant-numeric:tabular-nums}
+  .panel a{color:var(--acc);text-decoration:none}
+  .contrib{display:flex;flex-wrap:wrap;gap:4px}
+  .ava{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;background:#0969da}
+  .ava.b{background:#8250df}.ava.c{background:#1a7f37}.ava.d{background:#bf8700}.ava.e{background:#d1242f}.ava.f{background:#0a3069}.ava.g{background:#5b3680}
+
+  .issues{font-size:13px}
+  .issue{display:grid;grid-template-columns:18px 1fr auto;gap:8px;padding:8px 0;border-bottom:1px solid var(--rule)}
+  .issue:last-child{border-bottom:0}
+  .issue .dot{width:14px;height:14px;border-radius:50%;background:var(--green);margin-top:2px}
+  .issue .dot.closed{background:var(--pur)}
+  .issue h4{margin:0 0 2px;font-size:13px;font-weight:600}
+  .issue small{color:var(--muted)}
+  .issue .lab{display:inline-block;font-size:10px;border-radius:999px;padding:1px 7px;margin-right:4px;font-weight:600}
+  .lab.help{background:#dafbe1;color:#1a7f37}
+  .lab.good{background:#fff8c5;color:#9a6700}
+  .lab.proto{background:#ddf4ff;color:#0969da}
+  .lab.disc{background:#f1deff;color:#8250df}
+  .lab.gov{background:#ffeaea;color:#cf222e}
+</style>
+</head>
+<body>
+<header>
+  <span class="repo">shortflix <span>/</span> curator-agent</span>
+  <span class="badge green"><b>License</b><span>Apache-2.0</span></span>
+  <span class="badge"><b>Stars</b><span>1.4k</span></span>
+  <span class="badge gold"><b>Forks</b><span>187</span></span>
+  <div class="right">
+    <span class="btn">⭐ Star <b>1.4k</b></span>
+    <span class="btn">⑂ Fork <b>187</b></span>
+    <span class="btn">▸ Use this template</span>
+  </div>
+</header>
+
+<div class="subhead">
+  <a class="on">&lt;&gt; Code</a>
+  <a>⊙ Issues<span class="count">42</span></a>
+  <a>⇄ Pull requests<span class="count">11</span></a>
+  <a>⚐ Discussions<span class="count">73</span></a>
+  <a>▤ Projects</a>
+  <a>⌥ Wiki</a>
+  <a>⚑ Releases</a>
+  <a>♥ Sponsors</a>
+</div>
+
+<div class="wrap">
+  <main class="readme">
+    <div class="filebar">📄 <b>README.md</b> · main · <span>Apache-2.0</span> · last commit <code>9d8a14e</code> by <code>@jisu</code> · 4h ago</div>
+    <div class="body">
+      <h1>shortflix/curator-agent</h1>
+      <p><b>A community-owned, fork-friendly multi-agent curator for cross-platform short-form video.</b> Built for the Google for Startups AI Agents Challenge — Track 1. Public the day it was created. Will stay public.</p>
+
+      <div class="badges">
+        <span class="badge"><b>build</b><span>passing</span></span>
+        <span class="badge green"><b>coverage</b><span>87%</span></span>
+        <span class="badge"><b>ADK</b><span>1.8.0</span></span>
+        <span class="badge pur"><b>Gemini</b><span>2.0-flash</span></span>
+        <span class="badge gold"><b>MCP</b><span>0.7</span></span>
+        <span class="badge"><b>Cloud Run</b><span>asia-NE3</span></span>
+        <span class="badge red"><b>good first issue</b><span>9 open</span></span>
+      </div>
+
+      <h2>Why fork this?</h2>
+      <p>Most "AI feed" repos either lock the recommender weights, or hide the ranking signals behind an API. ShortFlix is the opposite: the curator agent's prompt, the embedding pipeline, and the open <b>Curator Training Data v0.1</b> — 14,200 anonymized taste-vectors donated by 312 users under CC-BY-SA-4.0 — are all in this repo. Fork it, replace the persona, replace the platforms, ship a new curator under your own brand.</p>
+
+      <pre><span style="color:#8250df">git clone</span> https://github.com/shortflix/curator-agent
+<span style="color:#8250df">cd</span> curator-agent
+<span style="color:#8250df">make</span> dev               <span style="color:#656d76"># 4 agents on docker · ADK + Gemini stub + MCP fakes</span>
+<span style="color:#8250df">make</span> deploy            <span style="color:#656d76"># gcloud run deploy · uses your GCP project</span>
+<span style="color:#8250df">sf</span> curate --user demo  <span style="color:#656d76"># prints 9 picks, with per-pick "why" receipt</span></pre>
+
+      <h2>Architecture</h2>
+      <div class="grid">
+        <div class="b"><h4>orchestrator</h4><small>ADK · routes 4 agents · &lt; 200 lines</small></div>
+        <div class="b"><h4>curator</h4><small>Gemini · novelty re-rank · prompt in <code>/agents/curator.md</code></small></div>
+        <div class="b"><h4>unified-search</h4><small>MCP tools wrapping RapidAPI · YT/IG/TT</small></div>
+        <div class="b"><h4>trend-safety</h4><small>Gemini + Vertex AI Search grounding · ToS guard</small></div>
+        <div class="b"><h4>embed pipeline</h4><small>text-embedding-005 · open dataset under CC-BY-SA</small></div>
+        <div class="b"><h4>pwa shell</h4><small>vanilla TS · &lt; 30 KB · Workbox SW</small></div>
+      </div>
+
+      <h2>Open governance</h2>
+      <ul>
+        <li><b>Decisions in public.</b> RFCs in <code>/rfcs</code>; merged via 2-of-3 maintainer review.</li>
+        <li><b>Code of conduct + DCO sign-off</b> on every PR. No CLA gate.</li>
+        <li><b>Maintainers rotate.</b> 3-seat rotation every 6 months; minutes published.</li>
+        <li><b>Curator Training Data is public.</b> Donations are opt-in; users can revoke any time via <code>DELETE /v1/me</code>.</li>
+        <li><b>Forks are first-class.</b> Top forks are listed on the project site; we accept upstream contributions back from any fork that keeps Apache-2.0 + DCO.</li>
+      </ul>
+
+      <h2>What this proves to the judges</h2>
+      <ul>
+        <li><b>Tech 30%</b> — fully working stack, public CI, reproducible <code>make deploy</code>.</li>
+        <li><b>Business 30%</b> — community-owned moats: training data network effect, fork-friendly licensing, Pro tier funds maintainers.</li>
+        <li><b>Innovation 20%</b> — agent prompts &amp; weights are public artifacts, not trade secrets; rare for a multi-agent recommender.</li>
+        <li><b>Demo 20%</b> — the demo opens with <code>git clone</code> on the judge's laptop, ends with a deployed Cloud Run URL.</li>
+      </ul>
+
+      <h2>Status — 14 days to submission</h2>
+      <p><b>Greenfield.</b> First commit 2026-04-22. Public from minute 1. 3 maintainers. 27 contributors. 1.4k ⭐ in 14 days. We are not building this <i>for</i> the community; we are building this <i>with</i> the community, before the demo deadline.</p>
+    </div>
+  </main>
+
+  <aside>
+    <h3>About</h3>
+    <div class="panel">
+      <p style="margin:0 0 8px">Multi-agent curator for cross-platform short-form. Apache-2.0. Greenfield. Community-owned.</p>
+      <div class="row"><span>Stars</span><b>1,402</b></div>
+      <div class="row"><span>Forks</span><b>187</b></div>
+      <div class="row"><span>Watchers</span><b>241</b></div>
+      <div class="row"><span>Contributors</span><b>27</b></div>
+      <div class="row"><span>Open issues</span><b>42</b></div>
+      <div class="row"><span>License</span><b>Apache-2.0</b></div>
+      <div class="row"><span>Languages</span><b>TS · Py · MDX</b></div>
+    </div>
+
+    <h3>Contributors</h3>
+    <div class="panel">
+      <div class="contrib">
+        <span class="ava">JS</span><span class="ava b">MA</span><span class="ava c">RH</span><span class="ava d">CS</span>
+        <span class="ava e">DK</span><span class="ava f">JP</span><span class="ava g">KL</span><span class="ava">+20</span>
+      </div>
+      <p style="margin:8px 0 0;color:var(--muted);font-size:12.5px">3 maintainers (rotation Jul 2026), 24 community contributors. 7 of the top-20 PRs came from forks.</p>
+    </div>
+
+    <h3>Recent issues</h3>
+    <div class="panel issues">
+      <div class="issue"><span class="dot"></span><div><h4>#142 RFC: pluggable curator persona</h4><small><span class="lab help">help wanted</span><span class="lab proto">RFC</span> opened 2h ago by @marcus</small></div></div>
+      <div class="issue"><span class="dot"></span><div><h4>#138 docs: localize Korean PIPA section</h4><small><span class="lab good">good first issue</span> opened 6h ago by @sora</small></div></div>
+      <div class="issue"><span class="dot"></span><div><h4>#131 governance: 6-mo maintainer rotation</h4><small><span class="lab gov">governance</span> opened 1d ago by @jisu</small></div></div>
+      <div class="issue"><span class="dot closed"></span><div><h4>#127 fork-friendly: split MCP tools to npm pkg</h4><small><span class="lab proto">RFC</span><span class="lab disc">discussion</span> closed 8h ago by @maya</small></div></div>
+      <div class="issue"><span class="dot"></span><div><h4>#121 add fork showcase to project site</h4><small><span class="lab help">help wanted</span> opened 2d ago by @ren</small></div></div>
+    </div>
+
+    <h3>Sponsorship · Pro tier</h3>
+    <div class="panel">
+      <p style="margin:0 0 6px">Pro ($4.99/mo) is community-owned. 60% to maintainers, 40% to compute.</p>
+      <div class="row"><span>This month</span><b>$1,820</b></div>
+      <div class="row"><span>Maintainer split</span><b>$1,092</b></div>
+      <div class="row"><span>Compute</span><b>$728</b></div>
+    </div>
+  </aside>
+</div>
+</body></html>

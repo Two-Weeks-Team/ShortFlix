@@ -1,0 +1,89 @@
+{
+  "_schema_version": "1.0.0",
+  "run_id": "r-20260506T121945Z",
+  "panel": "BP",
+  "stage": "3a-curling",
+  "lens": "business_case",
+  "axes_weight": {
+    "Business_Case_30": "primary",
+    "Demo_20": "secondary (judge persuasion in 2-min)",
+    "Innovation_20": "secondary (defensibility narrative)",
+    "Tech_30": "tertiary"
+  },
+  "criteria": [
+    "TAM/SAM credibility under locked global persona",
+    "Unit economics ($0.038/DAU vs $4.99 Pro at 3.1% conv = positive)",
+    "GTM channel concreteness (PWA install, Slack, embed, B2B brief)",
+    "Defensibility (multi-agent moat, data moat, curator brand, network effect)",
+    "2-min demo persuasion of business case",
+    "Pricing-structure fit to persona willingness-to-pay",
+    "Competitive differentiation vs feed-reader baseline"
+  ],
+  "top5_curated": [
+    {
+      "rank": 1,
+      "advocate": "the-indie-hacker",
+      "score": 9.4,
+      "rationale": "ONLY advocate that turns Business Case 30% into a screenshot-able receipt: $4.99 Stripe, 6-month MRR ladder $420→$10.8K, $0.038/DAU cost ceiling, 3.1% conv. Every claim is an artifact judges can audit in 2 min. Unit economics math closes without VC."
+    },
+    {
+      "rank": 2,
+      "advocate": "the-enterprise-buyer",
+      "score": 9.1,
+      "rationale": "Adds a $1,200/brief × 50 logos B2B revenue line WITHOUT leaving Track 1 — same code, brand-brief embedding swap. ARPU 240× consumer. Brand-safety agent is a cleaner B2B narrative than consumer trend-safety. Defensible via SAML/audit/residency moat."
+    },
+    {
+      "rank": 3,
+      "advocate": "the-cost-conscious",
+      "score": 8.6,
+      "rationale": "$386.10 of $500 GCP credit ledger proves multi-agent is the CHEAPEST credible architecture (caching > recompute). Cost moat = competitive moat. Directly defends the $4.99 price point's gross-margin viability. Itemized RapidAPI line satisfies disclosure rule."
+    },
+    {
+      "rank": 4,
+      "advocate": "the-community-builder",
+      "score": 8.3,
+      "rationale": "Network effect = real defensibility. Friends-as-signal raises novelty 0.82→0.86 in 3 days = compounding data moat. Curator subscriptions ($X/mo to follow @handle) is a second revenue stream beyond Pro. Highest LTV ceiling of any consumer variant."
+    },
+    {
+      "rank": 5,
+      "advocate": "the-slack-native",
+      "score": 8.0,
+      "rationale": "0-install B2B distribution via Slack/Discord — meets creator-agencies/marketing teams where they already are. Slash-command UX = sticky team workflow. Bypasses PWA install-friction CAC. PWA still ships (spec compliance preserved). High Demo 20% wow-factor in 2-min."
+    }
+  ],
+  "near_miss": [
+    {
+      "advocate": "the-embedded",
+      "reason": "Strong syndication GTM but breaks PWA spec lock — risky for compliance review; B2B revenue path less concrete than enterprise-buyer."
+    },
+    {
+      "advocate": "the-oss-maintainer",
+      "reason": "Sponsorship+Pro split is novel but uncertain MRR; OSS distribution moat exists but slow vs deadline."
+    },
+    {
+      "advocate": "the-game-designer",
+      "reason": "D7 retention 0.41→0.62 boosts LTV but no direct revenue artifact; gamification fights persona's 'discovery enthusiast' framing."
+    }
+  ],
+  "rejected_for_business_lens": [
+    "the-ai-native (Tech-heavy, no revenue artifact)",
+    "the-pragmatist (delivery plan, not business case)",
+    "the-speed-obsessed (Tech axis)",
+    "the-data-nerd (Innovation axis)",
+    "the-privacy-hawk (defensive, not offensive business)",
+    "the-contrarian (narrative, no $)",
+    "the-anti-ai (aesthetic, no $)",
+    "the-cli-devotee (niche persona)",
+    "the-design-forward (Demo aesthetic)",
+    "the-mobile-first (Demo install flow)",
+    "the-designer (Demo aesthetic)",
+    "the-dreamer (5yr vision, weak D+30 $)",
+    "the-educator (onboarding, no $)",
+    "the-ops-veteran (ops cost, not revenue)",
+    "the-reluctant-adopter (defensive FAQ)",
+    "the-researcher (academic, no $)",
+    "the-solo-founder (maintainability, not growth)",
+    "the-spreadsheet-jockey (power-user UX)",
+    "the-privacy-hawk (governance lens)"
+  ]
+}

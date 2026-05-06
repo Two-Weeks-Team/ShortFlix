@@ -1,0 +1,85 @@
+{
+  "method": "Weighted Borda — TP 0.40 · BP 0.36 · UP 0.24 · RP 0.0 (veto-only)",
+  "tally": [
+    {
+      "slug": "the-researcher",
+      "score": 0.4,
+      "panels": [
+        "TP#1"
+      ]
+    },
+    {
+      "slug": "the-indie-hacker",
+      "score": 0.36,
+      "panels": [
+        "BP#1"
+      ]
+    },
+    {
+      "slug": "the-ai-native",
+      "score": 0.264,
+      "panels": [
+        "TP#2"
+      ]
+    },
+    {
+      "slug": "the-design-forward",
+      "score": 0.24,
+      "panels": [
+        "UP#1"
+      ]
+    },
+    {
+      "slug": "the-enterprise-buyer",
+      "score": 0.238,
+      "panels": [
+        "BP#2"
+      ]
+    },
+    {
+      "slug": "the-designer",
+      "score": 0.158,
+      "panels": [
+        "UP#2"
+      ]
+    },
+    {
+      "slug": "the-pragmatist",
+      "score": 0.132,
+      "panels": [
+        "TP#3",
+        "RP#2"
+      ]
+    },
+    {
+      "slug": "the-community-builder",
+      "score": 0.119,
+      "panels": [
+        "BP#3"
+      ]
+    },
+    {
+      "slug": "the-mobile-first",
+      "score": 0.079,
+      "panels": [
+        "UP#3"
+      ]
+    },
+    {
+      "slug": "the-privacy-hawk",
+      "score": 0.0,
+      "panels": [
+        "RP#1"
+      ]
+    },
+    {
+      "slug": "the-reluctant-adopter",
+      "score": 0.0,
+      "panels": [
+        "RP#3"
+      ]
+    }
+  ],
+  "rp_dq_clearance": "All top-5 cleared (no veto fired by RP_LEAD)",
+  "timestamp": "2026-05-06T13:19:40Z"
+}

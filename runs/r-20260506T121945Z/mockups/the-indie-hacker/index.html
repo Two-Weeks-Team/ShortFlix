@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix — Path to $10k MRR</title>
+<style>
+  :root{
+    --bg:#fffaf2; --paper:#fff; --ink:#1a1d2b; --muted:#5e6478; --rule:#ecdcc1;
+    --green:#1e8755; --gold:#c98e22; --rose:#b62c3a; --navy:#0e2f6e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.6 'Inter','Helvetica Neue',Arial,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 24px 60px}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+  .brand{font:800 22px/1 'Inter';letter-spacing:-.4px}
+  .brand small{display:block;color:var(--muted);font:600 11px/1.4;letter-spacing:.18em;text-transform:uppercase;margin-top:4px}
+  .stamp{background:#fff5e1;color:var(--gold);border:1px solid #f0c373;font:700 11px/1 'Inter';letter-spacing:.18em;text-transform:uppercase;padding:6px 10px;border-radius:6px}
+  .target{background:linear-gradient(180deg,#1e8755,#10583a);color:#fff;border-radius:18px;padding:24px 26px;display:grid;grid-template-columns:1.4fr 1fr;gap:20px;margin-bottom:22px}
+  .target h1{margin:0 0 6px;font-size:30px;letter-spacing:-.5px}
+  .target p{margin:0;color:#dbf3e6;max-width:560px}
+  .target .stat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  .target .stat .s{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 12px}
+  .target .stat .lab{font:600 10px/1 'Inter';letter-spacing:.18em;text-transform:uppercase;color:#b2dcc4}
+  .target .stat .v{font:800 22px/1 'Inter';margin-top:6px}
+
+  .ladder{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:14px 18px}
+  .ladder h3{font:700 12px/1 'Inter';letter-spacing:.18em;text-transform:uppercase;margin:0 0 10px}
+  .step{display:grid;grid-template-columns:36px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,.18);font-size:13px}
+  .step:last-child{border-bottom:0}
+  .step .n{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-weight:800}
+  .step.now .n{background:#ffd23f;color:#1a1d2b}
+  .step .v{font-weight:800}
+
+  .grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px}
+  .panel{background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:18px 20px}
+  .panel h3{margin:0 0 10px;font-size:16px}
+  .panel .sub{margin:0 0 12px;color:var(--muted);font-size:13px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:8px 8px;border-bottom:1px solid var(--rule);text-align:left}
+  th{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  tr:last-child td{border-bottom:0}
+  .pos{color:var(--green);font-weight:700}
+  .neg{color:var(--rose);font-weight:700}
+  .num{font-variant-numeric:tabular-nums;text-align:right}
+
+  .checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .check{display:flex;gap:8px;align-items:flex-start;font-size:13px;padding:6px;border:1px solid var(--rule);border-radius:8px;background:#fffdf8}
+  .check.done{background:#ecf6f0;border-color:#bcdcc4;color:#1a523a}
+  .check b{font-weight:700}
+  .check input{margin-top:3px}
+  .funnel{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;align-items:end;height:140px;margin-top:8px}
+  .bar{background:linear-gradient(180deg,#c98e22,#7a5012);border-radius:6px 6px 0 0;color:#fff;font:700 11px/1 'Inter';display:flex;align-items:flex-end;justify-content:center;padding:6px 0;text-align:center}
+  .bar small{display:block;font-weight:600;font-size:10px;color:#fff5e1;letter-spacing:.06em}
+
+  .demo{background:#0e2f6e;color:#fff;border-radius:14px;padding:18px 22px;margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .demo h3{margin:0 0 6px;font-size:16px}
+  .demo p{margin:0 0 8px;color:#cdd5ec}
+  .demo ul{margin:0;padding-left:18px;color:#cdd5ec;font-size:13px;line-height:1.7}
+  .demo .pill{display:inline-block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:3px 8px;border-radius:999px;margin-right:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">ShortFlix · The $10k MRR Path<small>One-person operator · 30-day demo · 6-month plan</small></div>
+    <span class="stamp">Bootstrap mode · no VC · invoices on Day 1</span>
+  </div>
+
+  <section class="target">
+    <div>
+      <h1>The demo earns the prize. The Pro tier earns the rent.</h1>
+      <p>I am one developer. The challenge gives me $30K of upside in cash and a public stage. I can also turn the same multi-agent stack into a $4.99/mo Pro tier and clear $10K MRR in 6 months — without hiring, without raising, without leaving Track 1.</p>
+      <div class="stat">
+        <div class="s"><div class="lab">Target MRR · M+6</div><div class="v">$10,800</div></div>
+        <div class="s"><div class="lab">Pro subs needed</div><div class="v">2,164</div></div>
+        <div class="s"><div class="lab">Free → Pro conv.</div><div class="v">3.1%</div></div>
+      </div>
+    </div>
+    <div class="ladder">
+      <h3>Revenue ladder</h3>
+      <div class="step"><span class="n">★</span><span>Prize money (Track 1 Best + APAC)</span><span class="v">$15,000</span></div>
+      <div class="step now"><span class="n">M+1</span><span>Submit + post-launch press · 8.4k DAU</span><span class="v">$420 MRR</span></div>
+      <div class="step"><span class="n">M+2</span><span>Curator profiles · referral loop</span><span class="v">$1,820</span></div>
+      <div class="step"><span class="n">M+3</span><span>Pro tier · ad-free + extra slots</span><span class="v">$3,940</span></div>
+      <div class="step"><span class="n">M+4</span><span>Embed widget · creator share</span><span class="v">$6,120</span></div>
+      <div class="step"><span class="n">M+5</span><span>Brand briefs · 4 logos × $1,200</span><span class="v">$8,610</span></div>
+      <div class="step"><span class="n">M+6</span><span>2,164 Pro subs · 4 brand briefs</span><span class="v">$10,800</span></div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div class="panel">
+      <h3>Bootstrap P&amp;L — Month 6 (target)</h3>
+      <p class="sub">Same architecture as the demo. Multi-agent superiority is also the cost moat: one curator nightly batch supplies all 8.4k DAU, vs single-agent's per-request inference cost.</p>
+      <table>
+        <thead><tr><th>Line</th><th>Detail</th><th class="num">USD / mo</th></tr></thead>
+        <tbody>
+          <tr><td>Pro subs</td><td>2,164 × $4.99</td><td class="num pos">+ 10,802</td></tr>
+          <tr><td>Brand briefs</td><td>4 × $1,200</td><td class="num pos">+ 4,800</td></tr>
+          <tr><td>Total revenue</td><td>—</td><td class="num pos"><b>+ 15,602</b></td></tr>
+          <tr><td>Cloud Run</td><td>min=1, asia-NE3</td><td class="num neg">− 312</td></tr>
+          <tr><td>Gemini-2.0-flash</td><td>nightly batch + on-demand</td><td class="num neg">− 1,840</td></tr>
+          <tr><td>Vertex AI Search</td><td>1 corpus, grounding</td><td class="num neg">− 410</td></tr>
+          <tr><td>Cloud SQL f1-micro</td><td>cache + user state</td><td class="num neg">− 96</td></tr>
+          <tr><td>RapidAPI</td><td>YT + IG + TT plans</td><td class="num neg">− 880</td></tr>
+          <tr><td>Stripe (3.4%)</td><td>Pro subs only</td><td class="num neg">− 367</td></tr>
+          <tr><td>CDN + logs + buffer</td><td>incl. 20% margin</td><td class="num neg">− 540</td></tr>
+          <tr><td>Total cost</td><td>—</td><td class="num neg"><b>− 4,445</b></td></tr>
+          <tr><td><b>Net</b></td><td>per-DAU $0.038 cost holds</td><td class="num pos"><b>+ 11,157</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Conversion funnel · M+6 model</h3>
+      <p class="sub">Demo video drives top-of-funnel; per-card "why" surfaces curator value; curator profiles drive retention; Pro upgrade triggers at 21st pick.</p>
+      <div class="funnel">
+        <div class="bar" style="height:100%">14,200<small>install</small></div>
+        <div class="bar" style="height:60%">8,420<small>D1 active</small></div>
+        <div class="bar" style="height:42%">5,920<small>D7 active</small></div>
+        <div class="bar" style="height:23%">3,260<small>weekly</small></div>
+        <div class="bar" style="height:15%" >2,164<small>Pro</small></div>
+      </div>
+      <p class="sub" style="margin-top:14px">Every step is a single solo-dev change. No hires. No VC pitch deck. No re-architecture.</p>
+    </div>
+  </div>
+
+  <section class="panel">
+    <h3>Maintainable-by-one checklist</h3>
+    <p class="sub">Every feature in the demo must pass this gate, or it does not ship. Indie hacker rule #1: future-me has to debug it at 2 AM, alone.</p>
+    <div class="checklist">
+      <label class="check done"><input type="checkbox" checked /><b>Cloud Run, not GKE</b> — auto-scale, no node management.</label>
+      <label class="check done"><input type="checkbox" checked /><b>Single Cloud SQL f1-micro</b> — no read replica, daily backup.</label>
+      <label class="check done"><input type="checkbox" checked /><b>One Vertex AI Search corpus</b> — one ingestion job, one alert.</label>
+      <label class="check done"><input type="checkbox" checked /><b>RapidAPI plans paid by card</b> — no enterprise contract.</label>
+      <label class="check done"><input type="checkbox" checked /><b>4 agents on the same Cloud Run service</b> — one deploy.</label>
+      <label class="check done"><input type="checkbox" checked /><b>Stripe Checkout</b> — no custom billing UI.</label>
+      <label class="check"><input type="checkbox" /><b>Daily error budget alert</b> — SMS to me only.</label>
+      <label class="check"><input type="checkbox" /><b>One-page status page</b> — self-hosted, 30 lines of Go.</label>
+      <label class="check done"><input type="checkbox" checked /><b>Greenfield + public repo</b> — challenge rule + indie-marketing.</label>
+      <label class="check"><input type="checkbox" /><b>1-tap rollback</b> — gcloud run services update-traffic.</label>
+    </div>
+  </section>
+
+  <section class="demo">
+    <div>
+      <h3>What the demo video sells</h3>
+      <p>1-2 minutes, English subtitles. Opens with one Pro upgrade overlay so judges see Business 30% before they see code; closes with a real $4.99 Stripe receipt screenshot from a beta tester.</p>
+      <ul>
+        <li>0:00 — install ShortFlix PWA in 3 taps</li>
+        <li>0:18 — first 9 picks with per-card "why"</li>
+        <li>0:46 — 21st card → Pro upgrade modal</li>
+        <li>1:04 — Stripe receipt + curator profile @jisu</li>
+        <li>1:24 — orchestrator dashboard (4 agents)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Why this earns Business 30%</h3>
+      <p>The judges are explicitly told to weight Business Case. A bootstrap MRR plan with a real $4.99 receipt is more credible than a TAM slide.</p>
+      <span class="pill">$4.99 / mo Pro</span>
+      <span class="pill">$1,200 brief</span>
+      <span class="pill">3.1% conv.</span>
+      <span class="pill">$0.038 / DAU</span>
+      <span class="pill">1 dev, 6 mo</span>
+      <p style="margin-top:14px;color:#cdd5ec;font-size:13px">Same codebase. Same four agents. The only difference between a hackathon project and a $10k MRR business is whether the demo also says "and here is the receipt".</p>
+    </div>
+  </section>
+</div>
+</body></html>

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix — Welcome · Why this video?</title>
+<style>
+  :root{
+    --bg:#f7f8fb; --paper:#fff; --ink:#1a1d2b; --muted:#5d6478; --rule:#e6e9f1;
+    --bluish:#3a64dc; --soft:#eaf0fc; --warn:#e08a2a; --ok:#1f8755;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 'Inter','Helvetica Neue',Arial,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 24px 60px}
+  .step-bar{display:flex;gap:12px;margin-bottom:18px;align-items:center}
+  .step{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;font-weight:500}
+  .step .n{width:22px;height:22px;border-radius:50%;background:#e6e9f1;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+  .step.active{color:var(--ink)}
+  .step.active .n{background:var(--bluish);color:#fff}
+  .step.done .n{background:var(--ok);color:#fff}
+  .step.done{color:var(--ok)}
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:24px}
+  .card{background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:22px;box-shadow:0 1px 0 #f0f3f9}
+  h1{margin:0 0 6px;font-size:26px;letter-spacing:-.3px}
+  h2.sec{margin:0 0 12px;font-size:18px}
+  .sub{color:var(--muted);margin:0 0 18px}
+  .lesson{background:var(--soft);border:1px solid #d3deff;border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:flex-start;margin-bottom:14px}
+  .lesson .icon{width:28px;height:28px;border-radius:8px;background:var(--bluish);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .lesson h4{margin:0 0 4px;font-size:14px;color:var(--bluish)}
+  .lesson p{margin:0;font-size:13.5px;color:#2a3148}
+
+  .video{display:grid;grid-template-columns:200px 1fr;gap:18px}
+  .thumb{aspect-ratio:9/16;border-radius:10px;background:linear-gradient(160deg,#3b1c14,#a44824 60%,#f0c46a);position:relative;overflow:hidden}
+  .thumb .src{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;letter-spacing:.16em;padding:3px 7px;border-radius:4px;text-transform:uppercase}
+  .thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:38px}
+
+  .why{margin-top:14px;border:1px solid #d6dcee;border-radius:12px}
+  .why summary{cursor:pointer;padding:12px 16px;font-weight:600;display:flex;justify-content:space-between;align-items:center;background:#f9fbff;border-radius:12px}
+  .why[open] summary{border-bottom:1px solid #d6dcee;border-radius:12px 12px 0 0}
+  .why .body{padding:14px 16px}
+  .why .row{display:grid;grid-template-columns:120px 1fr;gap:12px;margin-bottom:8px;font-size:13.5px}
+  .why .row b{color:var(--muted);font-weight:600}
+  .agentchip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--rule);border-radius:999px;padding:3px 9px;font-size:12px;margin-right:6px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--bluish)}
+
+  .quiz{margin-top:18px;background:#fff8ec;border:1px dashed #f1c373;border-radius:12px;padding:14px 16px}
+  .quiz h4{margin:0 0 6px;font-size:14px;color:#7a5414}
+  .quiz button{background:#fff;border:1px solid #f1c373;color:#7a5414;font-weight:600;border-radius:8px;padding:8px 12px;margin:6px 6px 0 0;cursor:pointer}
+
+  .right h3{margin:0 0 10px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .glossary{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:14px}
+  .glossary dt{font-weight:700;font-size:13px;margin-top:10px}
+  .glossary dt:first-child{margin-top:0}
+  .glossary dd{margin:2px 0 0;color:#3c4257;font-size:12.5px}
+  .progress{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:14px;margin-bottom:14px}
+  .bar{height:8px;background:#eef1f8;border-radius:4px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--bluish);width:43%}
+  .progress .lab{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+  .progress ul{list-style:none;padding:0;margin:10px 0 0;font-size:13px}
+  .progress li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #eef1f8}
+  .progress li:last-child{border-bottom:0}
+  .nav{margin-top:18px;display:flex;justify-content:space-between}
+  .nav button{background:var(--bluish);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer}
+  .nav button.ghost{background:#fff;color:var(--ink);border:1px solid var(--rule)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="step-bar">
+    <div class="step done"><span class="n">✓</span>Welcome</div>
+    <div class="step done"><span class="n">✓</span>Pick 3 things you watch</div>
+    <div class="step active"><span class="n">3</span>Meet your agents</div>
+    <div class="step"><span class="n">4</span>Your first 9 picks</div>
+    <div class="step"><span class="n">5</span>Save · share · settings</div>
+  </div>
+
+  <div class="grid">
+    <main>
+      <section class="card">
+        <h1>Step 3 · Meet the four agents that picked your video</h1>
+        <p class="sub">ShortFlix is not "an AI". It is four small specialists working together. We will show you each one, and then we will show you the first video they picked for you — with a plain-English receipt of <b>why</b>.</p>
+
+        <div class="lesson"><div class="icon">1</div><div><h4>Curator agent</h4><p>Looks at what you've watched and ranks tonight's candidates by how new they will feel to you. Powered by Gemini.</p></div></div>
+        <div class="lesson"><div class="icon">2</div><div><h4>Unified-search agent</h4><p>Talks to YouTube Shorts, Instagram Reels, and TikTok at once — through a tool layer called <i>MCP</i>. No app-juggling.</p></div></div>
+        <div class="lesson"><div class="icon">3</div><div><h4>Trend-safety agent</h4><p>Throws out anything that breaks rules: copyright traps, age-gated content, links that don't ground in real sources.</p></div></div>
+        <div class="lesson"><div class="icon">4</div><div><h4>Orchestrator</h4><p>The conductor. Tells the other three when to start, what to send each other, and when to stop. Built on Google's <i>ADK</i>.</p></div></div>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <h2 class="sec">Your first pick — and the receipt</h2>
+        <div class="video">
+          <div class="thumb"><span class="src">YT Shorts</span><span class="play">▶</span></div>
+          <div>
+            <h3 style="margin:0 0 4px">A Lagos welder who paints in sparks</h3>
+            <p class="sub" style="margin-bottom:8px">38 seconds · English subtitles available</p>
+            <div>
+              <span class="agentchip"><span class="dot"></span>Curator chose this</span>
+              <span class="agentchip"><span class="dot" style="background:#a777ff"></span>Search found it</span>
+              <span class="agentchip"><span class="dot" style="background:var(--ok)"></span>Trend-safety cleared</span>
+            </div>
+            <details class="why" open>
+              <summary><span>Why this video? <span style="color:var(--muted);font-weight:400">(open the receipt)</span></span><span style="color:var(--muted)">▾</span></summary>
+              <div class="body">
+                <div class="row"><b>What you watched lately</b><span>Mostly silent-crafts (12), street-food (8), under-60s (21).</span></div>
+                <div class="row"><b>Why this is new</b><span>Crafts cluster, but from a region your taste-vector hasn't seen (Nigeria) and a medium you haven't seen (welding, sparks-as-paint).</span></div>
+                <div class="row"><b>Novelty score</b><span>0.91 / 1.00 (high) — top 1% among tonight's 412 candidates.</span></div>
+                <div class="row"><b>Cross-platform</b><span>Originally posted to YT Shorts; a remix exists on TikTok but the silent original ranked higher with the curator.</span></div>
+                <div class="row"><b>Ground source</b><span>Vertex AI Search confirmed the welder is a real person (article in Lagos arts magazine, March 2026). No hallucinated context.</span></div>
+                <div class="row"><b>Safety</b><span>Cleared. No copyrighted music. Public profile. ToS-compliant.</span></div>
+              </div>
+            </details>
+            <div class="quiz">
+              <h4>Quick check — pick the agent that did this job</h4>
+              <p style="margin:0 0 6px;font-size:13.5px">"This video used to have copyrighted music; that version was rejected, and the silent original was kept."</p>
+              <button>Curator</button><button style="border-color:var(--ok);color:var(--ok)">Trend-safety ✓</button><button>Unified-search</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="nav">
+        <button class="ghost">← Back to step 2</button>
+        <button>Continue to your 9 picks →</button>
+      </div>
+    </main>
+
+    <aside class="right">
+      <div class="progress">
+        <div class="lab"><span>Onboarding progress</span><span>3 of 5</span></div>
+        <div class="bar"><i></i></div>
+        <ul>
+          <li><span>Welcome</span><span style="color:var(--ok)">done</span></li>
+          <li><span>Taste setup</span><span style="color:var(--ok)">done</span></li>
+          <li><span>Meet the agents</span><span style="color:var(--bluish)">now</span></li>
+          <li><span>Your 9 picks</span><span style="color:var(--muted)">next</span></li>
+          <li><span>Save · share · settings</span><span style="color:var(--muted)">last</span></li>
+        </ul>
+      </div>
+      <h3>Plain-English glossary</h3>
+      <dl class="glossary">
+        <dt>Agent</dt><dd>A small program with one job and the right to call tools.</dd>
+        <dt>ADK</dt><dd>Google's <b>Agent Development Kit</b> — the framework we used to build the four agents.</dd>
+        <dt>Gemini</dt><dd>The language model the agents reason with. We use Gemini-2.0-flash for speed.</dd>
+        <dt>MCP</dt><dd><b>Model Context Protocol</b> — the standard way agents call tools (in our case, RapidAPI for YT/IG/TT).</dd>
+        <dt>Grounding</dt><dd>Forcing the agent to back up claims with real sources (Vertex AI Search) — fewer hallucinations.</dd>
+        <dt>Cross-platform</dt><dd>Making one curated set out of three platforms instead of three.</dd>
+      </dl>
+      <h3 style="margin-top:14px">Why we explain so much</h3>
+      <p style="font-size:13px;color:var(--muted);margin:0">Trust scales with comprehension. Judges score Innovation 20% partly on whether users can <i>tell</i> what's novel — so we make the receipts visible.</p>
+    </aside>
+  </div>
+</div>
+</body></html>

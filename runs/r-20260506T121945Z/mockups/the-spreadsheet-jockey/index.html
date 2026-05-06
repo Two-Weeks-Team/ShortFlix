@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix · Power Grid</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --paper:#fff; --ink:#1a1d29; --muted:#5b6172; --rule:#e1e4ec;
+    --header:#eef0f6; --row-alt:#fafbfd; --row-hover:#eef5ff;
+    --pos:#1d7a4d; --neg:#b62c3a; --warn:#9a6e22; --acc:#1a4fb0;
+    --mono:'JetBrains Mono','Fira Code',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.4 'Inter','Helvetica Neue',Arial,sans-serif}
+  .top{background:var(--paper);border-bottom:1px solid var(--rule);padding:8px 14px;display:flex;align-items:center;gap:14px;font-size:12.5px}
+  .top .brand{font:800 14px/1 'Inter';letter-spacing:-.2px}
+  .top .brand small{display:block;color:var(--muted);font:600 9.5px/1.4;letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
+  .top .crumb{color:var(--muted)}
+  .top .crumb b{color:var(--ink)}
+  .top .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .pill{font-size:11px;letter-spacing:.04em;background:#eef5ff;border:1px solid #c7d6f3;color:var(--acc);padding:3px 8px;border-radius:4px}
+
+  .toolbar{background:var(--paper);border-bottom:1px solid var(--rule);padding:6px 14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}
+  .toolbar .grp{display:flex;border:1px solid var(--rule);border-radius:5px;overflow:hidden}
+  .toolbar .grp button{background:#fff;border:0;border-right:1px solid var(--rule);padding:4px 9px;font-size:11.5px;cursor:pointer;color:#1a1d29;font-family:'Inter'}
+  .toolbar .grp button:last-child{border-right:0}
+  .toolbar .grp button.on{background:var(--header);font-weight:600}
+  .toolbar .filter{margin-left:auto;display:flex;gap:6px;align-items:center;color:var(--muted)}
+  .toolbar .filter input{border:1px solid var(--rule);border-radius:4px;padding:3px 7px;font-size:12px;width:140px}
+
+  .formula{background:#fffbe8;border-bottom:1px solid #f0deaa;padding:5px 12px;font-family:var(--mono);font-size:12px;display:flex;align-items:center;gap:10px}
+  .formula .cell{background:#fff;border:1px solid #f0deaa;border-radius:4px;padding:2px 6px;color:#1a1d29;font-weight:700}
+  .formula .fx{color:#9a6e22;font-weight:700}
+  .formula code{color:#1a4fb0}
+
+  .scroll{overflow:auto;background:var(--paper);max-height:calc(100vh - 180px)}
+  table.grid{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12.5px}
+  table.grid th,table.grid td{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:4px 7px;white-space:nowrap;background:var(--paper)}
+  table.grid thead th{background:var(--header);position:sticky;top:0;z-index:2;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  table.grid thead th .sort{color:var(--muted);margin-left:4px}
+  table.grid thead th .sort.on{color:var(--acc)}
+  table.grid tbody tr:nth-child(odd) td{background:var(--row-alt)}
+  table.grid tbody tr:hover td{background:var(--row-hover)}
+  table.grid tbody tr.sel td{background:#dceaff !important}
+  table.grid td.num{text-align:right;font-variant-numeric:tabular-nums}
+  table.grid td.center{text-align:center}
+  .rownum{background:var(--header) !important;color:var(--muted);text-align:right !important;font-weight:600;border-right:1px solid var(--rule)}
+  .pin{position:sticky;left:0;z-index:1}
+  .pin2{position:sticky;left:38px;z-index:1}
+  .src{display:inline-block;font-size:10px;font-family:'Inter';font-weight:700;letter-spacing:.1em;padding:1px 5px;border-radius:3px;text-transform:uppercase}
+  .src.yt{background:#fde6e8;color:#a02c2c}
+  .src.ig{background:#f3e6f6;color:#7a3d8a}
+  .src.tt{background:#e6f3f6;color:#176c63}
+  .heat{display:inline-block;width:38px;height:8px;border-radius:2px;vertical-align:middle;margin-right:6px}
+  .pos-cell{color:var(--pos);font-weight:700}
+  .neg-cell{color:var(--neg);font-weight:700}
+  .agent{display:inline-block;font-size:10.5px;border:1px solid var(--rule);border-radius:3px;padding:1px 5px;color:#3a4258}
+  .agent.cur{background:#eef5ff;border-color:#c7d6f3;color:var(--acc)}
+  .agent.ts{background:#ecf6f0;border-color:#bcdcc4;color:var(--pos)}
+  .agent.us{background:#f3e6f6;border-color:#d0bcdc;color:#7a3d8a}
+  .agent.or{background:#fdf3ec;border-color:#f0c5a8;color:#a8431d}
+
+  .footbar{background:var(--paper);border-top:1px solid var(--rule);padding:6px 14px;display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+  .footbar .agg b{color:#1a1d29;font-weight:700}
+
+  .col-w{display:grid;grid-template-columns:auto 1fr;gap:0}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand">ShortFlix · Grid<small>cross-platform metrics power view</small></div>
+  <div class="crumb">Workspace · <b>nightly_2026-05-06</b> · sheet "candidates_412"</div>
+  <div class="right">
+    <span class="pill">412 rows</span>
+    <span class="pill">28 cols</span>
+    <span class="pill">7-day window</span>
+    <span class="pill">grounded · vertex.ai</span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="grp"><button class="on">▤ Grid</button><button>▭ Cards</button><button>⤢ Pivot</button><button>⌬ Chart</button></div>
+  <div class="grp"><button>＋ Filter</button><button>↕ Sort</button><button>Σ Group by platform</button><button>fx Formula</button></div>
+  <div class="grp"><button>↧ Export CSV</button><button>↧ JSON</button><button>↻ Re-rank</button></div>
+  <div class="filter">platform = <code style="font-family:JetBrains Mono">*</code> · novelty &gt;= 0.70 · region != KR · safety = cleared <input value="taste-vec ⊃ 'silent-crafts'" /></div>
+</div>
+
+<div class="formula">
+  <span class="cell">F4</span>
+  <span class="fx">fx</span>
+  <code>= curator.novelty(candidate, taste_vec_7d) * trend_safety.weight - 0.18 * region_freq_30d</code>
+</div>
+
+<div class="scroll">
+  <table class="grid">
+    <thead>
+      <tr>
+        <th class="rownum pin">#</th>
+        <th class="pin2">title</th>
+        <th>platform</th>
+        <th>creator</th>
+        <th>region</th>
+        <th>lang</th>
+        <th>dur</th>
+        <th>novelty <span class="sort on">▾</span></th>
+        <th>cross-plat <span class="sort">·</span></th>
+        <th>region_freq_30d</th>
+        <th>tag_entropy</th>
+        <th>safety</th>
+        <th>copyright</th>
+        <th>ground_conf</th>
+        <th>tos_risk</th>
+        <th>views_24h</th>
+        <th>cv_views</th>
+        <th>likes_24h</th>
+        <th>comments_24h</th>
+        <th>save_rate</th>
+        <th>watch_75%</th>
+        <th>p_click</th>
+        <th>cost_$</th>
+        <th>agents_touched</th>
+        <th>fx_F</th>
+        <th>rank_yest</th>
+        <th>delta_rank</th>
+        <th>pick</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="sel">
+        <td class="rownum pin">1</td><td class="pin2"><b>Lagos welder paints in sparks</b></td>
+        <td><span class="src yt">YT</span></td><td>@tunde.welds</td><td>NG</td><td>en</td><td class="num">2:14</td>
+        <td class="num pos-cell"><span class="heat" style="background:linear-gradient(90deg,#1d7a4d 91%,#e1e4ec 91%)"></span>0.91</td>
+        <td class="num">0.84</td><td class="num">0.012</td><td class="num">2.41</td><td class="center">✓</td><td class="center">✓</td>
+        <td class="num">0.97</td><td class="num">0.02</td><td class="num">812,400</td><td class="num pos-cell">+ 38%</td><td class="num">42,180</td><td class="num">3,810</td>
+        <td class="num">0.082</td><td class="num">0.61</td><td class="num">0.094</td><td class="num">0.041</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num pos-cell">0.892</td><td class="num">—</td><td class="num pos-cell">+new</td><td class="center">★</td>
+      </tr>
+      <tr>
+        <td class="rownum pin">2</td><td class="pin2">Sichuan thank-you etiquette</td>
+        <td><span class="src ig">IG</span></td><td>@chengdu.daily</td><td>CN-SC</td><td>zh</td><td class="num">0:22</td>
+        <td class="num pos-cell"><span class="heat" style="background:linear-gradient(90deg,#1d7a4d 88%,#e1e4ec 88%)"></span>0.88</td>
+        <td class="num">0.71</td><td class="num">0.04</td><td class="num">1.92</td><td class="center">✓</td><td class="center">✓</td>
+        <td class="num">0.94</td><td class="num">0.03</td><td class="num">412,000</td><td class="num pos-cell">+ 21%</td><td class="num">18,900</td><td class="num">1,420</td>
+        <td class="num">0.071</td><td class="num">0.74</td><td class="num">0.082</td><td class="num">0.038</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num pos-cell">0.864</td><td class="num">8</td><td class="num pos-cell">+ 6</td><td class="center">★</td>
+      </tr>
+      <tr>
+        <td class="rownum pin">3</td><td class="pin2">Iceland fishermen on horizon</td>
+        <td><span class="src tt">TT</span></td><td>@reykjavik.line</td><td>IS</td><td>is</td><td class="num">1:01</td>
+        <td class="num pos-cell"><span class="heat" style="background:linear-gradient(90deg,#1d7a4d 86%,#e1e4ec 86%)"></span>0.86</td>
+        <td class="num">0.62</td><td class="num">0.001</td><td class="num">2.10</td><td class="center">✓</td><td class="center">✓</td>
+        <td class="num">0.91</td><td class="num">0.07</td><td class="num">214,000</td><td class="num pos-cell">+ 42%</td><td class="num">9,410</td><td class="num">812</td>
+        <td class="num">0.061</td><td class="num">0.81</td><td class="num">0.072</td><td class="num">0.040</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num pos-cell">0.851</td><td class="num">12</td><td class="num pos-cell">+ 9</td><td class="center">★</td>
+      </tr>
+      <tr>
+        <td class="rownum pin">4</td><td class="pin2">Kyoto bookbindery, three minutes</td>
+        <td><span class="src yt">YT</span></td><td>@kyoto.bind</td><td>JP</td><td>ja</td><td class="num">3:00</td>
+        <td class="num pos-cell"><span class="heat" style="background:linear-gradient(90deg,#1d7a4d 84%,#e1e4ec 84%)"></span>0.84</td>
+        <td class="num">0.58</td><td class="num">0.06</td><td class="num">1.74</td><td class="center">✓</td><td class="center">✓</td>
+        <td class="num">0.96</td><td class="num">0.01</td><td class="num">512,000</td><td class="num">+ 12%</td><td class="num">28,400</td><td class="num">2,140</td>
+        <td class="num">0.092</td><td class="num">0.84</td><td class="num">0.081</td><td class="num">0.041</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num pos-cell">0.838</td><td class="num">5</td><td class="num pos-cell">+ 1</td><td class="center">★</td>
+      </tr>
+      <tr>
+        <td class="rownum pin">5</td><td class="pin2">Bishkek lagman, hand-stretched</td>
+        <td><span class="src tt">TT</span></td><td>@dilnaz.lagman</td><td>KG</td><td>ky</td><td class="num">0:54</td>
+        <td class="num pos-cell"><span class="heat" style="background:linear-gradient(90deg,#1d7a4d 81%,#e1e4ec 81%)"></span>0.81</td>
+        <td class="num">0.49</td><td class="num">0.002</td><td class="num">2.02</td><td class="center">✓</td><td class="center">✓</td>
+        <td class="num">0.89</td><td class="num">0.05</td><td class="num">96,400</td><td class="num pos-cell">+ 51%</td><td class="num">8,210</td><td class="num">512</td>
+        <td class="num">0.054</td><td class="num">0.78</td><td class="num">0.064</td><td class="num">0.039</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num pos-cell">0.814</td><td class="num">22</td><td class="num pos-cell">+ 17</td><td class="center">★</td>
+      </tr>
+      <tr>
+        <td class="rownum pin">6</td><td class="pin2">Patagonia one-room library</td>
+        <td><span class="src yt">YT</span></td><td>@elbolson.lib</td><td>AR</td><td>es</td><td class="num">2:33</td>
+        <td class="num pos-cell"><span class="heat" style="background:linear-gradient(90deg,#1d7a4d 79%,#e1e4ec 79%)"></span>0.79</td>
+        <td class="num">0.41</td><td class="num">0.018</td><td class="num">1.61</td><td class="center">✓</td><td class="center">✓</td>
+        <td class="num">0.93</td><td class="num">0.04</td><td class="num">71,200</td><td class="num">+ 8%</td><td class="num">5,180</td><td class="num">412</td>
+        <td class="num">0.066</td><td class="num">0.71</td><td class="num">0.058</td><td class="num">0.038</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num pos-cell">0.788</td><td class="num">18</td><td class="num pos-cell">+ 12</td><td class="center">★</td>
+      </tr>
+      <tr>
+        <td class="rownum pin">7</td><td class="pin2">Dakar tailor and the etiquette of shears</td>
+        <td><span class="src ig">IG</span></td><td>@dakar.shears</td><td>SN</td><td>fr</td><td class="num">1:12</td>
+        <td class="num pos-cell"><span class="heat" style="background:linear-gradient(90deg,#1d7a4d 74%,#e1e4ec 74%)"></span>0.74</td>
+        <td class="num">0.36</td><td class="num">0.009</td><td class="num">1.48</td><td class="center">✓</td><td class="center">✓</td>
+        <td class="num">0.81</td><td class="num">0.12</td><td class="num">52,800</td><td class="num">+ 4%</td><td class="num">3,210</td><td class="num">214</td>
+        <td class="num">0.041</td><td class="num">0.74</td><td class="num">0.052</td><td class="num">0.038</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num pos-cell">0.728</td><td class="num">31</td><td class="num pos-cell">+ 24</td><td class="center">★</td>
+      </tr>
+      <tr>
+        <td class="rownum pin">8</td><td class="pin2">Hanoi 12-yr-old's pho atlas</td>
+        <td><span class="src tt">TT</span></td><td>@hanoi.pho.kid</td><td>VN</td><td>vi</td><td class="num">2:08</td>
+        <td class="num pos-cell"><span class="heat" style="background:linear-gradient(90deg,#1d7a4d 73%,#e1e4ec 73%)"></span>0.73</td>
+        <td class="num">0.31</td><td class="num">0.044</td><td class="num">1.52</td><td class="center">✓</td><td class="center"><span class="neg-cell">!</span></td>
+        <td class="num">0.78</td><td class="num warn">0.21</td><td class="num">141,000</td><td class="num pos-cell">+ 33%</td><td class="num">11,200</td><td class="num">812</td>
+        <td class="num">0.058</td><td class="num">0.66</td><td class="num">0.061</td><td class="num">0.039</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num pos-cell">0.711</td><td class="num">9</td><td class="num">− 1</td><td class="center">★</td>
+      </tr>
+      <tr>
+        <td class="rownum pin">9</td><td class="pin2">Buenos Aires tango etiquette</td>
+        <td><span class="src ig">IG</span></td><td>@porteño.tango</td><td>AR</td><td>es</td><td class="num">1:48</td>
+        <td class="num pos-cell"><span class="heat" style="background:linear-gradient(90deg,#1d7a4d 70%,#e1e4ec 70%)"></span>0.70</td>
+        <td class="num">0.38</td><td class="num">0.018</td><td class="num">1.41</td><td class="center">✓</td><td class="center">✓</td>
+        <td class="num">0.84</td><td class="num">0.09</td><td class="num">218,000</td><td class="num">+ 11%</td><td class="num">14,400</td><td class="num">1,180</td>
+        <td class="num">0.062</td><td class="num">0.79</td><td class="num">0.069</td><td class="num">0.038</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num pos-cell">0.694</td><td class="num">14</td><td class="num pos-cell">+ 5</td><td class="center">★</td>
+      </tr>
+      <tr style="opacity:.65">
+        <td class="rownum pin">10</td><td class="pin2">Pop K-drama montage (over-served)</td>
+        <td><span class="src yt">YT</span></td><td>@kdramahub</td><td>KR</td><td>ko</td><td class="num">0:48</td>
+        <td class="num neg-cell">0.31</td>
+        <td class="num">0.18</td><td class="num warn">0.41</td><td class="num">0.78</td><td class="center">✓</td><td class="center">✓</td>
+        <td class="num">0.92</td><td class="num">0.02</td><td class="num">1,820,000</td><td class="num neg-cell">− 4%</td><td class="num">62,400</td><td class="num">2,840</td>
+        <td class="num">0.018</td><td class="num">0.41</td><td class="num">0.041</td><td class="num">0.038</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num neg-cell">0.214</td><td class="num">2</td><td class="num neg-cell">− 8</td><td class="center">·</td>
+      </tr>
+      <tr style="opacity:.65">
+        <td class="rownum pin">11</td><td class="pin2">Generic dance trend (over-served)</td>
+        <td><span class="src tt">TT</span></td><td>@trend.legs</td><td>US</td><td>en</td><td class="num">0:18</td>
+        <td class="num neg-cell">0.22</td>
+        <td class="num">0.12</td><td class="num warn">0.61</td><td class="num">0.41</td><td class="center">✓</td><td class="center"><span class="neg-cell">!</span></td>
+        <td class="num neg-cell">0.31</td><td class="num neg-cell">0.74</td><td class="num">3,140,000</td><td class="num">+ 1%</td><td class="num">98,200</td><td class="num">7,140</td>
+        <td class="num">0.011</td><td class="num">0.39</td><td class="num">0.029</td><td class="num">0.038</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num neg-cell">0.118</td><td class="num">1</td><td class="num neg-cell">− 10</td><td class="center">·</td>
+      </tr>
+      <tr style="opacity:.55">
+        <td class="rownum pin">12</td><td class="pin2">Same K-pop B-roll · 7th week running</td>
+        <td><span class="src ig">IG</span></td><td>@globalhitsdaily</td><td>KR</td><td>ko</td><td class="num">0:32</td>
+        <td class="num neg-cell">0.18</td>
+        <td class="num">0.07</td><td class="num warn">0.52</td><td class="num">0.62</td><td class="center">✓</td><td class="center"><span class="neg-cell">!</span></td>
+        <td class="num">0.81</td><td class="num warn">0.18</td><td class="num">2,140,000</td><td class="num neg-cell">− 12%</td><td class="num">61,400</td><td class="num">3,210</td>
+        <td class="num">0.014</td><td class="num">0.42</td><td class="num">0.031</td><td class="num">0.038</td>
+        <td><span class="agent cur">cur</span><span class="agent ts">ts</span><span class="agent us">us</span><span class="agent or">or</span></td>
+        <td class="num neg-cell">0.094</td><td class="num">3</td><td class="num neg-cell">− 9</td><td class="center">·</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="footbar">
+  <div class="agg">SUM <b>views_24h</b> = 9,653,800 · AVG <b>novelty</b> = 0.6312 · COUNT <b>pick=★</b> = <b>9</b> · entropy(platform) = 1.58 nats · entropy(region) = 3.41 nats</div>
+  <div>multi-agent re-rank Δ vs single-agent baseline · novelty +0.71 · platform-mix entropy +1.05 nats · ToS leaks 0 (vs 18)</div>
+  <div>cell F4 · curator agent · last refreshed 06:00 KST · 412 rows scanned</div>
+</div>
+</body></html>

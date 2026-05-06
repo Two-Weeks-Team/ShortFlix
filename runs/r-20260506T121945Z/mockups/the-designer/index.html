@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix — Issue 27 · The Bubble Issue</title>
+<style>
+  :root{
+    --bg:#0f0d0a; --paper:#f4ede0; --ink:#0c0c0c; --rouge:#d63b2f; --pop:#ffd23f; --teal:#1d6c70;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 'Helvetica Neue','Inter',Arial,sans-serif}
+  .cover{position:relative;min-height:560px;background:var(--paper);border-bottom:8px solid var(--ink);overflow:hidden}
+  .cover .meta{display:flex;justify-content:space-between;font:10px/1 'Helvetica Neue';letter-spacing:.3em;text-transform:uppercase;padding:18px 30px;border-bottom:1px solid var(--ink)}
+  .hero{position:relative;display:grid;grid-template-columns:1.4fr 1fr;gap:0;min-height:520px}
+  .hero .left{padding:46px 36px 36px;position:relative}
+  .hero h1{font:900 132px/.86 'Helvetica Neue Bold','Helvetica Neue',Arial,sans-serif;letter-spacing:-6px;margin:0 0 14px;mix-blend-mode:multiply;color:var(--ink)}
+  .hero h1 em{font-style:normal;color:var(--rouge);font-weight:900}
+  .hero .deck{font:italic 600 22px/1.3 'Iowan Old Style','Georgia',serif;max-width:520px;margin-bottom:18px}
+  .hero .lede{max-width:480px;font-size:14.5px;color:#1c1a18}
+  .hero .right{position:relative;background:var(--ink);overflow:hidden}
+  .hero .right .frame{position:absolute;inset:24px;background:linear-gradient(180deg,#3b1417 0%,#7a1a17 50%,#d6a02d 100%);border-radius:4px;overflow:hidden}
+  .hero .right .num{position:absolute;left:36px;top:30px;font:900 280px/.8 'Helvetica Neue Bold';color:var(--pop);letter-spacing:-12px;text-shadow:6px 6px 0 var(--rouge)}
+  .hero .right .label{position:absolute;left:32px;bottom:22px;color:var(--paper);font:600 13px/1.2 'Helvetica Neue';letter-spacing:.18em;text-transform:uppercase;max-width:200px}
+  .hero .stamp{position:absolute;right:30px;top:60px;background:var(--rouge);color:var(--paper);transform:rotate(8deg);padding:14px 18px;font:900 14px/1 'Helvetica Neue';letter-spacing:.2em;border:3px solid var(--paper);box-shadow:0 0 0 2px var(--rouge)}
+  .hero .stamp small{display:block;font-size:9px;letter-spacing:.3em;margin-top:4px;font-weight:600}
+
+  .stripe{background:var(--ink);color:var(--paper);padding:18px 30px;display:flex;justify-content:space-between;align-items:center;font:600 11px/1 'Helvetica Neue';letter-spacing:.24em;text-transform:uppercase}
+  .stripe span em{color:var(--pop);font-style:normal}
+
+  .toc{padding:36px 30px 8px;display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+  .toc h3{font:900 14px/1 'Helvetica Neue';letter-spacing:.24em;text-transform:uppercase;color:var(--rouge);margin:0 0 12px;border-bottom:1px solid var(--ink);padding-bottom:8px}
+  .toc article{margin-bottom:20px}
+  .toc h4{font:800 22px/1.05 'Helvetica Neue';letter-spacing:-.5px;margin:0 0 6px}
+  .toc p{margin:0;font:14px/1.5 'Iowan Old Style','Georgia',serif;color:#2b2722}
+  .toc .src{display:inline-block;font:900 9px/1 'Helvetica Neue';letter-spacing:.2em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:4px 7px;margin-bottom:6px}
+  .toc .src.ig{background:var(--rouge)}
+  .toc .src.tt{background:var(--teal)}
+
+  .grid9{padding:24px 30px 36px;display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:140px;gap:14px}
+  .tile{position:relative;border-radius:4px;overflow:hidden;background:var(--ink);color:var(--paper)}
+  .tile span{position:absolute;left:10px;bottom:8px;font:800 11px/1.2 'Helvetica Neue';letter-spacing:.14em;text-transform:uppercase}
+  .tile small{position:absolute;right:8px;top:8px;font:700 9px/1 'Helvetica Neue';letter-spacing:.2em;background:rgba(255,255,255,.18);padding:3px 5px;border-radius:2px}
+  .t1{grid-column:span 3;grid-row:span 2;background:linear-gradient(150deg,#1d6c70,#0a3338)}
+  .t2{grid-column:span 3;background:linear-gradient(150deg,#d63b2f,#7a1818)}
+  .t3{grid-column:span 2;background:linear-gradient(150deg,#ffd23f,#bb8512)}
+  .t4{grid-column:span 1;background:#0c0c0c}
+  .t5{grid-column:span 2;background:linear-gradient(150deg,#754f9b,#2c1a4a)}
+  .t6{grid-column:span 2;background:linear-gradient(150deg,#0c0c0c,#3a3a3a)}
+  .t7{grid-column:span 2;background:linear-gradient(150deg,#1c1a18,#7a5028)}
+  .t8{grid-column:span 2;background:linear-gradient(150deg,#1d6c70,#9bd1c5)}
+
+  .colofon{display:grid;grid-template-columns:2fr 1fr;gap:30px;padding:20px 30px;border-top:1px solid var(--ink);border-bottom:8px solid var(--rouge)}
+  .colofon h5{font:900 11px/1 'Helvetica Neue';letter-spacing:.24em;text-transform:uppercase;margin:0 0 8px}
+  .colofon p{margin:0;font:13px/1.55 'Iowan Old Style','Georgia',serif}
+  .pull{font:italic 700 30px/1.2 'Iowan Old Style','Georgia',serif;color:var(--rouge);max-width:520px;margin:8px 0 0}
+</style>
+</head>
+<body>
+<section class="cover">
+  <div class="meta"><span>ShortFlix · Issue 27 · 06 May 2026</span><span>The Bubble Issue · Cross-Cultural Short-form, Curated Overnight</span><span>Track 1 · ADK · Gemini · MCP · Cloud Run</span></div>
+  <div class="hero">
+    <div class="left">
+      <h1>Out<br/>of <em>your</em><br/>bubble.</h1>
+      <p class="deck">Nine short films you would not have been served by any one platform. Picked by four agents, served on one page.</p>
+      <p class="lede">For the daily reader who still believes that "the algorithm" was supposed to be a verb, not a wall. ShortFlix is the morning paper for cross-cultural short-form — composed by a curator-agent that does not, will not, recommend more of the same.</p>
+    </div>
+    <div class="right">
+      <div class="frame"></div>
+      <div class="num">09</div>
+      <div class="label">picks · 412 candidates · 3 platforms · one page</div>
+    </div>
+    <div class="stamp">Bubble<small>jailbreak ed.</small></div>
+  </div>
+</section>
+
+<div class="stripe"><span>Editorial — <em>the curator-agent's note</em></span><span>p. 02</span><span>3-3-3 Platform Mix</span><span>Novelty Index 0.86</span><span>Multi-agent receipts inside</span></div>
+
+<section class="toc">
+  <div>
+    <h3>Cover Story</h3>
+    <article>
+      <span class="src">YT Shorts</span>
+      <h4>The welder who paints in sparks</h4>
+      <p>Lagos. Thirty-eight seconds. The reason we built this magazine.</p>
+    </article>
+    <article>
+      <span class="src ig">IG Reels</span>
+      <h4>How to thank a stranger in Sichuan</h4>
+      <p>A pocket etiquette manual you can finish before the kettle boils.</p>
+    </article>
+    <article>
+      <span class="src tt">TikTok</span>
+      <h4>Bishkek noodles, by hand</h4>
+      <p>A craft so fast the camera struggles to keep up.</p>
+    </article>
+  </div>
+  <div>
+    <h3>Reads</h3>
+    <article>
+      <span class="src">YT Shorts</span>
+      <h4>Three minutes inside a Kyoto bookbindery</h4>
+      <p>Glue. Thread. Paper. The closest thing to ASMR we will allow on this page.</p>
+    </article>
+    <article>
+      <span class="src tt">TikTok</span>
+      <h4>An Icelandic fisherman, on time</h4>
+      <p>Light, tide, and the line on the horizon.</p>
+    </article>
+    <article>
+      <span class="src ig">IG Reels</span>
+      <h4>Tango etiquette, by a Buenos Aires cabbie</h4>
+      <p>Useful even if you have no plans to dance.</p>
+    </article>
+  </div>
+  <div>
+    <h3>Marginalia</h3>
+    <article>
+      <span class="src">YT Shorts</span>
+      <h4>The librarian of one room, Patagonia</h4>
+      <p>Catalogue cards, woodsmoke, two readers in a week.</p>
+    </article>
+    <article>
+      <span class="src ig">IG Reels</span>
+      <h4>Senegalese tailors and the etiquette of shears</h4>
+      <p>A small lesson in respect for tools, told without sermon.</p>
+    </article>
+    <article>
+      <span class="src tt">TikTok</span>
+      <h4>Hanoi, ranked: a 12-year-old's pho atlas</h4>
+      <p>More opinionated than most food critics. Funnier, too.</p>
+    </article>
+    <p class="pull">"Editorial judgment, executed at machine speed."</p>
+  </div>
+</section>
+
+<section class="grid9">
+  <div class="tile t1"><small>YT</small><span>01 · The welder of sparks</span></div>
+  <div class="tile t2"><small>IG</small><span>02 · Sichuan thanks</span></div>
+  <div class="tile t3"><small>TT</small><span>03 · Bishkek noodles</span></div>
+  <div class="tile t4"><small>YT</small><span>04 · Kyoto</span></div>
+  <div class="tile t5"><small>TT</small><span>05 · Iceland</span></div>
+  <div class="tile t6"><small>IG</small><span>06 · Tango</span></div>
+  <div class="tile t7"><small>YT</small><span>07 · Patagonia</span></div>
+  <div class="tile t8"><small>IG</small><span>08 · Dakar</span></div>
+</section>
+
+<section class="colofon">
+  <div>
+    <h5>From the Curator-Agent</h5>
+    <p>This issue was composed between 04:00 and 06:00 KST by four agents — a curator, a unified-search, a trend-safety and an orchestrator — running on Cloud Run. They are required by the rules; they earn their place by what was left out, not by what made the page. 412 candidates were considered. Three were rejected for licensing. Two for safety. Three hundred and ninety-eight, for being more of what you already saw yesterday.</p>
+  </div>
+  <div>
+    <h5>Stack</h5>
+    <p>ADK orchestrator · Gemini-2.0-flash curator · Vertex AI Search grounding · MCP tools wrapping RapidAPI for YT, IG, TT · deployed on Cloud Run, asia-northeast3.</p>
+    <h5 style="margin-top:14px">Next issue</h5>
+    <p>07 May. The Hands Issue.</p>
+  </div>
+</section>
+</body></html>

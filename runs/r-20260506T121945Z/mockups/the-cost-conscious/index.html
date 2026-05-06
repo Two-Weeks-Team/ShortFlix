@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ShortFlix — $500 Credit Budget (the-cost-conscious)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{
+    --bg:#fffaf0; --ink:#1a1a1a; --mute:#6e6857; --line:#e6dfc7;
+    --green:#1f7a3a; --red:#a8311a; --amber:#b97a16; --paper:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+  .frame{max-width:1180px;margin:0 auto;padding:32px 36px}
+  header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px double var(--ink);padding-bottom:14px}
+  .brand{font-weight:900;font-size:30px;letter-spacing:-1px}
+  .brand b{color:var(--green)}
+  .ledger-no{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mute);text-align:right;line-height:1.5}
+  h2{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--mute);margin:24px 0 10px;font-family:ui-monospace,Menlo,monospace}
+
+  /* Big number */
+  .gauge{display:grid;grid-template-columns:1fr 1.5fr;gap:24px;margin-top:18px}
+  .meter{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:18px;text-align:center}
+  .meter .big{font-size:62px;font-weight:900;color:var(--green);letter-spacing:-2px;line-height:1}
+  .meter .of{font-size:14px;color:var(--mute);font-family:ui-monospace,Menlo,monospace}
+  .bar{margin-top:14px;height:18px;background:#f0e9d2;border:1px solid var(--line);border-radius:3px;overflow:hidden;display:flex}
+  .bar div{height:100%}
+  .bar .gemini{background:#7a3bc0;width:31%}
+  .bar .cr{background:#3b66c0;width:18%}
+  .bar .sql{background:#3b9c7c;width:9%}
+  .bar .ground{background:#c0813b;width:14%}
+  .bar .other{background:#b97a16;width:5%}
+  .bar .free{background:transparent;width:23%}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:10px;color:var(--mute);font-family:ui-monospace,Menlo,monospace}
+  .legend span::before{content:"■";margin-right:4px}
+  .legend .gem::before{color:#7a3bc0}.legend .cr::before{color:#3b66c0}.legend .sq::before{color:#3b9c7c}.legend .gr::before{color:#c0813b}.legend .ot::before{color:#b97a16}
+
+  /* Ledger table */
+  .ledger{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:0;overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+  th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:#f4ebcb;text-transform:uppercase;letter-spacing:1px;font-size:10px;color:var(--mute)}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.total td{font-weight:700;background:#f8f1d8}
+  tr.total td.num{color:var(--green)}
+  td .tag{font-family:ui-monospace,Menlo,monospace;font-size:9px;padding:1px 5px;border-radius:2px;background:#eee5c4;color:var(--mute);margin-left:6px}
+  .green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
+
+  /* Tactic cards */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:18px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;font-size:13px;line-height:1.6}
+  .card h3{margin:0 0 6px;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mute);font-family:ui-monospace,Menlo,monospace}
+  .save{font-family:ui-monospace,Menlo,monospace;color:var(--green);font-size:11px;font-weight:700}
+
+  .stamp{margin-top:24px;border:2px dashed var(--green);color:var(--green);padding:10px 14px;border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:1px;text-align:center}
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="brand">Short<b>Flix</b> · ledger</div>
+    <div class="ledger-no">ledger # SF-2026-001<br/>billing acct · gcp-startup-credits<br/>FX · USD<br/>period · 2026-05-06 → 2026-06-05</div>
+  </header>
+
+  <div class="gauge">
+    <div class="meter">
+      <div class="of">PROJECTED 30-DAY SPEND</div>
+      <div class="big">$386.10</div>
+      <div class="of">of $500.00 startup credit · <span class="green">77.2% used · $113.90 reserve</span></div>
+      <div class="bar">
+        <div class="gemini" title="Gemini 31%"></div>
+        <div class="cr" title="Cloud Run 18%"></div>
+        <div class="sql" title="Cloud SQL 9%"></div>
+        <div class="ground" title="Vertex AI Search 14%"></div>
+        <div class="other" title="other 5%"></div>
+        <div class="free" title="reserve 23%"></div>
+      </div>
+      <div class="legend">
+        <span class="gem">Gemini API</span>
+        <span class="cr">Cloud Run</span>
+        <span class="sq">Cloud SQL</span>
+        <span class="gr">Vertex AI Search</span>
+        <span class="ot">CDN/Logs/Storage</span>
+      </div>
+    </div>
+
+    <div class="ledger">
+      <table>
+        <thead>
+          <tr><th>line item</th><th>plan</th><th class="num">unit cost</th><th class="num">qty</th><th class="num">subtotal</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Gemini 2.0 Flash · curator + search<span class="tag">streaming</span></td><td>pay-as-you-go</td><td class="num">$0.075/1Mtok in</td><td class="num">1.6 Mtok</td><td class="num">$120.00</td></tr>
+          <tr><td>Cloud Run · ADK orchestrator<span class="tag">min=1</span></td><td>regional ANE3</td><td class="num">$0.024/vCPU-hr</td><td class="num">744 hr</td><td class="num">$72.00</td></tr>
+          <tr><td>Vertex AI Search · grounding<span class="tag">1 corpus</span></td><td>std edition</td><td class="num">$2/1k queries</td><td class="num">28k</td><td class="num">$56.00</td></tr>
+          <tr><td>Cloud SQL · curator-cache<span class="tag">db-f1-micro</span></td><td>shared-core</td><td class="num">$1.20/day</td><td class="num">30 d</td><td class="num">$36.00</td></tr>
+          <tr><td>RapidAPI · YT/IG/TT bundles<span class="tag">3rd-party</span></td><td>not on GCP</td><td class="num">$25/mo × 3</td><td class="num">1 mo</td><td class="num">$75.00</td></tr>
+          <tr><td>Cloud CDN + egress</td><td>global</td><td class="num">$0.08/GB</td><td class="num">200 GB</td><td class="num">$16.00</td></tr>
+          <tr><td>Logging / Monitoring</td><td>std</td><td class="num">incl.</td><td class="num">—</td><td class="num">$8.00</td></tr>
+          <tr><td>Buffer · model overruns / re-renders</td><td>contingency</td><td class="num">—</td><td class="num">—</td><td class="num">$3.10</td></tr>
+          <tr class="total"><td>TOTAL · 30-day demo window</td><td></td><td class="num"></td><td class="num"></td><td class="num">$386.10</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>Cost-Cutting Tactics that Don't Hurt Judging</h2>
+  <div class="grid3">
+    <div class="card">
+      <h3>1 · Flash over Pro</h3>
+      Use <b>gemini-2.0-flash</b> for curator + search. Reserve <b>gemini-2.0-pro</b> only for trend-safety reasoning step (5% of calls).
+      <div class="save">saves ≈ $140 / month</div>
+    </div>
+    <div class="card">
+      <h3>2 · Cache > Recompute</h3>
+      Curator runs <b>nightly</b> on Cloud Scheduler, not per-request. Per-user re-rank is cheap; embedding is expensive.
+      <div class="save">saves ≈ $90 / month</div>
+    </div>
+    <div class="card">
+      <h3>3 · Cloud Run min=1</h3>
+      Avoid GKE entirely (over-engineered for demo). Single Cloud Run service, scale-to-1, not zero (judge cold-start).
+      <div class="save">saves ≈ $200 vs GKE</div>
+    </div>
+    <div class="card">
+      <h3>4 · MCP tool call dedup</h3>
+      Hash query → 60s in-memory cache for RapidAPI fanout. Identical search hits return free.
+      <div class="save">saves ≈ $30 / month</div>
+    </div>
+    <div class="card">
+      <h3>5 · Vertex Search 1-corpus</h3>
+      Single grounding corpus (cross-cultural metadata) instead of 3. Cheaper, still kills hallucination.
+      <div class="save">saves ≈ $60 / month</div>
+    </div>
+    <div class="card">
+      <h3>6 · Free-tier defaults</h3>
+      Cloud SQL f1-micro · Logging 50GB free · CDN signed-URL caching · all default-on.
+      <div class="save">stays under credit ceiling</div>
+    </div>
+  </div>
+
+  <div class="stamp">
+    JUDGING TIE-IN · Business Case 30% — "would this survive at scale?"<br/>
+    Answer: at 10k DAU we project <b>$0.038 / DAU / month</b>, well below a $4.99 Pro tier. Multi-agent system is <i>cheaper per useful recommendation</i> than a single-agent baseline because the curator caches 90% of work overnight.
+  </div>
+</div>
+</body>
+</html>

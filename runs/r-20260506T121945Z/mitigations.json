@@ -1,0 +1,91 @@
+{
+  "_meta": {
+    "designer": "MD inline (orchestrator-fold per token budget)",
+    "source_panels": [
+      "TP",
+      "BP",
+      "UP",
+      "RP"
+    ],
+    "policy": "These items apply to ANY chosen preview — they are non-negotiable rider constraints derived from cross-panel dissent."
+  },
+  "rider_constraints": [
+    {
+      "id": "MD-01",
+      "from": "TP02 Devil's Advocate + RP",
+      "rule": "Drop-one-agent ablation MUST be in the demo video (the-researcher's contribution carries forward regardless of pick)",
+      "why": "Forecloses 'this is one Gemini call dressed up' objection → protects Innovation 20%",
+      "binding_for": "all_picks"
+    },
+    {
+      "id": "MD-02",
+      "from": "TP + RP1 Threat Modeler",
+      "rule": "Each agent runs as a separate Cloud Run service with OpenTelemetry trace separation",
+      "why": "Architectural proof of multi-agent (judges can see service boundaries in arch diagram)",
+      "binding_for": "all_picks"
+    },
+    {
+      "id": "MD-03",
+      "from": "RP01 + RP06 Supply Chain",
+      "rule": "MCP egress allowlist — only *.rapidapi.com + *.googleapis.com. CI grep guard for unofficial-API string patterns. Pin google-cloud-aiplatform; runtime endpoint assertion.",
+      "why": "Prevents R1 (scraping fallback DQ) + R2 (LLM leakage DQ)",
+      "binding_for": "all_picks"
+    },
+    {
+      "id": "MD-04",
+      "from": "BP01 CFO + BP02 CEO",
+      "rule": "Demo video MUST include ONE business-case artifact (Stripe receipt OR B2B brief mockup OR cost ledger). The-indie-hacker's revenue ladder is the recommended artifact.",
+      "why": "Business Case 30% needs ONE concrete number on screen, not narration",
+      "binding_for": "all_picks"
+    },
+    {
+      "id": "MD-05",
+      "from": "UP06 Content Designer + UP08 Brand Voice",
+      "rule": "Open with 발견의 즐거움 within first 8 seconds (UP-recommended cold-cut: editorial masthead → mobile install → 'why' chip surfacing)",
+      "why": "Demo 20% — first 30s decides judge attention",
+      "binding_for": "all_picks"
+    },
+    {
+      "id": "MD-06",
+      "from": "RP04 Auth + RP05 Data Privacy",
+      "rule": "OAuth via Google ID only (single auth path). No PII stored beyond Google sub-id + display name + last-N watch hashes. Privacy policy + DPIA stub committed to repo by D+10.",
+      "why": "Track 1 doesn't require enterprise auth, but global persona implies GDPR exposure",
+      "binding_for": "all_picks"
+    },
+    {
+      "id": "MD-07",
+      "from": "TP09 Pragmatist + RP10 Business Continuity",
+      "rule": "30-day Gantt with cut-list at D+18, feature freeze D+25, dry-run D+27. Submit by D+29 (1 day buffer before 2026-06-05 PT).",
+      "why": "Submission completeness > feature richness for a hackathon judged on demo",
+      "binding_for": "all_picks"
+    },
+    {
+      "id": "MD-08",
+      "from": "RP03 Compliance + UP08 Brand Voice",
+      "rule": "Demo video uses NO third-party logos (YT/IG/TT). Use text labels only. Blur thumbnails. English audio or English subtitles only.",
+      "why": "IP DQ avoidance + rule compliance",
+      "binding_for": "all_picks"
+    },
+    {
+      "id": "MD-09",
+      "from": "BP09 GTM + BP04 Marketing",
+      "rule": "Submission text description leads with persona ('global content discoverer') → problem (algorithm bubble) → solution (cross-platform Curator agent) → proof (ablation + revenue). 3-sentence elevator pitch in submission first paragraph.",
+      "why": "Judges skim — first paragraph carries Business Case 30% weight",
+      "binding_for": "all_picks"
+    },
+    {
+      "id": "MD-10",
+      "from": "TP03 Critical Reviewer + UP01 End User",
+      "rule": "Mockup hero scene MUST show ALL 4 agents (Curator, Search, Trend-Safety, Orchestrator) interacting with at least one MCP tool call visibly traced.",
+      "why": "Mandatory stack must be VISIBLY used, not just claimed",
+      "binding_for": "all_picks"
+    }
+  ],
+  "watchlist_advocates": {
+    "the-community-builder": "DSA/UGC liability if user picks — needs additional moderation rider",
+    "the-embedded": "Third-party host CSP/XSS risk + spec divergence (no first-party PWA)",
+    "the-game-designer": "GDPR Art.22 (automated decision-making) — needs human-override toggle",
+    "the-slack-native": "Spec divergence (PWA secondary) — needs explicit user acknowledgment",
+    "the-anti-ai": "Trade-off with judge perception of 'using ADK/Gemini' visibly — Tech 30% risk if too invisible"
+  }
+}

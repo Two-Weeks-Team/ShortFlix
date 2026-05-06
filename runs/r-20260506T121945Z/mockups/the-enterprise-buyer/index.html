@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix for Brands — Creator-marketing intelligence</title>
+<style>
+  :root{
+    --bg:#f4f6fb; --paper:#fff; --ink:#0e1322; --muted:#5b6379; --rule:#e1e6f1;
+    --navy:#0e2f6e; --gold:#c98e22; --teal:#176c63; --rose:#b62c3a;
+    --soft:#eaf0fc;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.55 'Inter','Helvetica Neue',Arial,sans-serif}
+  header{background:var(--navy);color:#fff;padding:14px 28px;display:flex;align-items:center;gap:18px;border-bottom:3px solid var(--gold)}
+  header .logo{font:800 18px/1 'Inter';letter-spacing:-.3px}
+  header .logo small{display:block;font:500 10px/1.3 'Inter';letter-spacing:.22em;text-transform:uppercase;color:#cdd5ec;margin-top:4px}
+  header nav{display:flex;gap:18px;font-size:13px;color:#cdd5ec;margin-left:24px}
+  header nav .on{color:#fff;font-weight:600;border-bottom:2px solid var(--gold);padding-bottom:3px}
+  header .right{margin-left:auto;display:flex;gap:14px;align-items:center;font-size:12px}
+  header .ent{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:6px;padding:5px 10px;font-weight:600;letter-spacing:.06em}
+  header .org{display:flex;align-items:center;gap:8px}
+  header .org .av{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#c98e22,#7a5012);display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+
+  .grid{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 64px)}
+  .side{background:#0e1322;color:#cdd5ec;padding:18px 14px}
+  .side h4{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#7c87a8;margin:18px 8px 6px}
+  .side a{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:6px;color:#cdd5ec;text-decoration:none;font-size:13px}
+  .side a.on{background:#1a2545;color:#fff;border-left:3px solid var(--gold);padding-left:7px}
+  .side a:hover{background:#172040}
+  .side .tag{font-size:10px;background:#1f2a4a;color:#cdd5ec;border-radius:999px;padding:2px 7px}
+
+  main{padding:24px 28px;background:var(--bg);overflow:auto}
+  .crumb{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px}
+  h1{margin:0;font-size:24px;letter-spacing:-.3px}
+  .head .actions button{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer;margin-left:8px}
+  .head .actions button.ghost{background:#fff;color:var(--ink);border:1px solid var(--rule)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  .kpi .card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:14px 16px}
+  .kpi .lab{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  .kpi .val{font-size:24px;font-weight:800;letter-spacing:-.4px;margin-top:4px}
+  .kpi .delta{font-size:12px;color:var(--teal);margin-top:4px}
+  .kpi .delta.neg{color:var(--rose)}
+
+  .row{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:18px}
+  .panel{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:18px 20px}
+  .panel h3{margin:0 0 6px;font-size:15px}
+  .panel .sub{margin:0 0 14px;color:var(--muted);font-size:12.5px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:8px 8px;border-bottom:1px solid var(--rule);text-align:left}
+  th{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  tr:last-child td{border-bottom:0}
+  .src{display:inline-block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:2px 6px;border-radius:3px}
+  .src.yt{background:#fde6e8;color:var(--rose)}
+  .src.ig{background:#f3e6f6;color:#7a3d8a}
+  .src.tt{background:#e6f3f6;color:var(--teal)}
+  .score{display:inline-block;background:#0e2f6e;color:#fff;font-weight:700;font-size:11px;padding:2px 8px;border-radius:999px}
+  .lo{background:#888}.md{background:#a87420}.hi{background:var(--teal)}
+
+  .audit{background:#0e1322;color:#cdd5ec;border-radius:12px;padding:14px 18px}
+  .audit h3{color:#fff;margin:0 0 10px;font-size:14px;letter-spacing:.18em;text-transform:uppercase}
+  .audit ul{list-style:none;padding:0;margin:0;font-size:12.5px}
+  .audit li{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #1f2a4a}
+  .audit li:last-child{border-bottom:0}
+  .audit li b{color:var(--gold)}
+  .compliance{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .badge{display:inline-block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;background:#eaf0fc;border:1px solid #bccae0;color:#0e2f6e;padding:4px 8px;border-radius:4px;font-weight:700;margin-right:6px}
+  .badge.green{background:#e2f3ec;border-color:#a4d3bc;color:#1f6c4d}
+  .seat{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 0}
+  .seat .av{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#0e2f6e,#3a64dc);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">ShortFlix Brand Cloud<small>Creator-marketing intelligence — built on the same multi-agent stack</small></div>
+  <nav>
+    <a class="on">Discover</a><a>Briefs</a><a>Spend</a><a>Audit</a><a>Admin</a>
+  </nav>
+  <div class="right">
+    <span class="ent">SOC 2 Type I · in flight</span>
+    <span class="ent">SAML SSO</span>
+    <span class="org"><span class="av">G</span>Globex Beverages · Marketing</span>
+  </div>
+</header>
+
+<div class="grid">
+  <aside class="side">
+    <h4>Workspace</h4>
+    <a class="on">Q2 Cross-cultural brief <span class="tag">live</span></a>
+    <a>Spring noodle launch <span class="tag">draft</span></a>
+    <a>Lunar New Year recap</a>
+    <h4>Audiences</h4>
+    <a>APAC global discoverers</a>
+    <a>EU silent-crafts watchers</a>
+    <a>LatAm street-food</a>
+    <h4>Settings</h4>
+    <a>SAML / SCIM</a>
+    <a>Audit log export</a>
+    <a>Data residency · APAC</a>
+    <a>Billing — invoiced</a>
+  </aside>
+
+  <main>
+    <div class="crumb">Globex Beverages · Workspace · Q2 Cross-cultural brief · Discover</div>
+    <div class="head">
+      <h1>Cross-platform creator candidates · 412 → 24 shortlist</h1>
+      <div class="actions">
+        <button class="ghost">Export CSV (audited)</button>
+        <button>Open creator brief</button>
+      </div>
+    </div>
+
+    <section class="kpi">
+      <div class="card"><div class="lab">Cross-platform reach</div><div class="val">38.4 M</div><div class="delta">▲ 12% vs single-platform brief</div></div>
+      <div class="card"><div class="lab">Novelty index</div><div class="val">0.86</div><div class="delta">vs 0.41 single-agent baseline</div></div>
+      <div class="card"><div class="lab">Brand-safety pass</div><div class="val">94%</div><div class="delta">▲ 18 pts (trend-safety agent)</div></div>
+      <div class="card"><div class="lab">Spend committed</div><div class="val">$ 412,180</div><div class="delta neg">3 of 24 awaiting legal</div></div>
+    </section>
+
+    <section class="row">
+      <div class="panel">
+        <h3>Shortlist (top 8 of 24)</h3>
+        <p class="sub">Curator agent ranked 412 candidates from YT Shorts, IG Reels and TikTok against your brief embedding; trend-safety agent flagged ToS / brand-safety risks before they reach your team.</p>
+        <table>
+          <thead><tr><th>Creator</th><th>Region</th><th>Platform mix</th><th>Novelty</th><th>Brand fit</th><th>Risk</th></tr></thead>
+          <tbody>
+            <tr><td>@tunde.welds</td><td>Lagos NG</td><td><span class="src yt">YT</span> <span class="src tt">TT</span></td><td><span class="score hi">0.91</span></td><td><span class="score md">0.78</span></td><td><span class="badge green">cleared</span></td></tr>
+            <tr><td>@kyoto.bind</td><td>Kyoto JP</td><td><span class="src yt">YT</span> <span class="src ig">IG</span></td><td><span class="score hi">0.84</span></td><td><span class="score hi">0.86</span></td><td><span class="badge green">cleared</span></td></tr>
+            <tr><td>@dilnaz.lagman</td><td>Bishkek KG</td><td><span class="src tt">TT</span></td><td><span class="score hi">0.81</span></td><td><span class="score md">0.74</span></td><td><span class="badge green">cleared</span></td></tr>
+            <tr><td>@reykjavik.line</td><td>Reykjavík IS</td><td><span class="src tt">TT</span> <span class="src ig">IG</span></td><td><span class="score md">0.79</span></td><td><span class="score md">0.71</span></td><td><span class="badge">copyright check</span></td></tr>
+            <tr><td>@patagonia.lib</td><td>El Bolsón AR</td><td><span class="src yt">YT</span></td><td><span class="score md">0.77</span></td><td><span class="score hi">0.83</span></td><td><span class="badge green">cleared</span></td></tr>
+            <tr><td>@dakar.shears</td><td>Dakar SN</td><td><span class="src ig">IG</span></td><td><span class="score md">0.74</span></td><td><span class="score hi">0.81</span></td><td><span class="badge green">cleared</span></td></tr>
+            <tr><td>@hanoi.pho.kid</td><td>Hanoi VN</td><td><span class="src tt">TT</span></td><td><span class="score md">0.73</span></td><td><span class="score md">0.66</span></td><td><span class="badge">COPPA review</span></td></tr>
+            <tr><td>@porteño.tango</td><td>Buenos Aires AR</td><td><span class="src ig">IG</span></td><td><span class="score md">0.70</span></td><td><span class="score md">0.74</span></td><td><span class="badge green">cleared</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="audit">
+          <h3>Live audit log · last 24h</h3>
+          <ul>
+            <li><span>04:12 KST · curator-agent · ranked 412 cand</span><b>cmpl</b></li>
+            <li><span>04:14 KST · trend-safety · 27 flagged</span><b>cmpl</b></li>
+            <li><span>04:18 KST · orchestrator · digest emailed</span><b>cmpl</b></li>
+            <li><span>09:01 · k.lee@globex · viewed shortlist</span><b>read</b></li>
+            <li><span>10:42 · m.kim@globex · brief edited</span><b>write</b></li>
+            <li><span>11:08 · CSV export (signed, watermark)</span><b>exp</b></li>
+          </ul>
+        </div>
+        <div class="panel" style="margin-top:14px">
+          <h3>Compliance posture</h3>
+          <p class="sub">Same multi-agent stack as the consumer ShortFlix demo. Enterprise wraps add SAML/SCIM, audit, residency.</p>
+          <div class="compliance">
+            <div><span class="badge green">SAML 2.0</span><br/><small>Globex IdP · SCIM provisioning</small></div>
+            <div><span class="badge green">PIPA · KR</span><br/><small>Data residency: asia-NE3</small></div>
+            <div><span class="badge">SOC 2 Type I</span><br/><small>Q3 2026 target</small></div>
+            <div><span class="badge green">DSA Art.27</span><br/><small>Per-pick "why" surfaced</small></div>
+            <div><span class="badge green">RapidAPI ToS</span><br/><small>No direct scraping</small></div>
+            <div><span class="badge green">Right to erasure</span><br/><small>DELETE /v1/me</small></div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="seat"><span class="av">KL</span>k.lee@globex.com · admin</div>
+            <div class="seat"><span class="av">MK</span>m.kim@globex.com · brief author</div>
+            <div class="seat"><span class="av">JS</span>j.shin@globex.com · legal · read-only</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Why this works for the challenge — without leaving Track 1</h3>
+      <p class="sub">The consumer PWA is the demo. The Brand Cloud is the same code with admin shells around it: SAML/SCIM, audit log export, billing. Both share orchestrator · curator · unified-search · trend-safety. Business Case 30% gets a clean SaaS line ($1,200 / brief, 50 logos in pipeline) without inventing a parallel codebase.</p>
+    </section>
+  </main>
+</div>
+</body></html>

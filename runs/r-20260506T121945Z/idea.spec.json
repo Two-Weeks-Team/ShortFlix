@@ -1,0 +1,75 @@
+{
+  "_schema_version": "1.0.0",
+  "_filled_ratio": 1.0,
+  "_interview_status": "completed_orchestrator_followup",
+  "_interview_note": "I1 subagent fallback (AskUserQuestion not available). Orchestrator filled 9/9 slots via single follow-up modal: persona=global discoverer, killer=AI cross-platform curator, emotion=발견의 즐거움, sync=hybrid. Constraints/non_goals from seed verbatim (high confidence). Persona/surface/JTBD from user follow-up (high confidence).",
+  "idea_summary": "ShortFlix — a PWA that unifies YouTube Shorts, Instagram Reels, and TikTok into a single login/viewing/search surface, built as a multi-agent system (curator / unified-search / trend-safety / orchestrator) for the Google for Startups AI Agents Challenge Track 1 (deadline 2026-06-05 PT).",
+  "primary_surface": {
+    "platform": "hybrid",
+    "sync_model": "hybrid",
+    "_note": "PWA installable on desktop + mobile. Hybrid sync: curator agent prebuilds personalized cache (SQLite/Cloud SQL nightly batch), search hits RapidAPI in real-time. Realistic for 30-day demo timeline."
+  },
+  "must_have_constraints": [
+    {
+      "type": "platform",
+      "value": "Google ADK (Agent Development Kit) — mandatory framework for the challenge"
+    },
+    {
+      "type": "platform",
+      "value": "Gemini API or Vertex AI 3rd-party — only permitted LLM access path; no Google AI Studio credits, no direct OpenAI/Anthropic"
+    },
+    {
+      "type": "platform",
+      "value": "MCP (Model Context Protocol) — mandatory tool integration layer"
+    },
+    {
+      "type": "platform",
+      "value": "Google Cloud deployment — Agent Engine Runtime / Cloud Run / GKE (pick one)"
+    },
+    {
+      "type": "regulatory",
+      "value": "IP/ToS compliance — RapidAPI or user-owned content APIs only; no direct unofficial scraping of IG/TikTok"
+    },
+    {
+      "type": "other",
+      "value": "Track 1 (Build Net-New Agents) only — Track 2/3 proposals forbidden"
+    },
+    {
+      "type": "other",
+      "value": "Greenfield project — no reuse of pre-existing codebases; public GitHub repo required"
+    },
+    {
+      "type": "other",
+      "value": "Multi-agent value must be demonstrably stronger than single-agent (visual + textual proof in demo)"
+    },
+    {
+      "type": "other",
+      "value": "1-2 minute demo video with English audio or English subtitles required"
+    },
+    {
+      "type": "data_residency",
+      "value": "User in Korea (APAC eligible region for Regional APAC $5K prize)"
+    }
+  ],
+  "non_goals": [
+    "Track 2 (Enhance Existing Agents) and Track 3 (Agent-Native Apps) submissions",
+    "Reuse of existing/legacy codebases",
+    "Direct unofficial scraping of Instagram or TikTok APIs",
+    "LLM calls outside Gemini / Vertex AI (no OpenAI, Anthropic, or AI Studio credits)",
+    "Single-agent architectures that could be replaced by a plain API gateway or feed reader"
+  ],
+  "success_metric": "Maximize Google for Startups AI Agents Challenge judging score across the four axes — Tech 30% + Business Case 30% + Innovation 20% + Demo 20% — to compete for Track 1 Best ($10K), Grand Prize ($15K), and Regional APAC ($5K).",
+  "target_persona": {
+    "profile": "Global content discovery enthusiast",
+    "primary_pain": "각 플랫폼 알고리즘이 서로 다른 거품에 가둬, 진짜 새로운 cross-cultural short-form을 발견하기 어렵다 (3개 앱을 번갈아 켜야 함)",
+    "usage_frequency": "daily",
+    "_note": "Global > Korean Gen-Z. Implies i18n, multi-language Gemini grounding, multi-region CDN consideration in advocate designs."
+  },
+  "jobs_to_be_done": {
+    "functional": "3개 short-form 플랫폼의 알고리즘 거품을 가로질러, 사용자 취향에 맞춤화된 cross-cultural 영상을 한 PWA에서 발견·시청·검색한다",
+    "emotional": "발견의 즐거움 — '어디서도 못 보던 걸 봤다'는 만족감; 알고리즘 탈출 서사",
+    "social": "친구·커뮤니티에 cross-platform 발견 결과 공유 (deep-link share, '내가 발견한 베스트' 큐레이션 export)"
+  },
+  "killer_feature": "AI Cross-Platform Curator — Gemini 기반 Curator Agent가 사용자 시청 패턴을 학습하고 3개 플랫폼(YT Shorts·IG Reels·TikTok)에서 매일 'best of' N개를 큐레이션. 단일 플랫폼 알고리즘으로는 불가능한 cross-cultural·cross-platform 추천이 multi-agent 협업의 핵심 가치.",
+  "monetization_model": "데모 단계에서는 비상업 (challenge 출품용). 추후: 무료 티어 + Pro($4.99/mo: 광고 제거, 추가 AI 큐레이션 슬롯, 오프라인 다운로드). 직접 monetization은 challenge 채점 항목이 아니므로 우선순위 낮음."
+}

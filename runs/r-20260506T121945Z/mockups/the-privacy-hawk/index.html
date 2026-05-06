@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ShortFlix — Compliance Audit (the-privacy-hawk)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{
+    --bg:#fafafa; --ink:#111317; --mute:#5a6470; --line:#dde2eb;
+    --paper:#fff; --pass:#1a8754; --warn:#b08000; --fail:#b13a3a;
+    --shield:#0c5fb6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,Inter,Helvetica,sans-serif}
+  .frame{max-width:1240px;margin:0 auto;padding:32px 36px}
+  header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--ink);padding-bottom:14px}
+  .brand{font-weight:900;font-size:26px;letter-spacing:-.5px}
+  .brand b{color:var(--shield)}
+  .crest{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mute);text-align:right;line-height:1.6}
+  h2{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--mute);margin:24px 0 10px;font-family:ui-monospace,Menlo,monospace}
+
+  /* Score banner */
+  .score{display:grid;grid-template-columns:1fr 2fr;gap:24px;margin-top:18px}
+  .grade{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:18px;text-align:center}
+  .grade .num{font-size:78px;color:var(--pass);font-weight:900;letter-spacing:-3px;line-height:1}
+  .grade .lbl{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mute);letter-spacing:2px}
+  .grade .sub{font-size:13px;color:var(--mute);margin-top:8px}
+
+  .checklist{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:0;overflow:hidden}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:#f0f3f8;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mute);font-family:ui-monospace,Menlo,monospace}
+  .stat{font-family:ui-monospace,Menlo,monospace;font-size:10px;padding:2px 7px;border-radius:3px;color:#fff;letter-spacing:1px}
+  .stat.p{background:var(--pass)}.stat.w{background:var(--warn)}.stat.f{background:var(--fail)}
+  td.ev{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mute)}
+
+  /* Data flow */
+  .flow{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:18px}
+  .lanes{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px;font-size:12px}
+  .lane{border:1px solid var(--line);border-radius:6px;padding:10px;background:#f7f9fc}
+  .lane h4{margin:0 0 6px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--shield);font-family:ui-monospace,Menlo,monospace}
+  .lane .item{padding:5px 8px;background:#fff;border:1px dashed var(--line);border-radius:4px;margin-bottom:4px;font-family:ui-monospace,Menlo,monospace;font-size:11px}
+  .lane .item.pi{border-color:var(--fail);color:var(--fail)}
+  .lane .item.di{border-color:var(--warn);color:#7a5800}
+  .lane .item.ok{border-color:var(--pass);color:var(--pass)}
+
+  /* Two columns bottom */
+  .grid2{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:18px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px}
+  .card h3{margin:0 0 10px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mute);font-family:ui-monospace,Menlo,monospace}
+  .quote{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:#f0f3f8;border-left:3px solid var(--shield);padding:8px 10px;margin:8px 0;line-height:1.5}
+  .quote b{color:var(--shield)}
+
+  .principles{font-size:13px;line-height:1.65}
+  .principles li{margin-bottom:6px}
+  .principles b{color:var(--ink)}
+
+  .stamp{margin-top:20px;border:2px solid var(--shield);color:var(--shield);padding:12px 14px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:1px;text-align:center;background:#f0f6ff}
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="brand">Short<b>Flix</b> · compliance audit</div>
+    <div class="crest">audit ID · SF-AUD-001<br/>auditor · trend-safety-agent (Gemini + Vertex grounding)<br/>scope · GDPR · Korea PIPA · IG/TT ToS · DSA · COPPA<br/>date · 2026-05-06</div>
+  </header>
+
+  <div class="score">
+    <div class="grade">
+      <div class="num">A−</div>
+      <div class="lbl">PRE-SUBMISSION SCORE</div>
+      <div class="sub">9/11 controls passing · 2 with mitigations</div>
+    </div>
+    <div class="checklist">
+      <table>
+        <thead><tr><th>control</th><th>status</th><th>evidence path</th></tr></thead>
+        <tbody>
+          <tr><td>RapidAPI ToS — official endpoint only</td><td><span class="stat p">PASS</span></td><td class="ev">/docs/SUBMISSION.md §rapidapi</td></tr>
+          <tr><td>No direct IG/TT scraping</td><td><span class="stat p">PASS</span></td><td class="ev">CI grep guard · network-policy egress allowlist</td></tr>
+          <tr><td>EU GDPR · DPIA recorded</td><td><span class="stat p">PASS</span></td><td class="ev">/compliance/dpia.md</td></tr>
+          <tr><td>Korea PIPA · purpose limitation</td><td><span class="stat p">PASS</span></td><td class="ev">privacy_policy.ko.md</td></tr>
+          <tr><td>Anonymous device-id (no PII)</td><td><span class="stat p">PASS</span></td><td class="ev">db.users.user_id = sha256(device_id+salt)</td></tr>
+          <tr><td>Gemini API · no logging of user prompts</td><td><span class="stat p">PASS</span></td><td class="ev">vertex.config.disable_logging = true</td></tr>
+          <tr><td>Demo video — face/voice consent (creators)</td><td><span class="stat w">REVIEW</span></td><td class="ev">use only public-permitted thumbnails for cover</td></tr>
+          <tr><td>Children's content (COPPA-13+)</td><td><span class="stat w">MITIGATE</span></td><td class="ev">trend-safety filters age-restricted source flags</td></tr>
+          <tr><td>Right-to-erasure endpoint</td><td><span class="stat p">PASS</span></td><td class="ev">DELETE /v1/me · purges curator cache row</td></tr>
+          <tr><td>EU DSA · transparency on AI rec</td><td><span class="stat p">PASS</span></td><td class="ev">"why this card" panel · per-card SHAP excerpt</td></tr>
+          <tr><td>Open-source license · ASL/MIT</td><td><span class="stat p">PASS</span></td><td class="ev">LICENSE · MIT</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>Data Flow · what crosses which boundary</h2>
+  <div class="flow">
+    <div class="lanes">
+      <div class="lane">
+        <h4>Browser (PWA)</h4>
+        <div class="item ok">device_id (anon, sha256)</div>
+        <div class="item ok">watch_dwell_local (≤60s buffer)</div>
+        <div class="item pi">⛔ no email · no auth</div>
+      </div>
+      <div class="lane">
+        <h4>Cloud Run (ADK)</h4>
+        <div class="item ok">orchestrator request envelope</div>
+        <div class="item di">taste_vector (768-dim, 7d TTL)</div>
+        <div class="item ok">no raw transcripts stored</div>
+      </div>
+      <div class="lane">
+        <h4>Vertex / Gemini</h4>
+        <div class="item ok">API call (no log retention)</div>
+        <div class="item ok">grounding · cross-cultural corpus only</div>
+        <div class="item ok">no fine-tune on user data</div>
+      </div>
+      <div class="lane">
+        <h4>RapidAPI (3rd-party)</h4>
+        <div class="item di">platform query terms</div>
+        <div class="item ok">disclosed in SUBMISSION.md</div>
+        <div class="item ok">video metadata only · no upload</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Trend-Safety Agent · ToS Watch (live, last 60 min)</h3>
+      <div class="quote"><b>[BLOCK]</b> mcp/rapidapi-ig query "creator_dm:*" — IG ToS §C.4 prohibits programmatic DM access. Dropped at MCP boundary, never reached Gemini.</div>
+      <div class="quote"><b>[FLAG]</b> tt video #88412 — labeled "duet of minor". Trend-safety filtered before curator scoring (COPPA-13+).</div>
+      <div class="quote"><b>[OK]</b> 412 candidates ingested · 312 passed safety + ToS · 100 dropped (24%).</div>
+      <div class="quote"><b>[GROUND]</b> vertex/search corpus disagrees with model claim "viral in Korea" — drop hallucination, do not show user.</div>
+    </div>
+    <div class="card">
+      <h3>Privacy-by-Design Principles · enforced in code</h3>
+      <ul class="principles">
+        <li><b>Minimization</b> — taste vector is 768 floats, never raw watch history. Reset on Pro-tier opt-out.</li>
+        <li><b>No-PII default</b> — anonymous device-id; OAuth deferred until Pro tier. Demo runs without login.</li>
+        <li><b>Region-pinned</b> — Cloud Run asia-NE3 + EU mirror; data does not leave user region per PIPA.</li>
+        <li><b>Right-to-erasure</b> — single endpoint; cascades to Cloud SQL, Vertex grounding cache, edge CDN.</li>
+        <li><b>Algorithmic transparency</b> — every card exposes "why" (DSA Art. 27 ready).</li>
+        <li><b>3rd-party isolation</b> — RapidAPI calls go through MCP gateway with allowlist; no broad scope.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stamp">
+    JUDGING TIE-IN — Track 1 rule §4.f "IP/ToS compliance" + Business Case 30%<br/>
+    A multi-agent system that <b>treats compliance as a first-class agent</b> (trend-safety) — not a side-check — is what differentiates a serious submission from a hackathon toy.<br/>
+    Single-agent baseline cannot enforce ToS, safety, and grounding atomically. Multi-agent does. ✓
+  </div>
+</div>
+</body>
+</html>

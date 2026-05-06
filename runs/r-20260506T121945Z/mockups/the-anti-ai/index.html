@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix — Hand-Curated · No AI in your face</title>
+<style>
+  :root{
+    --paper:#fbf7ee; --ink:#171514; --rule:#1c1916; --warm:#a8431d; --quiet:#6a6358;
+    --card:#fff8e6; --gold:#b8893d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 'Iowan Old Style','Palatino Linotype','Times New Roman',Georgia,serif;background:var(--paper);color:var(--ink)}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 28px 80px}
+  .masthead{border-top:6px double var(--ink);border-bottom:1px solid var(--ink);padding:22px 0 14px;margin-bottom:24px;text-align:center}
+  .masthead .pubdate{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--quiet)}
+  .masthead h1{font:italic 700 54px/1 'Playfair Display','Iowan Old Style',Georgia,serif;margin:6px 0 4px;letter-spacing:-1px}
+  .masthead .tag{font-size:13px;color:var(--quiet);font-style:italic}
+  .thesis{display:grid;grid-template-columns:2fr 1fr;gap:32px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:20px 0;margin-bottom:28px}
+  .thesis h2{font:italic 700 26px/1.2 Georgia,serif;margin:0 0 8px}
+  .thesis p{margin:0 0 8px}
+  .thesis .pull{border-left:3px solid var(--warm);padding:6px 14px;color:#332b22;font-style:italic;font-size:14px}
+  .picks-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--ink);padding-bottom:8px;margin:36px 0 18px}
+  .picks-head h3{font:italic 700 22px/1 Georgia,serif;margin:0}
+  .picks-head .by{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--quiet)}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{background:var(--card);border:1px solid #d9cfb8;padding:14px 14px 12px;position:relative}
+  .card::before{content:"";position:absolute;inset:6px;border:1px solid #e7dcc1;pointer-events:none}
+  .card .num{font:italic 700 36px/1 Georgia,serif;color:var(--gold);margin-bottom:6px}
+  .card h4{font:600 16px/1.25 Georgia,serif;margin:0 0 6px}
+  .card .blurb{font-size:13px;color:#3a342c;margin:0 0 8px}
+  .card .meta{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--quiet)}
+  .ribbon{position:absolute;top:8px;right:8px;background:var(--ink);color:var(--paper);font-size:9px;letter-spacing:.18em;padding:3px 6px;text-transform:uppercase}
+  .stance{margin:42px 0 0;border-top:6px double var(--ink);padding-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  .stance .col h3{font:italic 700 18px/1 Georgia,serif;margin:0 0 8px}
+  .stance ul{margin:0;padding-left:18px;font-size:13px}
+  .stance .quiet{color:var(--quiet);font-style:italic;font-size:12px}
+  .footnote{margin-top:28px;font-size:11px;color:var(--quiet);text-align:center;border-top:1px solid var(--ink);padding-top:10px;letter-spacing:.04em}
+  .stack{display:inline-block;border:1px solid var(--ink);padding:2px 8px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;background:transparent}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="pubdate">Vol. III · No. 127 · Tuesday, May 6, 2026</div>
+    <h1>The ShortFlix Weekly</h1>
+    <div class="tag">Cross-cultural short-form, hand-set on the page · No infinite feed, no autoplay, no agent in the room</div>
+  </header>
+
+  <section class="thesis">
+    <div>
+      <h2>The agents stay in the back office.</h2>
+      <p>We use Gemini, ADK and MCP — the rules require it, and frankly they earn their keep. Four of them collaborate to comb YouTube Shorts, Instagram Reels and TikTok every night. But the reader never meets them.</p>
+      <p>What you see is a finished page: nine picks, a paragraph each, and a quiet line saying when they were chosen. No chat bubble. No "ask the AI." No streaming reasoning trace pretending to be a feature.</p>
+      <p class="pull">"The most radical UI choice in 2026 is to make the model invisible."</p>
+    </div>
+    <aside>
+      <div class="quiet" style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--quiet);margin-bottom:6px">Stack — non-negotiable</div>
+      <div><span class="stack">ADK</span> <span class="stack">Gemini</span></div>
+      <div style="margin-top:6px"><span class="stack">MCP</span> <span class="stack">Cloud Run</span></div>
+      <p style="font-size:13px;margin-top:14px">Same rules-compliant multi-agent system as every other ShortFlix variant. The only difference is where we let it speak.</p>
+    </aside>
+  </section>
+
+  <div class="picks-head">
+    <h3>This Issue's Nine</h3>
+    <div class="by">Curated overnight · 412 candidates · 9 chosen · published 06:00 KST</div>
+  </div>
+
+  <div class="grid">
+    <article class="card"><span class="ribbon">Reels</span><div class="num">01</div><h4>A Lagos welder who paints in sparks</h4><p class="blurb">A 38-second portrait that the YouTube algorithm would never have shown you. Filed under: hands at work.</p><div class="meta">2:14 · english subs</div></article>
+    <article class="card"><span class="ribbon">Shorts</span><div class="num">02</div><h4>How to thank a stranger in Sichuan</h4><p class="blurb">A 22-second cultural footnote. Reads like a P. G. Wodehouse aside.</p><div class="meta">0:22 · ko · en</div></article>
+    <article class="card"><span class="ribbon">TikTok</span><div class="num">03</div><h4>Why Icelandic fishermen don't need watches</h4><p class="blurb">Light, tide, and the line on the horizon. A meditation, accidentally.</p><div class="meta">1:01 · is</div></article>
+    <article class="card"><span class="ribbon">Reels</span><div class="num">04</div><h4>Three minutes inside a Kyoto book bindery</h4><p class="blurb">Glue, thread, paper, silence. The closest thing to ASMR we will allow on this page.</p><div class="meta">3:00 · ja</div></article>
+    <article class="card"><span class="ribbon">Shorts</span><div class="num">05</div><h4>A Buenos Aires taxi driver explains tango etiquette</h4><p class="blurb">Useful even if you never plan to dance. Especially if you never plan to dance.</p><div class="meta">1:48 · es</div></article>
+    <article class="card"><span class="ribbon">TikTok</span><div class="num">06</div><h4>Hand-stretched lagman noodles, Bishkek</h4><p class="blurb">A craft so fast that the camera has trouble following.</p><div class="meta">0:54 · ky</div></article>
+    <article class="card"><span class="ribbon">Reels</span><div class="num">07</div><h4>The librarian of a one-room library, Patagonia</h4><p class="blurb">Catalogue cards, woodsmoke, two readers in a week.</p><div class="meta">2:33 · es</div></article>
+    <article class="card"><span class="ribbon">Shorts</span><div class="num">08</div><h4>Why Senegalese tailors keep their shears sharp</h4><p class="blurb">A small lesson in respect for tools, told without sermon.</p><div class="meta">1:12 · fr · wo</div></article>
+    <article class="card"><span class="ribbon">TikTok</span><div class="num">09</div><h4>A 12-year-old in Hanoi explains street pho rankings</h4><p class="blurb">More opinionated than most food critics. Funnier, too.</p><div class="meta">2:08 · vi</div></article>
+  </div>
+
+  <section class="stance">
+    <div class="col">
+      <h3>What is in the back office</h3>
+      <ul>
+        <li>Curator agent — Gemini-ranked overnight on Cloud Run</li>
+        <li>Unified-search agent — RapidAPI MCP tools, three platforms</li>
+        <li>Trend-safety agent — Vertex grounding, ToS guard</li>
+        <li>Orchestrator — ADK, hands the page to the printer</li>
+      </ul>
+      <p class="quiet">Multi-agent. Just not multi-bubble in your eye line.</p>
+    </div>
+    <div class="col">
+      <h3>What you will not find on this page</h3>
+      <ul>
+        <li>A chat box pretending to be your friend</li>
+        <li>A streaming "reasoning trace" you didn't ask to read</li>
+        <li>Sparkle icons, "AI"-stamped buttons, animated gradients</li>
+        <li>An infinite scroll designed to keep you scrolling</li>
+      </ul>
+      <p class="quiet">The discovery is the product. Not the model.</p>
+    </div>
+  </section>
+
+  <div class="footnote">© 2026 ShortFlix · A reader, not a feed · Submitted to Google for Startups AI Agents Challenge, Track 1</div>
+</div>
+</body></html>

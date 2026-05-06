@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix — One operator, one notebook</title>
+<style>
+  :root{
+    --bg:#fdfcf9; --paper:#fff; --ink:#1a1916; --muted:#6b6660; --rule:#e8e0d0;
+    --accent:#2a5e8a; --green:#1d6c4d; --rose:#a8431d; --warn:#a8742a;
+    --hand:'Caveat','Patrick Hand','Marker Felt',cursive;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 'Inter','Helvetica Neue',Arial,sans-serif;background-image:linear-gradient(transparent 27px,#f4eede 28px);background-size:100% 28px;background-position:0 60px}
+  .wrap{max-width:1080px;margin:0 auto;padding:34px 32px 60px}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
+  .brand{font:800 22px/1 'Inter';letter-spacing:-.4px}
+  .brand small{display:block;color:var(--muted);font:600 11px/1.4;letter-spacing:.18em;text-transform:uppercase;margin-top:4px}
+  .stamp{background:#fdf3e8;border:1px solid #ddc7a8;color:var(--warn);font:600 11px/1 'Inter';letter-spacing:.18em;text-transform:uppercase;padding:6px 10px;border-radius:6px;transform:rotate(-1.5deg)}
+
+  .pin{position:relative;background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:24px 28px 22px;margin-bottom:22px;box-shadow:0 6px 24px rgba(40,30,10,.06)}
+  .pin::before{content:"";position:absolute;left:50%;top:-10px;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#e26b6b,#7a1818);transform:translateX(-50%);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .pin h1{margin:6px 0 6px;font-size:28px;letter-spacing:-.4px}
+  .pin .hand{font-family:var(--hand);font-size:24px;color:var(--rose);transform:rotate(-1deg);display:inline-block}
+  .pin p{margin:0;color:#3a342c;max-width:780px}
+
+  h2.sec{margin:24px 0 12px;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+  .grid{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;margin-bottom:18px}
+  .panel{background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:18px 22px;box-shadow:0 1px 0 #f0e8d4}
+  .panel h3{margin:0 0 10px;font-size:16px}
+  .panel p{margin:0 0 8px;font-size:14px}
+
+  .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;color:var(--muted)}
+  .calendar .d{aspect-ratio:1;background:#f6efde;border:1px solid var(--rule);border-radius:6px;padding:4px;text-align:left;font-weight:600}
+  .calendar .d.h{background:#1d6c4d;color:#fff;border-color:#1d6c4d}
+  .calendar .d.h2{background:#5cb38a;color:#fff;border-color:#5cb38a}
+  .calendar .d.h3{background:#a8d2bc;color:#0c3a25;border-color:#a8d2bc}
+  .calendar .d.dem{background:#2a5e8a;color:#fff;border-color:#2a5e8a}
+  .calendar .d.now{outline:2px solid var(--rose);outline-offset:1px}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:12px;color:var(--muted)}
+  .legend .sw{display:inline-block;width:14px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
+
+  .mr{display:flex;flex-direction:column;gap:6px}
+  .item{display:grid;grid-template-columns:24px 1fr 90px;gap:8px;align-items:center;padding:7px 8px;border:1px solid var(--rule);border-radius:8px;background:#fffefb}
+  .item.cut{background:#fdf3ec;border-color:#f0c5a8}
+  .item.cut h4{text-decoration:line-through;color:var(--rose)}
+  .item.kill{background:#fbe6e6;border-color:#e8a8a8}
+  .item.kill h4{text-decoration:line-through;color:#7a1818}
+  .item .pri{width:22px;height:22px;border-radius:6px;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:11px}
+  .item .pri.b{background:var(--green)}
+  .item .pri.c{background:var(--warn)}
+  .item .pri.d{background:#888}
+  .item h4{margin:0;font-size:13.5px;font-weight:600}
+  .item small{color:var(--muted);font-size:11.5px}
+  .item .meta{text-align:right;font-size:11.5px;color:var(--muted)}
+  .item .meta b{display:block;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
+
+  .checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .check{display:grid;grid-template-columns:18px 1fr;gap:8px;font-size:13.5px;align-items:start;padding:6px;border-radius:6px;background:#fffaef;border:1px solid #efe0c2}
+  .check.done{background:#ecf6f0;border-color:#bcdcc4}
+  .check input{margin-top:3px}
+
+  .scribble{font-family:var(--hand);font-size:18px;color:var(--rose);transform:rotate(-2deg);display:inline-block;margin-top:6px}
+  .arrow{font-family:var(--hand);font-size:32px;color:var(--rose);line-height:1}
+
+  .promise{background:#1d6c4d;color:#fff;border-radius:14px;padding:18px 22px;margin-top:14px}
+  .promise h3{margin:0 0 6px;font-size:18px}
+  .promise p{margin:0;color:#cdebd9;font-size:14px;max-width:760px}
+  .promise ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;color:#cdebd9;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">ShortFlix · The solo notebook<small>One operator · 30 days · zero hires · zero VC</small></div>
+    <span class="stamp">future-me has to debug this at 2 AM, alone</span>
+  </div>
+
+  <section class="pin">
+    <h1>Every feature must pass <span class="hand">"can I maintain this alone after the demo?"</span></h1>
+    <p>This page is the operator's pinboard. The big idea, the 30-day calendar, the cut-list, and the post-hackathon promise — all on one screen because that is all I, one person, can hold in my head at once. Multi-agent is here because the rules require it; the operator-cost stays low because the four agents share one Cloud Run service, one Cloud SQL instance, one alert channel, one human on call.</p>
+  </section>
+
+  <h2 class="sec">1 · 30-day calendar — what one operator can ship</h2>
+  <div class="panel">
+    <p>Each square is one calendar day. Green = a feature day. Dark green = a load-bearing day. Red = the demo deadline. Days with the rose ring are <i>today</i> and <i>"do not break".</i></p>
+    <div class="calendar">
+      <div class="d h">D1<br/><small>ADK scaffold</small></div>
+      <div class="d h">D2<br/><small>Cloud Run hello</small></div>
+      <div class="d h2">D3<br/><small>MCP rapidapi YT</small></div>
+      <div class="d h2">D4<br/><small>MCP IG · TT</small></div>
+      <div class="d h2">D5<br/><small>Vertex grounding</small></div>
+      <div class="d">D6<br/><small>buffer</small></div>
+      <div class="d h">D7<br/><small>curator agent</small></div>
+
+      <div class="d h">D8<br/><small>trend-safety</small></div>
+      <div class="d h">D9<br/><small>orchestrator</small></div>
+      <div class="d h2">D10<br/><small>nightly cache</small></div>
+      <div class="d h2">D11<br/><small>PWA shell</small></div>
+      <div class="d h2">D12<br/><small>player + why chip</small></div>
+      <div class="d">D13<br/><small>buffer</small></div>
+      <div class="d h now">D14<br/><small>← TODAY</small></div>
+
+      <div class="d h">D15<br/><small>onboarding</small></div>
+      <div class="d h2">D16<br/><small>per-card receipt</small></div>
+      <div class="d h2">D17<br/><small>i18n KO+EN</small></div>
+      <div class="d h3">D18<br/><small>cut-list gate</small></div>
+      <div class="d h3">D19<br/><small>perf budget</small></div>
+      <div class="d">D20<br/><small>buffer</small></div>
+      <div class="d h2">D21<br/><small>privacy DPIA</small></div>
+
+      <div class="d h2">D22<br/><small>demo script</small></div>
+      <div class="d h">D23<br/><small>video shoot</small></div>
+      <div class="d h">D24<br/><small>video edit</small></div>
+      <div class="d h">D25<br/><small>EN subtitles</small></div>
+      <div class="d h2">D26<br/><small>repo polish</small></div>
+      <div class="d h2">D27<br/><small>code freeze</small></div>
+      <div class="d h">D28<br/><small>submission rehearsal</small></div>
+
+      <div class="d h">D29<br/><small>buffer + sleep</small></div>
+      <div class="d dem">D30<br/><small>SUBMIT</small></div>
+      <div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div>
+    </div>
+    <div class="legend">
+      <span><span class="sw" style="background:#1d6c4d"></span>Load-bearing</span>
+      <span><span class="sw" style="background:#5cb38a"></span>Feature work</span>
+      <span><span class="sw" style="background:#a8d2bc"></span>Hardening / cut-list</span>
+      <span><span class="sw" style="background:#2a5e8a"></span>Submission</span>
+      <span><span class="sw" style="background:#fff;border:2px solid var(--rose)"></span>Today</span>
+    </div>
+    <div class="scribble">if I am behind on D18 I cut, I do not crunch ↓</div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <h2 class="sec">2 · Maintain-or-cut list <span class="arrow" style="font-size:18px;color:var(--muted)">(future-me will thank past-me)</span></h2>
+      <div class="panel mr">
+        <div class="item"><span class="pri">M</span><div><h4>4 agents on one Cloud Run service</h4><small>Same image, different ENTRYPOINT. One deploy, one revert.</small></div><div class="meta"><b>keep</b><small>1 deploy/day</small></div></div>
+        <div class="item"><span class="pri b">M</span><div><h4>Cloud SQL f1-micro · daily backup</h4><small>No replica. If it dies I restore from yesterday.</small></div><div class="meta"><b>keep</b><small>$3/mo</small></div></div>
+        <div class="item"><span class="pri c">M</span><div><h4>Per-card "why" chip</h4><small>One Gemini call, cached for 24h. Demos great, costs nothing.</small></div><div class="meta"><b>keep</b><small>$0.4/d</small></div></div>
+        <div class="item cut"><span class="pri d">C</span><div><h4>Per-card streaming "why" trace overlay</h4><small>The-ai-native wants this; future-me cannot debug a streaming pipeline alone at 2 AM.</small></div><div class="meta"><b>cut</b><small>D+18</small></div></div>
+        <div class="item cut"><span class="pri d">C</span><div><h4>Multi-region active-active</h4><small>asia-NE3 only. EU mirror = D+90 if Pro takes off.</small></div><div class="meta"><b>defer</b><small>D+90</small></div></div>
+        <div class="item kill"><span class="pri d">K</span><div><h4>GKE deployment</h4><small>Tempting for the speed-obsessed. Kills me operationally.</small></div><div class="meta"><b>kill</b><small>—</small></div></div>
+        <div class="item kill"><span class="pri d">K</span><div><h4>Federated curator-mesh (the-dreamer)</h4><small>Beautiful. Not in 30 days. Not by one operator.</small></div><div class="meta"><b>kill</b><small>roadmap only</small></div></div>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="sec">3 · Submission DoD checklist</h2>
+      <div class="panel">
+        <div class="checklist">
+          <label class="check done"><input type="checkbox" checked /><b>ADK orchestrator</b> · 4 agents wired</label>
+          <label class="check done"><input type="checkbox" checked /><b>Gemini-2.0-flash</b> · per-agent prompt</label>
+          <label class="check done"><input type="checkbox" checked /><b>MCP RapidAPI</b> · YT/IG/TT</label>
+          <label class="check done"><input type="checkbox" checked /><b>Cloud Run</b> · asia-NE3 deployed</label>
+          <label class="check done"><input type="checkbox" checked /><b>Vertex AI Search</b> · 1 corpus</label>
+          <label class="check done"><input type="checkbox" checked /><b>PWA shell</b> · &lt; 30 KB · Lighthouse 96</label>
+          <label class="check done"><input type="checkbox" checked /><b>Per-card "why"</b> chip + panel</label>
+          <label class="check done"><input type="checkbox" checked /><b>Greenfield</b> · public repo Apache-2.0</label>
+          <label class="check"><input type="checkbox" /><b>Demo video</b> · 1-2 min · EN subs</label>
+          <label class="check"><input type="checkbox" /><b>RapidAPI disclosure</b> · in submission</label>
+          <label class="check"><input type="checkbox" /><b>DPIA + privacy.md</b></label>
+          <label class="check"><input type="checkbox" /><b>One-page status</b> · self-hosted</label>
+          <label class="check"><input type="checkbox" /><b>$500 credit ceiling</b> · alert wired</label>
+          <label class="check"><input type="checkbox" /><b>Code freeze D27</b> · CFR-only after</label>
+        </div>
+        <div class="scribble">14 boxes. 14 days. one box/day or I am in trouble.</div>
+      </div>
+    </div>
+  </div>
+
+  <section class="promise">
+    <h3>Post-hackathon promise · what one operator owes themselves</h3>
+    <p>If I win, this becomes a real product. If I lose, the same artifact is still maintainable for years. The features below are the only ones I will keep alive past D+30 alone — everything else either earns its keep on metrics or gets sunset by D+90.</p>
+    <ul>
+      <li>4 agents · 1 Cloud Run service · 1 deploy/day max</li>
+      <li>1 Cloud SQL f1-micro · 1 nightly backup · 1 alert</li>
+      <li>1 RapidAPI account · 3 plans · 1 invoice</li>
+      <li>1 PWA · 1 i18n bundle (KO + EN) · 1 Lighthouse target (≥ 90)</li>
+      <li>1 page of metrics, on a screen I look at every Sunday</li>
+      <li>1 on-call: me · pager rule: nothing wakes me unless $500 ceiling is breached</li>
+    </ul>
+  </section>
+</div>
+</body></html>

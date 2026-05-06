@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>shortflix — keyboard-first PWA</title>
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#10141a; --panel2:#0d1116; --grid:#1a2230;
+    --ink:#d8e0ea; --dim:#7a8aa0; --ok:#5af28a; --warn:#ffb86b; --acc:#7aa5ff; --hot:#ff7a8a;
+    --mono:'JetBrains Mono','Fira Code',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.55 var(--mono)}
+  .frame{max-width:1240px;margin:18px auto;border:1px solid #1d2735;border-radius:6px;overflow:hidden;box-shadow:0 0 0 1px #0e141d, 0 18px 60px rgba(0,0,0,.6)}
+  .titlebar{background:#070a0e;display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #1a2230}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
+  .titlebar .path{color:var(--dim);font-size:12px;margin-left:8px}
+  .titlebar .badge{margin-left:auto;color:var(--ok);font-size:11px}
+  .grid{display:grid;grid-template-columns:220px 1fr 320px;min-height:640px}
+  .side{background:var(--panel2);border-right:1px solid var(--grid);padding:12px 10px}
+  .side h4{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin:14px 4px 6px}
+  .kbd{display:inline-flex;align-items:center;gap:4px}
+  .k{font-family:var(--mono);font-size:11px;background:#1a2230;border:1px solid #243047;border-bottom-width:2px;border-radius:4px;padding:1px 6px;color:#d8e0ea}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:4px 4px;border-radius:4px;color:#bccae0}
+  .row:hover{background:#15202d}
+  .main{background:var(--panel);padding:0}
+  .palette{background:#0a0e13;border-bottom:1px solid var(--grid);padding:14px 18px;display:flex;align-items:center;gap:10px}
+  .palette .prompt{color:var(--ok)}
+  .palette input{background:transparent;border:0;color:var(--ink);font:13px var(--mono);outline:none;flex:1}
+  .palette .hint{color:var(--dim);font-size:11px}
+  .feed{padding:14px 18px;border-bottom:1px solid var(--grid);font-size:12.5px}
+  .feed .item{display:grid;grid-template-columns:30px 56px 1fr 90px 70px;gap:10px;align-items:center;padding:6px 4px;border-bottom:1px dashed #1a2230}
+  .feed .item:last-child{border-bottom:0}
+  .feed .item.sel{background:#142033;border-left:2px solid var(--acc)}
+  .feed .idx{color:var(--dim)}
+  .src{font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:2px 6px;border-radius:3px;text-align:center}
+  .src.yt{background:#3a1418;color:#ff8a98}
+  .src.ig{background:#3a1f3a;color:#ff9ad8}
+  .src.tt{background:#0e2a36;color:#7ad9ff}
+  .feed h5{margin:0;font-weight:500;color:#e6ecf5}
+  .feed .why{color:var(--dim);font-size:11px;margin-top:2px}
+  .feed .num{color:var(--ok);text-align:right;font-variant-numeric:tabular-nums}
+  .feed .dur{color:var(--dim);text-align:right;font-variant-numeric:tabular-nums}
+  .terminal{padding:14px 18px;background:#070a0e}
+  .terminal pre{margin:0;color:#bccae0;font-size:12px}
+  .terminal .ok{color:var(--ok)}.terminal .warn{color:var(--warn)}.terminal .acc{color:var(--acc)}.terminal .dim{color:var(--dim)}.terminal .hot{color:var(--hot)}
+  .right{background:var(--panel2);border-left:1px solid var(--grid);padding:14px 14px}
+  .right h4{margin:0 0 8px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+  .agent{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;padding:6px 8px;border:1px solid var(--grid);border-radius:4px;margin-bottom:6px;background:#0a1220}
+  .agent .nm{color:#dbe6f5;font-size:12px}
+  .agent .lat{color:var(--ok);font-size:11px;font-variant-numeric:tabular-nums}
+  .legend{margin-top:10px;color:var(--dim);font-size:11px;line-height:1.6}
+  .statusbar{display:flex;justify-content:space-between;background:#070a0e;border-top:1px solid var(--grid);padding:6px 14px;font-size:11px;color:var(--dim)}
+  .statusbar .ok{color:var(--ok)}
+  a.cmd{color:var(--acc);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="titlebar">
+    <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+    <span class="path">~/shortflix · pwa · session #4081</span>
+    <span class="badge">cloud-run.asia-northeast3 · agents 4/4 healthy</span>
+  </div>
+  <div class="grid">
+    <aside class="side">
+      <h4>commands</h4>
+      <div class="row"><span>:curate</span><span class="kbd"><span class="k">⇧</span><span class="k">C</span></span></div>
+      <div class="row"><span>:search</span><span class="kbd"><span class="k">/</span></span></div>
+      <div class="row"><span>:open</span><span class="kbd"><span class="k">↵</span></span></div>
+      <div class="row"><span>:why</span><span class="kbd"><span class="k">w</span></span></div>
+      <div class="row"><span>:save</span><span class="kbd"><span class="k">s</span></span></div>
+      <div class="row"><span>:share</span><span class="kbd"><span class="k">y</span></span></div>
+      <div class="row"><span>:trace</span><span class="kbd"><span class="k">t</span></span></div>
+      <h4>filters</h4>
+      <div class="row"><span>platform=*</span><span class="kbd"><span class="k">p</span></span></div>
+      <div class="row"><span>lang=ko,en,ja</span><span class="kbd"><span class="k">l</span></span></div>
+      <div class="row"><span>novelty &gt;= 0.7</span><span class="kbd"><span class="k">n</span></span></div>
+      <h4>session</h4>
+      <div class="row"><span>history</span><span class="kbd"><span class="k">⌘</span><span class="k">H</span></span></div>
+      <div class="row"><span>logout</span><span class="kbd"><span class="k">⌘</span><span class="k">Q</span></span></div>
+    </aside>
+    <main class="main">
+      <div class="palette">
+        <span class="prompt">›</span>
+        <input value=":curate --cross-platform --novelty=high --n=9" />
+        <span class="hint"><span class="kbd"><span class="k">⌘</span><span class="k">K</span></span> command palette · <span class="kbd"><span class="k">?</span></span> help</span>
+      </div>
+      <div class="feed">
+        <div class="item sel">
+          <span class="idx">01</span><span class="src yt">YT</span>
+          <div><h5>Lagos welder who paints in sparks</h5><div class="why">why → cross-cultural craft · novelty 0.91 · cluster=hands</div></div>
+          <span class="num">0.91</span><span class="dur">2:14</span>
+        </div>
+        <div class="item">
+          <span class="idx">02</span><span class="src ig">IG</span>
+          <div><h5>Sichuan thank-you etiquette in 22 seconds</h5><div class="why">why → bridges JP→ZH cluster gap · novelty 0.88</div></div>
+          <span class="num">0.88</span><span class="dur">0:22</span>
+        </div>
+        <div class="item">
+          <span class="idx">03</span><span class="src tt">TT</span>
+          <div><h5>Icelandic fishermen and the horizon line</h5><div class="why">why → low-saturation cluster underrepresented in your taste-vector</div></div>
+          <span class="num">0.86</span><span class="dur">1:01</span>
+        </div>
+        <div class="item">
+          <span class="idx">04</span><span class="src yt">YT</span>
+          <div><h5>Kyoto bookbindery, three minutes</h5><div class="why">why → curator picked over 47 close substitutes · grounding=ja</div></div>
+          <span class="num">0.84</span><span class="dur">3:00</span>
+        </div>
+        <div class="item">
+          <span class="idx">05</span><span class="src tt">TT</span>
+          <div><h5>Hand-stretched lagman noodles, Bishkek</h5><div class="why">why → out-of-bubble · trend-safety cleared (no copyrighted audio)</div></div>
+          <span class="num">0.81</span><span class="dur">0:54</span>
+        </div>
+        <div class="item">
+          <span class="idx">06</span><span class="src ig">IG</span>
+          <div><h5>One-room library in Patagonia</h5><div class="why">why → diversity-aware re-rank kept this over a 0.83 candidate</div></div>
+          <span class="num">0.79</span><span class="dur">2:33</span>
+        </div>
+      </div>
+      <div class="terminal">
+<pre><span class="dim">[06:00:11]</span> <span class="acc">orchestrator</span> nightly batch starting · candidates=412
+<span class="dim">[06:00:14]</span> <span class="acc">unified-search</span> ⟶ MCP[rapidapi:yt] 142 · <span class="acc">MCP[rapidapi:ig]</span> 138 · <span class="acc">MCP[rapidapi:tt]</span> 132
+<span class="dim">[06:00:21]</span> <span class="acc">trend-safety</span> filtered 99 (ToS=71, copyright=18, safety=10) <span class="warn">→ 313 remain</span>
+<span class="dim">[06:00:34]</span> <span class="acc">curator</span> Gemini-2.0-flash · embedding centroid drift=0.07 · novelty re-rank
+<span class="dim">[06:00:47]</span> <span class="ok">DONE</span> 9 picks · platform mix 3-3-3 · p50 1.18s · cost $0.041
+<span class="dim">›</span> _<span style="opacity:.5">|</span></pre>
+      </div>
+    </main>
+    <aside class="right">
+      <h4>agent topology</h4>
+      <div class="agent"><span class="nm">orchestrator (ADK)</span><span class="lat">220 ms</span></div>
+      <div class="agent"><span class="nm">curator (gemini-2.0-flash)</span><span class="lat">410 ms</span></div>
+      <div class="agent"><span class="nm">unified-search (MCP×3)</span><span class="lat">312 ms</span></div>
+      <div class="agent"><span class="nm">trend-safety (gemini + vertex)</span><span class="lat">238 ms</span></div>
+      <h4 style="margin-top:14px">mcp tools</h4>
+      <div class="agent"><span class="nm">rapidapi · yt-shorts</span><span class="lat">ok</span></div>
+      <div class="agent"><span class="nm">rapidapi · ig-reels</span><span class="lat">ok</span></div>
+      <div class="agent"><span class="nm">rapidapi · tiktok</span><span class="lat">ok</span></div>
+      <div class="agent"><span class="nm">vertex.search</span><span class="lat">ok</span></div>
+      <div class="legend">
+        Power-user surface · still a PWA (manifest+SW shipped) · all keystrokes work on touch via long-press palette · zero mouse path needed for demo.
+      </div>
+    </aside>
+  </div>
+  <div class="statusbar">
+    <span><span class="ok">●</span> connected · normal mode · <span class="kbd"><span class="k">i</span></span> insert</span>
+    <span>asia-NE3 · gemini-2.0-flash · 9 picks · novelty μ=0.86</span>
+    <span>v0.4.1 · ADK 1.8 · MCP 0.7</span>
+  </div>
+</div>
+</body></html>

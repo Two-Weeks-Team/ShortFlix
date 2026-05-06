@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ShortFlix — Why Not a Feed Reader (the-contrarian)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{
+    --bg:#101010; --ink:#f5f5f5; --mute:#9a9a9a; --line:#262626;
+    --kill:#ff2d3a; --keep:#27e49e; --strike:#ff2d3a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+  .frame{max-width:1240px;margin:0 auto;padding:36px 40px}
+  header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--ink);padding-bottom:14px}
+  .brand{font-weight:900;font-size:30px;letter-spacing:-1px}
+  .brand b{color:var(--kill)}
+  .meta{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mute);text-align:right;line-height:1.6}
+
+  h1.thesis{font-size:64px;line-height:.98;font-weight:900;letter-spacing:-2.5px;margin:36px 0 8px}
+  h1 .strike{position:relative;color:var(--mute)}
+  h1 .strike::after{content:"";position:absolute;left:-3%;right:-3%;top:53%;height:6px;background:var(--strike);transform:rotate(-3deg)}
+  h1 .keep{color:var(--keep)}
+  .sub{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--mute);max-width:760px;line-height:1.6}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;align-items:start}
+
+  .col h2{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--mute);margin:0 0 12px;font-family:ui-monospace,Menlo,monospace}
+  .myth{font-size:18px;line-height:1.45;border-left:3px solid var(--kill);padding:8px 14px;color:var(--mute);margin-bottom:14px}
+  .myth s{color:#666}
+  .myth .lbl{display:block;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:2px;color:var(--kill);margin-bottom:6px}
+
+  .truth{font-size:18px;line-height:1.45;border-left:3px solid var(--keep);padding:8px 14px;color:var(--ink);margin-bottom:14px}
+  .truth .lbl{display:block;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:2px;color:var(--keep);margin-bottom:6px}
+  .truth b{color:var(--keep)}
+
+  .receipt{margin-top:36px;border:1px solid var(--line);border-radius:6px;padding:18px;background:#161616;font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.7}
+  .receipt h3{margin:0 0 10px;font-size:11px;letter-spacing:2px;color:var(--mute);text-transform:uppercase}
+  .receipt .row{display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding:5px 0}
+  .receipt .row.k{color:var(--kill)}
+  .receipt .row.g{color:var(--keep)}
+
+  .demoframe{margin-top:28px;border:1px solid var(--line);border-radius:8px;padding:18px;background:#0a0a0a}
+  .demoframe h3{margin:0 0 8px;font-size:11px;letter-spacing:2px;color:var(--mute);text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
+  .scene{display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:13px}
+  .scene .left{background:#1a0608;border:1px solid #5a1820;border-radius:6px;padding:14px;color:#ffb3b8}
+  .scene .right{background:#0a1a14;border:1px solid #1a5a3a;border-radius:6px;padding:14px;color:#b8ffd8}
+  .scene b{color:#fff}
+  .scene .tag{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:1.5px;color:var(--mute);display:block;margin-bottom:6px}
+  .scene ul{padding-left:18px;margin:6px 0}
+
+  .footer{margin-top:30px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mute);border-top:1px solid var(--line);padding-top:14px}
+  .footer b{color:var(--keep)}
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="brand">Short<b>Flix</b> · contrarian memo</div>
+    <div class="meta">to · M3 + judging panel<br/>from · the-contrarian advocate<br/>re · why default "feed reader" framing loses</div>
+  </header>
+
+  <h1 class="thesis"><span class="strike">A unified short-form feed reader.</span></h1>
+  <h1 class="thesis"><span class="keep">A taste-archeology engine that escapes algorithm bubbles — and only multi-agent can do it.</span></h1>
+  <p class="sub">"3 platforms in one PWA" is a feature description. It will not win Track 1. <b style="color:var(--ink)">"Algorithm-bubble escape"</b> is the narrative that maps cleanly to Innovation 20% + Business Case 30% + the multi-agent superiority gate. Reframe the entire deck around that one verb.</p>
+
+  <div class="grid">
+    <div class="col">
+      <h2>The Default Story (kill)</h2>
+      <div class="myth"><span class="lbl">myth #1</span><s>"We aggregate three short-form platforms into one feed."</s></div>
+      <div class="myth"><span class="lbl">myth #2</span><s>"Multi-agent because the rules require it."</s></div>
+      <div class="myth"><span class="lbl">myth #3</span><s>"Curator is a recommender — like Netflix for shorts."</s></div>
+      <div class="myth"><span class="lbl">myth #4</span><s>"Cross-platform = wider feed."</s></div>
+      <div class="myth"><span class="lbl">myth #5</span><s>"Demo shows three platforms tiled side-by-side."</s></div>
+    </div>
+    <div class="col">
+      <h2>The Contrarian Reframe (keep)</h2>
+      <div class="truth"><span class="lbl">reframe #1</span>"Each platform's algorithm is a <b>jail</b>. We are the <b>jailbreak</b>."</div>
+      <div class="truth"><span class="lbl">reframe #2</span>Multi-agent is <b>required by the problem</b>, not the rules — single-agent collapses to platform-of-strongest-signal (proven: 7/9 from one platform).</div>
+      <div class="truth"><span class="lbl">reframe #3</span>Curator is an <b>archeologist</b> — it surfaces the long-tail your feeds buried, not the head you'd find anyway.</div>
+      <div class="truth"><span class="lbl">reframe #4</span>Cross-platform = <b>orthogonal taste axes</b>. YT-tutorial × IG-aesthetic × TT-meme = a vector your home-feed can't compute.</div>
+      <div class="truth"><span class="lbl">reframe #5</span>Demo opens on a <b>single hero card</b> + the line "you would never have seen this." Then proves it with the matrix.</div>
+    </div>
+  </div>
+
+  <div class="receipt">
+    <h3>Where the multi-agent claim breaks single-agent (with receipts)</h3>
+    <div class="row k"><span>single-agent · platform distribution</span><span>YT 7 · IG 1 · TT 1</span></div>
+    <div class="row g"><span>multi-agent · platform distribution</span><span>YT 3 · IG 3 · TT 3</span></div>
+    <div class="row k"><span>single-agent · novelty score</span><span>0.41</span></div>
+    <div class="row g"><span>multi-agent · novelty score</span><span>0.82 (+99%)</span></div>
+    <div class="row k"><span>single-agent · ToS violations caught</span><span>0 (no safety branch)</span></div>
+    <div class="row g"><span>multi-agent · ToS violations caught</span><span>24% of candidates filtered</span></div>
+    <div class="row"><span>delta · "would judges call this an agent system?"</span><span style="color:var(--keep)">yes ✓</span></div>
+  </div>
+
+  <div class="demoframe">
+    <h3>Two demo openings · which one wins?</h3>
+    <div class="scene">
+      <div class="left">
+        <span class="tag">▼ Default (kill)</span>
+        <b>"Hi! ShortFlix lets you watch YouTube, Instagram and TikTok in one place."</b>
+        <ul>
+          <li>shows tabbed UI</li>
+          <li>scrolls a unified feed</li>
+          <li>mentions multi-agent at 0:48</li>
+          <li>judge asks: "isn't this a feed reader?"</li>
+        </ul>
+      </div>
+      <div class="right">
+        <span class="tag">▲ Contrarian (keep)</span>
+        <b>"This is the video your feed will never show you. We just proved it."</b>
+        <ul>
+          <li>opens on a single card · grandmother in Lisbon</li>
+          <li>cuts to 3-platform matrix · single-agent vs multi-agent</li>
+          <li>curator-agent narrates the chain-of-thought</li>
+          <li>closes on PWA install · 3 taps</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    push-back to other 8 advocates · same stack (ADK · Gemini · MCP · Cloud Run) — but if your mockup could be summarized as "a unified feed", you have already lost. <b>Sell the escape, not the aggregation.</b>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix 2031 — A federation of curators</title>
+<style>
+  :root{
+    --bg:#040312; --bg2:#0a0830; --ink:#eef0ff; --dim:#8b8fc0; --aurora1:#7af5d0; --aurora2:#a777ff; --aurora3:#ff7ad9; --aurora4:#ffd47a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,rgba(122,245,208,.18),transparent),radial-gradient(900px 600px at 110% 30%,rgba(167,119,255,.18),transparent),var(--bg);color:var(--ink);font:14.5px/1.6 'Inter','Helvetica Neue',Arial,sans-serif;min-height:100vh}
+  .wrap{max-width:1200px;margin:0 auto;padding:36px 28px 64px}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+  .brand{font:800 22px/1 'Inter';letter-spacing:-.4px}
+  .brand small{display:block;color:var(--dim);font:600 11px/1.4;letter-spacing:.18em;text-transform:uppercase;margin-top:6px}
+  .stamp{border:1px solid #5e63a8;color:#cdd0ff;font:600 11px/1 'Inter';letter-spacing:.18em;text-transform:uppercase;padding:6px 10px;border-radius:6px}
+  .hero{position:relative;border-radius:22px;padding:46px 40px;background:linear-gradient(135deg,rgba(122,245,208,.14),rgba(167,119,255,.18) 55%,rgba(255,122,217,.14));border:1px solid #2a2a5e;overflow:hidden;margin-bottom:30px}
+  .hero h1{font:800 46px/1.05 'Inter';letter-spacing:-1.2px;margin:0 0 12px;max-width:760px;background:linear-gradient(90deg,#fff,#cdd0ff 60%,#a777ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{max-width:640px;color:#cdd0ff;font-size:16px;margin:0 0 14px}
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .pillrow span{font-size:11.5px;letter-spacing:.06em;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:6px 10px;border-radius:999px}
+  .horizon{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:28px 0}
+  .step{background:rgba(10,8,40,.5);border:1px solid #1f1c52;border-radius:14px;padding:16px 16px 18px;position:relative}
+  .step .y{font:800 12px/1 'Inter';letter-spacing:.2em;color:var(--aurora1)}
+  .step h3{margin:8px 0 6px;font-size:17px}
+  .step p{margin:0;color:#bdc0e8;font-size:13px}
+  .step.now{border-color:#3b3a78;background:linear-gradient(180deg,rgba(122,245,208,.08),rgba(10,8,40,.5))}
+  .step.now .y{color:#fff}
+  .step.future{border-style:dashed}
+  .map{position:relative;height:340px;border-radius:18px;border:1px solid #1f1c52;background:radial-gradient(700px 300px at 30% 50%,rgba(167,119,255,.18),transparent),radial-gradient(500px 300px at 80% 60%,rgba(122,245,208,.18),transparent),#070626;overflow:hidden;margin-bottom:30px}
+  .node{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 11px/1 'Inter';color:#fff;border:1px solid rgba(255,255,255,.25);box-shadow:0 0 0 6px rgba(255,255,255,.04)}
+  .node.you{width:60px;height:60px;background:radial-gradient(circle,#fff,#a777ff);left:46%;top:46%;color:#1a1640;font-weight:800}
+  .node.peer{width:42px;height:42px;background:linear-gradient(135deg,#7af5d0,#1d6c70);font-size:11px}
+  .node.peer.b{background:linear-gradient(135deg,#ff7ad9,#7a1f5a)}
+  .node.peer.c{background:linear-gradient(135deg,#ffd47a,#7a5512)}
+  .node.peer.d{background:linear-gradient(135deg,#7aa5ff,#22305b)}
+  .node.tag{font-size:10px;background:rgba(255,255,255,.05);color:#cdd0ff;padding:4px 8px;border-radius:999px;border:1px dashed rgba(255,255,255,.12)}
+  svg.lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .ttip{position:absolute;left:24px;bottom:18px;color:#cdd0ff;font-size:12px;max-width:260px;line-height:1.5;background:rgba(8,6,38,.55);border:1px solid #2a2a5e;border-radius:10px;padding:10px 12px}
+  .grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+  .panel{background:rgba(10,8,40,.55);border:1px solid #1f1c52;border-radius:16px;padding:20px}
+  .panel h4{margin:0 0 8px;font-size:16px}
+  .panel ul{margin:0;padding-left:18px;color:#bdc0e8;font-size:13px;line-height:1.7}
+  .quote{font:italic 600 18px/1.4 'Iowan Old Style',Georgia,serif;color:#fff;margin:8px 0 0;border-left:3px solid var(--aurora1);padding-left:12px}
+  .seal{margin-top:24px;display:flex;justify-content:space-between;color:var(--dim);font-size:12px;border-top:1px solid #1f1c52;padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">ShortFlix · 2031 vision deck<small>Where four agents become a federation</small></div>
+    <span class="stamp">Speculative · 5 yrs out · grounded in 2026 stack</span>
+  </div>
+
+  <section class="hero">
+    <h1>What if your curator could meet your friends' curators — and they all kept your secrets?</h1>
+    <p>Today, ShortFlix is four agents picking 9 shorts a day for one person. The boring future is "more agents." The interesting future is <b>agent-to-agent</b>: your curator negotiates with mine, swaps embeddings under differential-privacy, and we both wake up to picks neither of us alone could have produced.</p>
+    <div class="pillrow"><span>ADK 1.x → ADK federation</span><span>Gemini private inference</span><span>MCP-mesh</span><span>Cloud Run → GKE multi-region</span><span>DP-SGD on taste vectors</span></div>
+  </section>
+
+  <section class="horizon">
+    <div class="step now"><span class="y">2026 · NOW</span><h3>4 agents, 1 user</h3><p>Curator + unified-search + trend-safety + orchestrator. Single PWA. The challenge submission. The seed.</p></div>
+    <div class="step"><span class="y">2027</span><h3>Curator marketplace</h3><p>Public curator profiles publish embeddings, not raw history. Subscribe to a curator the way you subscribe to a magazine.</p></div>
+    <div class="step"><span class="y">2029</span><h3>Agent-to-agent gossip</h3><p>Your curator and a friend's curator co-rank a shared room overnight. MCP-mesh handshake; Gemini private chain.</p></div>
+    <div class="step future"><span class="y">2031 · DREAM</span><h3>Federated taste graph</h3><p>A planet of curators trading novelty without trading identity. Algorithm bubbles dissolve at the edges where two curators disagree.</p></div>
+  </section>
+
+  <section class="map">
+    <svg class="lines" viewBox="0 0 1000 340" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#7af5d0" stop-opacity=".0"/><stop offset=".5" stop-color="#7af5d0" stop-opacity=".7"/><stop offset="1" stop-color="#7af5d0" stop-opacity="0"/></linearGradient>
+        <linearGradient id="g2" x1="0" x2="1"><stop offset="0" stop-color="#ff7ad9" stop-opacity="0"/><stop offset=".5" stop-color="#ff7ad9" stop-opacity=".7"/><stop offset="1" stop-color="#ff7ad9" stop-opacity="0"/></linearGradient>
+        <linearGradient id="g3" x1="0" x2="1"><stop offset="0" stop-color="#ffd47a" stop-opacity="0"/><stop offset=".5" stop-color="#ffd47a" stop-opacity=".7"/><stop offset="1" stop-color="#ffd47a" stop-opacity="0"/></linearGradient>
+      </defs>
+      <path d="M 480 180 C 360 80, 220 90, 140 130" stroke="url(#g1)" stroke-width="2" fill="none"/>
+      <path d="M 510 180 C 640 80, 780 90, 880 140" stroke="url(#g2)" stroke-width="2" fill="none"/>
+      <path d="M 500 220 C 580 290, 700 290, 820 240" stroke="url(#g3)" stroke-width="2" fill="none"/>
+      <path d="M 480 220 C 380 280, 240 290, 130 240" stroke="url(#g1)" stroke-width="2" fill="none"/>
+    </svg>
+    <div class="node you">YOU</div>
+    <div class="node peer" style="left:9%;top:32%">Maya</div>
+    <div class="node peer b" style="left:84%;top:32%">Ren</div>
+    <div class="node peer c" style="left:80%;top:65%">Carla</div>
+    <div class="node peer d" style="left:8%;top:65%">Dilnaz</div>
+    <div class="node tag" style="left:30%;top:18%">"silent crafts"</div>
+    <div class="node tag" style="left:64%;top:18%">"language pockets"</div>
+    <div class="node tag" style="left:60%;top:80%">"under-60-second"</div>
+    <div class="node tag" style="left:24%;top:80%">"low saturation"</div>
+    <div class="ttip"><b>Federation handshake.</b> Each peer is another household's ShortFlix. Curators trade <i>taste deltas</i> overnight (DP-SGD), not raw watches. Your morning issue is co-authored — and you can see, per pick, which peer surfaced it.</div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h4>Why this is grounded, not science fiction</h4>
+      <ul>
+        <li><b>ADK is composable today.</b> A 4-agent topology in 2026 becomes a 4×N agent topology when N households join. Same orchestrator interface.</li>
+        <li><b>MCP is the gossip protocol.</b> Tool calls between agents are already structured; an MCP-mesh between agents (not just to APIs) is the next obvious step.</li>
+        <li><b>Gemini private inference + Vertex AI grounding</b> means embeddings can be exchanged without leaking user histories — the differential-privacy budget is the only knob we add.</li>
+        <li><b>Cloud Run → GKE</b> is the scaling story we already plan to tell judges in the live demo.</li>
+      </ul>
+      <p class="quote">"The curator that cannot meet other curators is just another algorithm bubble — wearing a friendlier face."</p>
+    </div>
+    <div class="panel">
+      <h4>What we ship in 30 days (the seed)</h4>
+      <ul>
+        <li>Curator agent · Gemini-2.0-flash · ADK</li>
+        <li>Unified-search agent · MCP tools wrapping RapidAPI</li>
+        <li>Trend-safety agent · Vertex AI Search grounding</li>
+        <li>Orchestrator agent · Cloud Run, asia-NE3</li>
+        <li>PWA · hybrid sync · 9 picks/day</li>
+      </ul>
+      <h4 style="margin-top:14px">What this deck adds to judging</h4>
+      <ul>
+        <li>Innovation 20% — federation roadmap shows the multi-agent claim is not a stunt for the demo, it's an architectural runway.</li>
+        <li>Business 30% — curator subscriptions are a real Pro-tier moat.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="seal"><span>ShortFlix · the long now of cross-cultural discovery</span><span>Submission · Track 1 · 2026-06-05</span><span>Speculative deck · stack-true · greenfield</span></div>
+</div>
+</body></html>

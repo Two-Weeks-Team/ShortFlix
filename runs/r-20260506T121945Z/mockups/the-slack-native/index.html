@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix · Bot · Inside Slack</title>
+<style>
+  :root{
+    --bg:#1a1d21; --side:#19171d; --side2:#231f29; --ink:#e8e8e8; --muted:#9b9b9b; --rule:#383b40;
+    --acc:#4a154b; --link:#1d9bd1; --green:#2eb67d; --pink:#e01e5a; --yellow:#ecb22e;
+    --user:#f8f8f8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 'Lato','Helvetica Neue',Arial,sans-serif}
+  .app{display:grid;grid-template-columns:64px 250px 1fr 320px;height:100vh;min-height:780px}
+  .rail{background:var(--acc);padding:14px 0;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .ws{width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg,#fff,#cdd5ec);color:var(--acc);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .rail .add{width:34px;height:34px;border-radius:6px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;margin-top:6px}
+  .rail .you{margin-top:auto;width:34px;height:34px;border-radius:6px;background:#1d9bd1;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+
+  .channels{background:var(--side);padding:14px 6px;color:#cdcdcd;border-right:1px solid var(--rule);overflow:auto}
+  .channels h2{font-size:15px;margin:0 14px 8px;color:#fff;display:flex;align-items:center;gap:6px}
+  .channels h2 small{font-size:10px;background:#3a3640;color:#cdcdcd;padding:2px 6px;border-radius:4px;font-weight:600}
+  .channels h4{margin:14px 14px 4px;font-size:12px;color:#9b9b9b;font-weight:600;display:flex;align-items:center;gap:6px}
+  .ch{padding:5px 12px;border-radius:5px;font-size:14px;color:#cdcdcd;display:flex;align-items:center;gap:8px;cursor:pointer}
+  .ch:hover{background:#2c2630}
+  .ch.on{background:#1164a3;color:#fff}
+  .ch .h{font-family:'Larsseit','Lato';opacity:.7}
+  .ch.unread{font-weight:700;color:#fff}
+  .ch.unread .badge{margin-left:auto;background:var(--pink);color:#fff;font-size:11px;border-radius:10px;padding:1px 7px;font-weight:700}
+  .dm{padding:5px 12px;font-size:14px;color:#cdcdcd;display:flex;align-items:center;gap:8px;border-radius:5px}
+  .dm .dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block}
+  .dm.bot .dot{background:#ecb22e}
+
+  .main{display:flex;flex-direction:column;background:var(--bg)}
+  .topic{border-bottom:1px solid var(--rule);padding:10px 22px;display:flex;align-items:center;gap:10px}
+  .topic h1{margin:0;font-size:18px}
+  .topic .desc{color:var(--muted);font-size:12.5px;margin-left:8px}
+  .topic .right{margin-left:auto;color:var(--muted);font-size:12px;display:flex;gap:10px;align-items:center}
+  .topic .pip{display:inline-flex;align-items:center;gap:4px;background:#2a2730;border:1px solid var(--rule);border-radius:4px;padding:3px 7px;font-size:11px}
+
+  .feed{padding:16px 22px;flex:1;overflow:auto}
+  .msg{display:grid;grid-template-columns:42px 1fr;gap:10px;padding:6px 0}
+  .msg + .msg{margin-top:10px;border-top:1px solid #25282d;padding-top:14px}
+  .msg .av{width:36px;height:36px;border-radius:6px;background:#1d9bd1;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .msg .av.bot{background:linear-gradient(135deg,#4a154b,#e01e5a)}
+  .msg .av.you{background:#2eb67d}
+  .msg .av.maya{background:#ecb22e;color:#1a1d21}
+  .msg .who{font-weight:700;color:#fff;font-size:14.5px}
+  .msg .who .botbadge{font-size:10px;background:#2a2730;color:var(--muted);padding:1px 6px;border-radius:3px;font-weight:600;margin-left:6px;letter-spacing:.06em}
+  .msg .ts{color:var(--muted);font-size:11.5px;margin-left:6px}
+  .msg p{margin:4px 0 0}
+  .msg p code{background:#2a2730;color:#f8f8f8;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:12.5px}
+
+  .sf-block{margin-top:8px;border:1px solid var(--rule);border-left:4px solid var(--link);background:#1f2329;border-radius:0 8px 8px 0;padding:14px 16px;max-width:680px}
+  .sf-block h4{margin:0 0 4px;font-size:14.5px;color:#fff}
+  .sf-block .sub{color:var(--muted);font-size:12px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+  .card{background:#171a1f;border:1px solid var(--rule);border-radius:8px;overflow:hidden;color:#cdcdcd;font-size:12px}
+  .thumb{aspect-ratio:9/16;background:linear-gradient(160deg,#3b1c14,#a44824);position:relative}
+  .thumb.b{background:linear-gradient(160deg,#1a3a3c,#3a8c8e)}
+  .thumb.c{background:linear-gradient(160deg,#3a1f3a,#9a3da8)}
+  .thumb .src{position:absolute;top:6px;left:6px;font-size:10px;letter-spacing:.16em;background:rgba(0,0,0,.5);color:#fff;padding:2px 6px;border-radius:3px;text-transform:uppercase}
+  .card h5{margin:8px 8px 2px;font-size:12.5px;color:#fff;font-weight:600}
+  .card small{display:block;margin:0 8px 8px;color:var(--muted)}
+  .why{margin-top:10px;font-size:12.5px;color:#cdcdcd;border-top:1px solid var(--rule);padding-top:8px}
+  .why b{color:#fff}
+  .actions{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+  .btn{background:#2a2730;color:#cdcdcd;border:1px solid var(--rule);border-radius:6px;padding:5px 10px;font-size:12px}
+  .btn.primary{background:#007a5a;border-color:#007a5a;color:#fff}
+  .btn.icon{padding:5px 8px}
+
+  .compose{border-top:1px solid var(--rule);padding:12px 22px}
+  .compose .box{background:#222529;border:1px solid var(--rule);border-radius:8px;padding:8px 12px;font-size:14px;color:#cdcdcd}
+  .compose .box .cmd{color:#1d9bd1}
+  .compose .hint{margin-top:6px;color:var(--muted);font-size:11.5px}
+  .compose .hint code{background:#2a2730;color:#cdcdcd;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace}
+
+  .right{background:#1e2125;border-left:1px solid var(--rule);padding:14px 16px;color:#cdcdcd;font-size:13px;overflow:auto}
+  .right h3{margin:0 0 8px;font-size:13px;color:#fff;letter-spacing:.06em}
+  .panel{background:#171a1f;border:1px solid var(--rule);border-radius:8px;padding:12px;margin-bottom:12px}
+  .panel .row{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px dashed #2a2d33}
+  .panel .row:last-child{border-bottom:0}
+  .panel ul{margin:0;padding-left:18px;font-size:12.5px}
+  .panel li{margin-bottom:3px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="rail">
+    <div class="ws">A</div>
+    <div class="ws" style="background:linear-gradient(135deg,#7af5d0,#1d6c70);color:#003a3a">G</div>
+    <div class="ws" style="background:linear-gradient(135deg,#ff7ad9,#7a1f5a);color:#fff">S</div>
+    <div class="add">+</div>
+    <div class="you">JS</div>
+  </div>
+
+  <aside class="channels">
+    <h2>shortflix-team <small>↓</small></h2>
+    <h4>▾ Channels</h4>
+    <div class="ch unread"># general<span class="badge">3</span></div>
+    <div class="ch on"># <span style="margin-left:0">discoveries</span><span style="margin-left:auto;color:#cdcdcd">12</span></div>
+    <div class="ch"># engineering</div>
+    <div class="ch"># brand-briefs</div>
+    <div class="ch unread"># curator-feedback<span class="badge">7</span></div>
+    <h4>▾ Direct messages</h4>
+    <div class="dm bot"><span class="dot"></span>ShortFlix bot</div>
+    <div class="dm"><span class="dot"></span>Maya A.</div>
+    <div class="dm"><span class="dot"></span>Ren H.</div>
+    <h4>▾ Apps</h4>
+    <div class="dm bot"><span class="dot"></span>ShortFlix · Slack &amp; Discord</div>
+  </aside>
+
+  <main class="main">
+    <div class="topic">
+      <h1># discoveries</h1>
+      <span class="desc">Where the team drops cross-platform shorts the curator surfaced overnight</span>
+      <div class="right">
+        <span class="pip">★ pinned <b>· ShortFlix bot</b></span>
+        <span class="pip">↻ daily 06:00 KST</span>
+        <span class="pip">12 members</span>
+      </div>
+    </div>
+    <div class="feed">
+      <div class="msg">
+        <div class="av maya">MA</div>
+        <div>
+          <span class="who">Maya A.</span><span class="ts">06:18</span>
+          <p>Yesterday's curator picks were the best yet — the Lagos welder one in particular. Could the bot route this to <code>#brand-briefs</code> too?</p>
+        </div>
+      </div>
+      <div class="msg">
+        <div class="av bot">SF</div>
+        <div>
+          <span class="who">ShortFlix <span class="botbadge">APP</span></span><span class="ts">06:21</span>
+          <p>Good morning, team. Here are <b>9 cross-platform picks</b> for <code>2026-05-06</code>. Multi-agent receipt attached. <code>/sf why &lt;n&gt;</code> for any pick · <code>/sf save</code> to add to <code>#curator-feedback</code>.</p>
+          <div class="sf-block">
+            <h4>★ Today's 9 · ShortFlix curator-agent</h4>
+            <div class="sub">412 candidates → 9 picks · platform mix 3-3-3 · novelty avg 0.86 · grounded by Vertex AI Search</div>
+            <div class="cards">
+              <div class="card">
+                <div class="thumb"><span class="src">YT</span></div>
+                <h5>01 · Lagos welder paints in sparks</h5>
+                <small>2:14 · novelty 0.91</small>
+              </div>
+              <div class="card">
+                <div class="thumb b"><span class="src">TT</span></div>
+                <h5>02 · Iceland fishermen on horizon</h5>
+                <small>1:01 · novelty 0.86</small>
+              </div>
+              <div class="card">
+                <div class="thumb c"><span class="src">IG</span></div>
+                <h5>03 · Sichuan thank-you etiquette</h5>
+                <small>0:22 · novelty 0.88</small>
+              </div>
+            </div>
+            <div class="why">
+              <b>Why these:</b> three platforms; three under-served regions in your team's taste vector (Nigeria · Iceland · Sichuan). Trend-safety cleared all 9; copyright cleared all 9; one candidate (#7) was demoted because Vertex grounding could not confirm the creator's bio.
+            </div>
+            <div class="actions">
+              <button class="btn primary">▶ Open the issue (PWA)</button>
+              <button class="btn">＋ Save 01 to #brand-briefs</button>
+              <button class="btn">↗ Share to #general</button>
+              <button class="btn">⚐ Why this pick? <code>/sf why 1</code></button>
+              <button class="btn icon">⋯</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="av you">JS</div>
+        <div>
+          <span class="who">jisu (you)</span><span class="ts">06:23</span>
+          <p><code>/sf why 1</code></p>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="av bot">SF</div>
+        <div>
+          <span class="who">ShortFlix <span class="botbadge">APP</span></span><span class="ts">06:23</span>
+          <p>Pick <b>#01</b> · <i>Lagos welder paints in sparks</i></p>
+          <div class="sf-block">
+            <h4>Receipt</h4>
+            <div class="sub">curator → unified-search → trend-safety → orchestrator</div>
+            <ul style="margin:6px 0 0;padding-left:18px;font-size:13px">
+              <li><b>Curator:</b> novelty 0.91 (top 1% of 412); region (Nigeria) absent from your team's last 30 days.</li>
+              <li><b>Unified-search:</b> original on YT Shorts; remix on TikTok; silent-original ranked higher.</li>
+              <li><b>Trend-safety:</b> ToS cleared (no copyrighted music); Vertex grounding confirmed creator (Lagos arts magazine, 2026-03).</li>
+              <li><b>Latency:</b> p50 1.18 s · cost $0.041 / call.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="msg">
+        <div class="av maya">MA</div>
+        <div>
+          <span class="who">Maya A.</span><span class="ts">06:25</span>
+          <p>Routed to <code>#brand-briefs</code> as a candidate for the Globex Q2 brief. ✨</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="compose">
+      <div class="box"><span class="cmd">/sf</span> save 1 to #brand-briefs</div>
+      <div class="hint">Slash commands: <code>/sf curate</code> · <code>/sf why &lt;n&gt;</code> · <code>/sf save &lt;n&gt; to #channel</code> · <code>/sf room &lt;name&gt;</code> · <code>/sf install pwa</code></div>
+    </div>
+  </main>
+
+  <aside class="right">
+    <h3>About this app</h3>
+    <div class="panel">
+      <p><b>ShortFlix</b> — multi-agent cross-platform short-form curator. Slack &amp; Discord first; PWA secondary. Same four agents on Cloud Run.</p>
+      <div class="row"><span>Workspace</span><b>shortflix-team</b></div>
+      <div class="row"><span>Daily digest</span><b>06:00 KST</b></div>
+      <div class="row"><span>Channels routed</span><b>3</b></div>
+      <div class="row"><span>Members opted-in</span><b>12 / 14</b></div>
+    </div>
+
+    <h3>Why Slack-first?</h3>
+    <div class="panel">
+      <ul>
+        <li><b>Where work happens.</b> 0-install for the user; the workspace pays.</li>
+        <li><b>Multi-agent visibility.</b> Receipts as expandable blocks in chat = native Slack ergonomics.</li>
+        <li><b>Network effect.</b> Each saved pick routes to a channel; team taste-vectors merge overnight.</li>
+        <li><b>Demo path.</b> Judges see the bot reply in seconds; PWA install link is the second beat.</li>
+      </ul>
+    </div>
+
+    <h3>Slash commands</h3>
+    <div class="panel">
+      <div class="row"><code>/sf curate</code><span>9 picks now</span></div>
+      <div class="row"><code>/sf why N</code><span>per-pick receipt</span></div>
+      <div class="row"><code>/sf save N to #ch</code><span>route + log</span></div>
+      <div class="row"><code>/sf room name</code><span>shared taste room</span></div>
+      <div class="row"><code>/sf install pwa</code><span>device install</span></div>
+    </div>
+  </aside>
+</div>
+</body></html>

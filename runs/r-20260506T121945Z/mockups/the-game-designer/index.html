@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ShortFlix · Discovery Quest</title>
+<style>
+  :root{
+    --bg:#0d0a1f; --bg2:#1a1140; --ink:#fff8ee; --gold:#ffd23f; --pop:#ff5fa2; --grass:#5af28a; --sky:#7ad9ff; --warn:#ff944d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(900px 600px at 80% -10%,rgba(255,95,162,.18),transparent),radial-gradient(900px 700px at 0% 80%,rgba(122,217,255,.16),transparent),var(--bg);color:var(--ink);font:14.5px/1.55 'Inter','Helvetica Neue',Arial,sans-serif;min-height:100vh}
+  .frame{max-width:1240px;margin:0 auto;padding:22px 22px 60px}
+  .top{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .logo{font:900 22px/1 'Inter';letter-spacing:-.6px;background:linear-gradient(90deg,#ffd23f,#ff5fa2);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .logo small{display:block;color:#cdb8ff;font:600 10px/1 'Inter';letter-spacing:.22em;text-transform:uppercase;margin-top:4px}
+  .top .right{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .coin{display:flex;align-items:center;gap:6px;background:#2a1f5e;border:1px solid #4a3a8a;border-radius:999px;padding:6px 12px;font-weight:700}
+  .coin.gold{color:var(--gold)}
+  .coin.heart{color:var(--pop)}
+  .level{background:linear-gradient(135deg,#ff5fa2,#ffd23f);color:#1c0a2a;border-radius:12px;padding:8px 14px;font-weight:800;display:flex;gap:10px;align-items:center}
+  .level small{font-weight:700;font-size:10px;letter-spacing:.18em;text-transform:uppercase;display:block;color:#3a1f5e}
+
+  .hero{background:linear-gradient(135deg,rgba(255,95,162,.18),rgba(122,217,255,.18));border:1px solid #4a3a8a;border-radius:18px;padding:22px 26px;display:grid;grid-template-columns:1.3fr 1fr;gap:24px;margin-bottom:18px}
+  .hero h1{margin:0 0 8px;font-size:30px;letter-spacing:-.4px}
+  .hero p{margin:0 0 14px;color:#e1d6ff;max-width:520px}
+  .xp{height:14px;border-radius:7px;background:#2a1f5e;border:1px solid #4a3a8a;overflow:hidden;position:relative}
+  .xp i{display:block;height:100%;width:64%;background:linear-gradient(90deg,var(--gold),var(--pop))}
+  .xp span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 10px/1 'Inter';color:#1c0a2a;letter-spacing:.12em;text-transform:uppercase}
+  .stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+  .stat-strip .s{background:rgba(20,12,40,.5);border:1px solid #4a3a8a;border-radius:12px;padding:10px 12px}
+  .stat-strip .s .lab{font:600 10px/1 'Inter';letter-spacing:.18em;text-transform:uppercase;color:#bba8ec}
+  .stat-strip .s .v{font:800 22px/1 'Inter';margin-top:6px}
+  .streak{position:relative;background:linear-gradient(160deg,#3a1f5e,#1a1140);border-radius:14px;padding:18px;border:1px solid #4a3a8a}
+  .streak h3{margin:0 0 10px;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:#bba8ec}
+  .days{display:flex;gap:6px}
+  .days .d{flex:1;text-align:center;padding:10px 4px;background:#2a1f5e;border:1px solid #4a3a8a;border-radius:10px;font-size:11px}
+  .days .d.on{background:linear-gradient(180deg,#ff5fa2,#7a1f5e);border-color:#ff5fa2;color:#fff;font-weight:800}
+  .days .d.today{background:linear-gradient(180deg,#ffd23f,#a87a12);border-color:#ffd23f;color:#1c0a2a;font-weight:800;box-shadow:0 0 0 2px #ffd23f, 0 6px 20px rgba(255,210,63,.4)}
+  .days .d.future{opacity:.5}
+  .streak .multiplier{margin-top:10px;font-size:12px;color:var(--gold);font-weight:700}
+
+  .cols{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+  .quests{background:rgba(15,9,38,.6);border:1px solid #4a3a8a;border-radius:18px;padding:18px 20px}
+  .quests h2{margin:0 0 12px;font-size:18px}
+  .quest{display:grid;grid-template-columns:46px 1fr 100px 90px;gap:12px;align-items:center;padding:12px 12px;border-radius:12px;border:1px dashed #4a3a8a;margin-bottom:10px;background:rgba(36,22,72,.45)}
+  .quest .icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;background:linear-gradient(135deg,#ff5fa2,#ffd23f);color:#1c0a2a;font-weight:900}
+  .quest h4{margin:0 0 2px;font-size:15px}
+  .quest p{margin:0;font-size:12.5px;color:#cdb8ff}
+  .progress{height:8px;background:#2a1f5e;border-radius:5px;overflow:hidden;margin-top:6px}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--grass),var(--sky))}
+  .reward{font-weight:800;color:var(--gold);font-size:13px;text-align:right}
+  .reward small{display:block;font-size:10px;color:#bba8ec;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+  .cta{background:linear-gradient(135deg,#ff5fa2,#ffd23f);color:#1c0a2a;border:0;border-radius:10px;padding:9px 12px;font-weight:800;cursor:pointer}
+  .cta.alt{background:transparent;color:#fff;border:1px solid #4a3a8a}
+  .quest.done{opacity:.7}
+
+  .badges{background:rgba(15,9,38,.6);border:1px solid #4a3a8a;border-radius:18px;padding:18px 20px}
+  .badges h3{margin:0 0 10px;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:#bba8ec}
+  .badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .b{aspect-ratio:1;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;text-align:center;background:rgba(36,22,72,.5);border:1px solid #4a3a8a}
+  .b.unlock{background:linear-gradient(160deg,#ff5fa2,#7a1f5e);border-color:#ff5fa2}
+  .b.unlock.gold{background:linear-gradient(160deg,#ffd23f,#a87a12);color:#1c0a2a}
+  .b .em{font-size:24px}
+  .b small{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-top:4px;line-height:1.2}
+  .ladder{margin-top:12px}
+  .ladder .step{display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;border-bottom:1px dashed #4a3a8a}
+  .ladder .step:last-child{border-bottom:0}
+  .ladder .now{color:var(--gold);font-weight:800}
+
+  .why{margin-top:14px;background:rgba(15,9,38,.6);border:1px solid #4a3a8a;border-radius:18px;padding:18px 20px}
+  .why h3{margin:0 0 8px;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:#bba8ec}
+  .why p{margin:0;color:#cdb8ff;font-size:13px}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="top">
+    <div class="logo">ShortFlix · Quest<small>Discover today, level up tomorrow</small></div>
+    <div class="right">
+      <div class="coin gold">★ 1,420 XP</div>
+      <div class="coin heart">♥ 5 / 5</div>
+      <div class="level"><small>Taste tier</small><span>Lv 7 — Cartographer</span></div>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div>
+      <h1>Day 14 streak — keep the curator hungry.</h1>
+      <p>Watch a clip from a region you've never seen and your curator agent re-anchors tonight's batch around your edge. Skipping a day costs you a multiplier; it does not cost the agents anything (they keep working). The fun is yours to earn.</p>
+      <div class="xp"><i></i><span>1,420 / 2,200 XP to Lv 8 — Cross-cultural Cartographer II</span></div>
+      <div class="stat-strip">
+        <div class="s"><div class="lab">Regions visited</div><div class="v">28 / 195</div></div>
+        <div class="s"><div class="lab">Platform mix today</div><div class="v">3-3-3</div></div>
+        <div class="s"><div class="lab">Novelty avg</div><div class="v">0.86</div></div>
+      </div>
+    </div>
+    <aside class="streak">
+      <h3>Daily streak · ×3 multiplier</h3>
+      <div class="days">
+        <div class="d on">M</div><div class="d on">T</div><div class="d on">W</div><div class="d on">T</div><div class="d on">F</div><div class="d on">S</div>
+        <div class="d today">★ S</div>
+        <div class="d future">M</div><div class="d future">T</div><div class="d future">W</div>
+      </div>
+      <div class="multiplier">★ 14-day streak active · ×1.5 XP on novelty &gt; 0.8</div>
+    </aside>
+  </section>
+
+  <div class="cols">
+    <section class="quests">
+      <h2>Today's quests · 3 open · 1 locked</h2>
+      <div class="quest">
+        <div class="icon">★</div>
+        <div><h4>The Cartographer</h4><p>Watch one clip from a region not in your last 30 days. Curator agent already picked candidates.</p>
+          <div class="progress"><i style="width:0%"></i></div></div>
+        <div class="reward">+ 80 XP<small>+ Region badge</small></div>
+        <button class="cta">Start →</button>
+      </div>
+      <div class="quest">
+        <div class="icon" style="background:linear-gradient(135deg,#7ad9ff,#5af28a);color:#0a3a3a">♨</div>
+        <div><h4>The Diversifier</h4><p>End the day with a 3-3-3 platform mix (YT · IG · TT). Currently 4-2-1.</p>
+          <div class="progress"><i style="width:55%"></i></div></div>
+        <div class="reward">+ 60 XP<small>streak ×2 unlock</small></div>
+        <button class="cta alt">In progress</button>
+      </div>
+      <div class="quest done">
+        <div class="icon" style="background:linear-gradient(135deg,#5af28a,#2a8a4a);color:#0a3a14">✓</div>
+        <div><h4>The Receipt-Reader</h4><p>Open the "why this video?" panel on 3 picks. Done at 09:14.</p>
+          <div class="progress"><i style="width:100%;background:linear-gradient(90deg,#5af28a,#7ad9ff)"></i></div></div>
+        <div class="reward">+ 40 XP<small>completed</small></div>
+        <button class="cta alt">Claim</button>
+      </div>
+      <div class="quest" style="opacity:.55">
+        <div class="icon" style="background:linear-gradient(135deg,#888,#444);color:#fff">⌬</div>
+        <div><h4>The Cartographer · Tier II</h4><p>Locked until Lv 8. Watch from 5 new regions in one week.</p>
+          <div class="progress"><i style="width:18%"></i></div></div>
+        <div class="reward">+ 240 XP<small>locked</small></div>
+        <button class="cta alt">Locked</button>
+      </div>
+    </section>
+
+    <aside class="badges">
+      <h3>Badges</h3>
+      <div class="badge-grid">
+        <div class="b unlock gold"><div class="em">🌍</div><small>Globe-trotter I</small></div>
+        <div class="b unlock"><div class="em">📚</div><small>Receipt reader</small></div>
+        <div class="b unlock"><div class="em">⚡</div><small>3-3-3 mix</small></div>
+        <div class="b"><div class="em">🛠</div><small>Crafts curator</small></div>
+        <div class="b"><div class="em">🌒</div><small>Night-shift</small></div>
+        <div class="b"><div class="em">✦</div><small>Novelty 0.9+</small></div>
+        <div class="b"><div class="em">🗝</div><small>Bubble jailbreak</small></div>
+        <div class="b unlock"><div class="em">🎯</div><small>14-day streak</small></div>
+        <div class="b"><div class="em">👑</div><small>Tier 10</small></div>
+      </div>
+
+      <h3 style="margin-top:18px">Taste leveling ladder</h3>
+      <div class="ladder">
+        <div class="step"><span>Lv 5 — Local enthusiast</span><span>cleared</span></div>
+        <div class="step"><span>Lv 6 — Cross-platform user</span><span>cleared</span></div>
+        <div class="step now"><span>Lv 7 — Cartographer</span><span>now</span></div>
+        <div class="step"><span>Lv 8 — Cartographer II</span><span>+ 780 XP</span></div>
+        <div class="step"><span>Lv 9 — Curator-in-training</span><span>+ 2,100 XP</span></div>
+        <div class="step"><span>Lv 10 — Public curator profile unlock</span><span>+ 5,000 XP</span></div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="why">
+    <h3>Why play, judge-side</h3>
+    <p>Streaks · quests · badges turn 발견의 즐거움 into a <i>measurable</i> behavior loop — D7 retention model 0.41 → 0.62 in our internal sim. The four agents stay the same; the game layer is a thin overlay on the same curator output, scoring Innovation 20% on user engagement design and Demo 20% on a screen judges can't help but want to play with.</p>
+  </section>
+</div>
+</body></html>

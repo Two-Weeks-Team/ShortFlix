@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ShortFlix — 30-Day Ship Plan (the-pragmatist)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{
+    --bg:#f5f5f0; --ink:#1c1c1c; --mute:#6e6e6e; --line:#d8d8d2;
+    --paper:#ffffff; --done:#2f8f4f; --warn:#c97a1a; --risk:#b13a3a;
+    --tag:#2b6cb0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,Inter,"Helvetica Neue",sans-serif}
+  .frame{max-width:1240px;margin:0 auto;padding:32px}
+  header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--ink);padding-bottom:14px}
+  .brand{font-weight:900;font-size:28px;letter-spacing:-.5px}
+  .brand b{color:var(--done)}
+  .stamp{border:1.5px dashed var(--risk);color:var(--risk);padding:6px 12px;border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:1px}
+  h2{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--mute);margin:24px 0 10px;font-family:ui-monospace,Menlo,monospace}
+
+  .top{display:grid;grid-template-columns:1fr 1.4fr;gap:24px;margin-top:20px}
+  .scope{background:var(--paper);border:1px solid var(--line);padding:18px;border-radius:6px}
+  .scope ul{padding-left:18px;margin:6px 0;font-size:13px;line-height:1.7}
+  .scope ul li.in::marker{color:var(--done);content:"✓ "}
+  .scope ul li.out{color:var(--mute);text-decoration:line-through}
+
+  /* Gantt */
+  .gantt{background:var(--paper);border:1px solid var(--line);padding:18px;border-radius:6px;overflow:hidden}
+  .week-head{display:grid;grid-template-columns:160px repeat(30,1fr);font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:6px}
+  .week-head .dlabel{grid-column:span 7}
+  .row{display:grid;grid-template-columns:160px repeat(30,1fr);align-items:center;height:32px;border-bottom:1px dotted var(--line)}
+  .row .name{font-size:12px;font-weight:600}
+  .bar{height:18px;border-radius:3px;display:flex;align-items:center;padding:0 8px;font-size:10px;color:#fff;font-family:ui-monospace,Menlo,monospace;white-space:nowrap;overflow:hidden}
+  .bar.adk{background:#3b66c0}
+  .bar.gem{background:#7a3bc0}
+  .bar.mcp{background:#3b9c7c}
+  .bar.cur{background:#c0813b}
+  .bar.dem{background:#c03b6f}
+  .bar.buf{background:#9a9a9a}
+  .deadline{position:absolute}
+
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:18px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;font-size:13px;line-height:1.55}
+  .card h3{margin:0 0 8px;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mute);font-family:ui-monospace,Menlo,monospace}
+  .risk-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dotted var(--line);font-size:12px}
+  .risk-row:last-child{border:0}
+  .lvl{font-family:ui-monospace,Menlo,monospace;font-size:10px;padding:2px 6px;border-radius:3px;color:#fff}
+  .lvl.h{background:var(--risk)}.lvl.m{background:var(--warn)}.lvl.l{background:var(--done)}
+  .check{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mute);line-height:1.9}
+  .check b{color:var(--ink)}
+  .deadline-bar{position:relative;height:0}
+  .deadline-line{position:absolute;top:-540px;width:2px;background:var(--risk);height:540px;z-index:2}
+  .deadline-tag{position:absolute;background:var(--risk);color:#fff;font-family:ui-monospace,Menlo,monospace;font-size:9px;padding:2px 4px;border-radius:2px;top:-548px;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="brand">Short<b>Flix</b> · ship plan v0.3</div>
+    <div class="stamp">DEADLINE 2026-06-05 17:00 PT · 30 DAYS</div>
+  </header>
+
+  <div class="top">
+    <div class="scope">
+      <h2 style="margin-top:0">In Scope (MVP)</h2>
+      <ul>
+        <li class="in">PWA shell (vertical scroller, 3-platform badge)</li>
+        <li class="in">ADK orchestrator on Cloud Run (1 service, no GKE)</li>
+        <li class="in">Curator + Unified-Search + Trend-Safety agents (Gemini 2.0 Flash)</li>
+        <li class="in">MCP-wrapped RapidAPI (3 tools: yt/ig/tt)</li>
+        <li class="in">Nightly cache → Cloud SQL (free tier)</li>
+        <li class="in">Vertex AI Search grounding (1 corpus)</li>
+        <li class="in">English demo video + EN subtitle (1:45)</li>
+      </ul>
+      <h2>Out of Scope (cut for ship)</h2>
+      <ul>
+        <li class="out">User accounts (anonymous device-id only)</li>
+        <li class="out">Pro tier / billing</li>
+        <li class="out">Offline downloads</li>
+        <li class="out">Native mobile apps</li>
+        <li class="out">Multi-region GKE</li>
+        <li class="out">Recommendation A/B framework</li>
+      </ul>
+    </div>
+
+    <div class="gantt">
+      <h2 style="margin-top:0">30-Day Gantt · single dev · 6h/day buffer</h2>
+      <div class="week-head">
+        <span></span>
+        <span class="dlabel">W1 · Foundation</span>
+        <span class="dlabel">W2 · Agents</span>
+        <span class="dlabel">W3 · Integration</span>
+        <span class="dlabel">W4 · Polish + Demo</span>
+        <span style="grid-column:span 2">Buf</span>
+      </div>
+      <div class="row"><div class="name">ADK scaffold + Cloud Run</div><div class="bar adk" style="grid-column:2/span 4">ADK · Cloud Run · CI</div></div>
+      <div class="row"><div class="name">MCP tools (3 RapidAPI)</div><div class="bar mcp" style="grid-column:4/span 5">MCP wrap · ToS audit</div></div>
+      <div class="row"><div class="name">Gemini agents (4)</div><div class="bar gem" style="grid-column:7/span 8">curator · search · safety · orchestrator</div></div>
+      <div class="row"><div class="name">PWA shell</div><div class="bar adk" style="grid-column:8/span 7">React PWA · scroller · install prompt</div></div>
+      <div class="row"><div class="name">Nightly batch + cache</div><div class="bar cur" style="grid-column:14/span 5">Cloud Scheduler · SQL</div></div>
+      <div class="row"><div class="name">E2E + grounding</div><div class="bar mcp" style="grid-column:18/span 5">Vertex AI Search · eval</div></div>
+      <div class="row"><div class="name">Demo video (EN)</div><div class="bar dem" style="grid-column:23/span 6">storyboard · screen-rec · cut · subs</div></div>
+      <div class="row"><div class="name">Buffer / submission</div><div class="bar buf" style="grid-column:29/span 2">submit</div></div>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="card">
+      <h3>Top 5 Risks · pre-mortem</h3>
+      <div class="risk-row"><span>RapidAPI rate-limit / quota</span><span class="lvl h">HIGH</span></div>
+      <div class="risk-row"><span>Gemini grounding latency >3s</span><span class="lvl m">MED</span></div>
+      <div class="risk-row"><span>IG/TT ToS edge-cases</span><span class="lvl h">HIGH</span></div>
+      <div class="risk-row"><span>$500 GCP credit overrun</span><span class="lvl m">MED</span></div>
+      <div class="risk-row"><span>Demo video re-shoot</span><span class="lvl l">LOW</span></div>
+    </div>
+    <div class="card">
+      <h3>Definition of Done · submission checklist</h3>
+      <div class="check">
+        <div><b>☐</b> public GitHub repo (license MIT)</div>
+        <div><b>☐</b> README with arch diagram</div>
+        <div><b>☐</b> deploy URL (Cloud Run)</div>
+        <div><b>☐</b> 1:30–2:00 EN demo video</div>
+        <div><b>☐</b> RapidAPI usage disclosed</div>
+        <div><b>☐</b> ADK + Gemini + MCP visible in code</div>
+        <div><b>☐</b> multi-agent ≠ single-agent proof page</div>
+        <div><b>☐</b> Track 1 entry form submitted</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Cut-list · if behind by D+18</h3>
+      <div class="check">
+        <div>1. drop trend-safety as separate agent → fold into orchestrator prompt</div>
+        <div>2. cache 3 platforms × 50 videos only (not nightly batch full)</div>
+        <div>3. PWA install prompt → manual instructions in demo</div>
+        <div>4. grounding corpus → 1 region only</div>
+        <div>5. ship with 3 agents, narrate the 4th in video</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Why Pragmatist Bias Wins This Submission</h2>
+  <div class="card">
+    <b>Tech 30%</b> + <b>Demo 20%</b> = 50% of score depends on "it actually runs by the deadline." Cutting scope is not a sin — it's the strategy. ADK + Gemini + MCP + Cloud Run are non-negotiable; everything else (multi-region, GKE, A/B) is bait. We ship 4 agents because the rules require multi-agent superiority, but each agent does the minimum that proves the claim on a 9-card screen.
+  </div>
+</div>
+</body>
+</html>

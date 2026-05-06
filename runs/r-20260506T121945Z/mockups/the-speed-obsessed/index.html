@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ShortFlix — Latency Heat-map (the-speed-obsessed)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{
+    --bg:#0a0a0f; --ink:#e8edf5; --mute:#7d8aa3; --line:#1d2233;
+    --good:#3ddc97; --warn:#ffb648; --bad:#ff4d6d; --accent:#00f0ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-monospace,"JetBrains Mono",Menlo,monospace}
+  .frame{max-width:1280px;margin:0 auto;padding:24px}
+  header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px}
+  .brand{font-size:22px;font-weight:800;letter-spacing:0}
+  .brand span{color:var(--accent)}
+  .live{color:var(--good);font-size:11px}
+  .live::before{content:"●";margin-right:6px;animation:b 1s infinite}
+  @keyframes b{50%{opacity:.3}}
+
+  .hero{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:18px}
+  .panel{background:#0e1220;border:1px solid var(--line);border-radius:8px;padding:14px}
+  h2{margin:0 0 10px;font-size:11px;letter-spacing:2px;color:var(--mute);text-transform:uppercase}
+
+  .big{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+  .stat{padding:12px;border:1px solid var(--line);border-radius:6px}
+  .stat .v{font-size:34px;font-weight:800;letter-spacing:-1px}
+  .stat .v.good{color:var(--good)}
+  .stat .v.warn{color:var(--warn)}
+  .stat .l{font-size:10px;color:var(--mute);letter-spacing:1px;margin-top:2px}
+
+  /* trace flame chart */
+  .flame{font-size:10px}
+  .span{position:relative;height:22px;margin:4px 0;border-radius:3px;color:#000;padding:3px 8px;white-space:nowrap;font-weight:700;overflow:hidden}
+  .span.parent{background:#1a3050;color:#fff;font-weight:600}
+  .span .lat{float:right;opacity:.85}
+  .nest{margin-left:24px}
+  .nest2{margin-left:48px}
+  .nest3{margin-left:72px}
+  .s-orch{background:linear-gradient(90deg,var(--accent),#00b3d4);width:100%}
+  .s-cur{background:linear-gradient(90deg,#7c5cff,#5c8aff);width:38%}
+  .s-srch{background:linear-gradient(90deg,#3ddc97,#1ec181);width:62%}
+  .s-mcp1{background:#ff8c42;width:38%}
+  .s-mcp2{background:#ff8c42;width:42%}
+  .s-mcp3{background:#ff8c42;width:36%}
+  .s-safe{background:linear-gradient(90deg,#ffb648,#ff8c42);width:18%;margin-left:62%}
+  .s-rank{background:#5b6ee6;width:14%;margin-left:80%}
+
+  /* heatmap */
+  .heat{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;margin-top:6px}
+  .cell{aspect-ratio:1;border-radius:2px}
+  .h-axis{display:flex;justify-content:space-between;font-size:9px;color:var(--mute);margin-top:4px}
+
+  /* sparkline */
+  .spark{height:60px;width:100%;display:block}
+  .spark path{fill:none;stroke-width:1.5}
+
+  .legend{display:flex;gap:14px;font-size:10px;color:var(--mute);flex-wrap:wrap;margin-top:8px}
+  .legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
+
+  .deploy{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:11px}
+  .deploy .b{padding:8px;border:1px solid var(--line);border-radius:5px}
+  .deploy .b b{color:var(--accent)}
+
+  .budget{font-size:11px;line-height:1.7}
+  .budget .row{display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding:3px 0}
+  .budget .row b{color:var(--good)}
+  .budget .miss{color:var(--bad)}
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="brand">Short<span>Flix</span> · perf</div>
+    <div class="live">live · region asia-northeast3 · p95 last 5min</div>
+  </header>
+
+  <div class="hero">
+    <div class="panel">
+      <h2>Cold-Start to First Card · target ≤ 1500 ms</h2>
+      <div class="big">
+        <div class="stat"><div class="v good">412<span style="font-size:14px;color:var(--mute)"> ms</span></div><div class="l">PWA shell paint · CDN edge</div></div>
+        <div class="stat"><div class="v good">1.18<span style="font-size:14px;color:var(--mute)"> s</span></div><div class="l">orchestrator → first card · p50</div></div>
+        <div class="stat"><div class="v warn">1.94<span style="font-size:14px;color:var(--mute)"> s</span></div><div class="l">orchestrator → first card · p95</div></div>
+      </div>
+
+      <h2 style="margin-top:14px">Multi-agent flame · single trace</h2>
+      <div class="flame">
+        <div class="span parent s-orch">orchestrator · ADK · Cloud Run<span class="lat">1180 ms</span></div>
+        <div class="nest">
+          <div class="span s-cur">curator-agent · gemini-2.0-flash · embed taste<span class="lat">450 ms</span></div>
+        </div>
+        <div class="nest">
+          <div class="span s-srch">unified-search-agent · MCP fanout<span class="lat">730 ms</span></div>
+          <div class="nest2">
+            <div class="span s-mcp1">mcp/rapidapi-yt-shorts<span class="lat">450 ms</span></div>
+            <div class="span s-mcp2">mcp/rapidapi-ig-reels<span class="lat">510 ms</span></div>
+            <div class="span s-mcp3">mcp/rapidapi-tiktok<span class="lat">430 ms</span></div>
+          </div>
+        </div>
+        <div class="nest">
+          <div class="span s-safe">trend-safety-agent · vertex-search ground<span class="lat">220 ms</span></div>
+        </div>
+        <div class="nest">
+          <div class="span s-rank">re-rank · novelty × diversity<span class="lat">160 ms</span></div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--accent)"></span>orchestrator (ADK)</span>
+        <span><span class="sw" style="background:#7c5cff"></span>curator (Gemini)</span>
+        <span><span class="sw" style="background:var(--good)"></span>search (Gemini+MCP)</span>
+        <span><span class="sw" style="background:#ff8c42"></span>MCP tool call (RapidAPI)</span>
+        <span><span class="sw" style="background:var(--warn)"></span>trend-safety + grounding</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Latency heat-map · last 60 min × 24 cols</h2>
+      <div class="heat" id="heat"></div>
+      <div class="h-axis"><span>−60m</span><span>−30m</span><span>now</span></div>
+
+      <h2 style="margin-top:18px">p50/p95 · 24h sparkline</h2>
+      <svg class="spark" viewBox="0 0 300 60" preserveAspectRatio="none">
+        <path stroke="var(--good)" d="M0,40 L20,38 L40,42 L60,35 L80,33 L100,30 L120,32 L140,28 L160,31 L180,29 L200,27 L220,28 L240,26 L260,29 L280,25 L300,27"/>
+        <path stroke="var(--warn)" d="M0,18 L20,22 L40,15 L60,28 L80,12 L100,16 L120,20 L140,8 L160,14 L180,11 L200,18 L220,9 L240,22 L260,14 L280,17 L300,12"/>
+      </svg>
+      <div class="legend"><span><span class="sw" style="background:var(--good)"></span>p50</span><span><span class="sw" style="background:var(--warn)"></span>p95</span></div>
+
+      <h2 style="margin-top:18px">Deploy / region</h2>
+      <div class="deploy">
+        <div class="b">runtime<br/><b>Cloud Run</b><br/>min=1 max=4</div>
+        <div class="b">region<br/><b>asia-NE3</b><br/>seoul</div>
+        <div class="b">cdn<br/><b>Cloud CDN</b><br/>+ Vercel edge</div>
+        <div class="b">model<br/><b>gemini-2.0-flash</b><br/>streaming</div>
+      </div>
+
+      <h2 style="margin-top:18px">Perf budget vs actual</h2>
+      <div class="budget">
+        <div class="row"><span>FCP</span><span><b>412 ms</b> / 600 ms</span></div>
+        <div class="row"><span>first card (p50)</span><span><b>1180 ms</b> / 1500 ms</span></div>
+        <div class="row"><span>first card (p95)</span><span class="miss">1940 ms / 1500 ms</span></div>
+        <div class="row"><span>cold cache hit-rate</span><span><b>71%</b> / 60%</span></div>
+        <div class="row"><span>$ / 1k requests</span><span><b>$0.084</b> / $0.10</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <h2>Why this matters for the demo · judges feel speed before they read code</h2>
+    <div style="font-size:12px;line-height:1.7;color:#cdd5ff">
+      The 1-2 minute video opens with a stopwatch overlay: <b>tap → first curated card in 1.18 s</b>. Streaming Gemini Flash + MCP parallel-fanout + edge-CDN PWA shell makes a multi-agent system feel like a single fast app. Single-agent baseline measured in same harness: <b>3.1 s</b> (no parallel fanout, no curator-cache). Speed delta = innovation proof on screen.
+    </div>
+  </div>
+</div>
+
+<script>
+  // generate heat-map cells
+  const heat=document.getElementById('heat');
+  const colors=['#0e1220','#0e2230','#0e3030','#1a4040','#1a5050','#1a6060','#26807a','#3aa090','#5cc0a0','#85e0b0','#a8ff4f','#ffb648','#ff8c42','#ff4d6d'];
+  for(let r=0;r<6;r++){
+    for(let c=0;c<24;c++){
+      const v=Math.min(13,Math.max(0,Math.round(2 + Math.sin((c+r*3)/3.2)*4 + Math.random()*5)));
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.style.background=colors[v];
+      heat.appendChild(cell);
+    }
+  }
+</script>
+</body>
+</html>
