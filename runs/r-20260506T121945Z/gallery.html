@@ -2,300 +2,613 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ShortFlix · 26 Previews · Gate H1</title>
 <style>
-  :root { --bg:#0d1117; --fg:#e6edf3; --muted:#7d8590; --accent:#6e7eff; --top:#3fb950; }
+  :root {
+    --bg: #0d1117; --fg: #e6edf3; --muted: #7d8590; --accent: #6e7eff;
+    --top: #3fb950; --card: #161b22; --border: #30363d;
+    --frame-w: 1280px; --frame-h: 900px;
+    --card-w: 380px; --card-frame-h: 280px;
+    --scale: calc(var(--card-w) / var(--frame-w));
+  }
   * { box-sizing: border-box; }
-  body { font: 14px/1.5 -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 32px; }
-  h1 { font-size: 24px; margin: 0 0 8px; }
-  .lead { color: var(--muted); margin: 0 0 24px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 16px; }
-  .card.top-pick { border-color: var(--top); }
-  .card header { display: grid; grid-template-columns: auto auto 1fr; gap: 8px; align-items: baseline; margin-bottom: 8px; }
-  .rank { font-weight: 600; color: var(--accent); }
-  .top-pick .rank { color: var(--top); }
-  .score { font-family: ui-monospace, monospace; color: var(--muted); font-size: 12px; }
-  .card h3 { grid-column: 1/-1; margin: 4px 0 0; font-size: 15px; }
-  .panels { grid-column: 1/-1; font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); }
-  .framing { color: var(--fg); font-size: 13px; margin: 8px 0; min-height: 60px; }
-  .open { display: inline-block; color: var(--accent); text-decoration: none; font-size: 12px; padding: 6px 12px; border: 1px solid var(--accent); border-radius: 4px; }
-  .open:hover { background: var(--accent); color: white; }
-  .meta { background: #161b22; padding: 16px; border-radius: 8px; margin-bottom: 24px; font-family: ui-monospace, monospace; font-size: 12px; color: var(--muted); }
+  body { font: 14px/1.5 -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 24px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
+  .meta { background: var(--card); padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); line-height: 1.7; }
   .meta strong { color: var(--top); }
+  .meta code { color: var(--accent); }
+  .toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar input { background: var(--card); border: 1px solid var(--border); color: var(--fg); padding: 6px 12px; border-radius: 4px; font-size: 12px; min-width: 200px; }
+  .toolbar button { background: transparent; border: 1px solid var(--border); color: var(--fg); padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+  .toolbar button.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card.top-pick { border-color: var(--top); }
+  .card.top-pick:hover { border-color: var(--top); box-shadow: 0 4px 12px rgba(63,185,80,0.15); }
+  .card.voted { border-color: gold; box-shadow: 0 0 0 2px gold inset; }
+  .card header {
+    display: grid; grid-template-columns: auto auto 1fr; gap: 8px; align-items: baseline;
+  }
+  .rank { font-weight: 600; color: var(--accent); font-size: 13px; }
+  .top-pick .rank { color: var(--top); }
+  .score { font-family: ui-monospace, monospace; color: var(--muted); font-size: 11px; }
+  .card h3 { grid-column: 1/-1; margin: 2px 0 0; font-size: 14px; font-weight: 600; }
+  .panels { grid-column: 1/-1; font-family: ui-monospace, monospace; font-size: 10px; color: var(--muted); }
+  .preview-frame {
+    position: relative;
+    width: 100%;
+    height: var(--card-frame-h);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .preview-frame iframe {
+    width: var(--frame-w);
+    height: var(--frame-h);
+    transform: scale(var(--scale));
+    transform-origin: top left;
+    border: 0;
+    pointer-events: none;
+  }
+  .preview-frame .overlay {
+    position: absolute; inset: 0;
+    cursor: pointer; z-index: 2;
+    background: transparent;
+    transition: background 0.15s;
+  }
+  .preview-frame .overlay:hover { background: rgba(110,126,255,0.06); }
+  .framing { color: var(--fg); font-size: 12px; margin: 0; line-height: 1.5; min-height: 54px; }
+  .actions { display: flex; gap: 8px; }
+  .btn-open, .btn-vote {
+    flex: 1; text-align: center; padding: 6px 10px; border-radius: 4px;
+    font-size: 12px; cursor: pointer; text-decoration: none;
+    border: 1px solid var(--border); background: transparent; color: var(--fg);
+    font-family: inherit;
+  }
+  .btn-open { color: var(--accent); border-color: var(--accent); }
+  .btn-open:hover { background: var(--accent); color: white; }
+  .btn-vote:hover { border-color: gold; color: gold; }
+  .voted .btn-vote { background: gold; color: var(--bg); border-color: gold; }
+  .vote-bar {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg); padding: 10px 0; margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
 <h1>ShortFlix · 26 Advocate Previews</h1>
-<p class="lead">Run <code>r-20260506T121945Z</code> · Profile: standard→max (26 expanded) · Gate H1 selection</p>
+<p class="lead">Run <code>r-20260506T121945Z</code> · Profile: standard→max · Gate H1 team review · Click any card to open fullscreen · Click Vote to mark your pick (saved to localStorage)</p>
 <div class="meta">
-  <div><strong>Stack locked</strong>: ADK + Gemini API + MCP + Cloud Run · RapidAPI as MCP tools</div>
+  <div><strong>Stack locked</strong>: ADK + Gemini API + MCP + Cloud Run · RapidAPI as MCP tools (no unofficial scraping)</div>
   <div><strong>Persona</strong>: Global content discovery enthusiast · <strong>Killer</strong>: AI Cross-Platform Curator · <strong>Sync</strong>: Hybrid (cache + real-time)</div>
-  <div><strong>Panel verdicts</strong>: TP→researcher · BP→indie-hacker · UP→design-forward · RP→privacy-hawk</div>
-  <div><strong>Top-5 cleared</strong> RP DQ-watch · 10 mitigation riders apply to any pick</div>
+  <div><strong>Panel verdicts</strong>: TP→<code>researcher</code> · BP→<code>indie-hacker</code> · UP→<code>design-forward</code> · RP→<code>privacy-hawk</code></div>
+  <div><strong>Top-5 RP-cleared</strong> · 10 mitigation riders apply to any pick · See <a href="mitigations.json" style="color:var(--accent)">mitigations.json</a></div>
 </div>
-<div class="grid">
-
-    <article class="card top-pick">
+<div class="toolbar">
+  <input type="search" id="search" placeholder="filter by slug or framing…">
+  <button data-filter="all" class="active">All 26</button>
+  <button data-filter="top">Top 5</button>
+  <button data-filter="tp">TP picks</button>
+  <button data-filter="bp">BP picks</button>
+  <button data-filter="up">UP picks</button>
+  <button data-filter="rp">RP picks</button>
+  <button id="clearVotes">Clear my votes</button>
+</div>
+<div class="grid" id="grid">
+    <article class="card top-pick" data-slug="the-researcher">
       <header>
         <span class="rank">#1</span>
         <span class="score">0.40</span>
         <h3>the-researcher</h3>
         <span class="panels">TP#1</span>
       </header>
-      <p class="framing">Academic-style ablation study (drop-one-agent table, headline metrics grid, two figures, methodology + threats-to-validity, references), with an A/B toggle between single-agent baseline and multi-agen…</p>
-      <a class="open" href="mockups/the-researcher/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-researcher/index.html" title="the-researcher" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-researcher/index.html" target="_blank" aria-label="Open the-researcher fullscreen"></a>
+      </div>
+      <p class="framing">Academic-style ablation study (drop-one-agent table, headline metrics grid, two figures, methodology + threats-to-validity, references), with an A/B toggle betw…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-researcher/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-researcher">Vote</button>
+      </div>
     </article>
-    <article class="card top-pick">
+    <article class="card top-pick" data-slug="the-indie-hacker">
       <header>
         <span class="rank">#2</span>
         <span class="score">0.36</span>
         <h3>the-indie-hacker</h3>
         <span class="panels">BP#1</span>
       </header>
-      <p class="framing">$10k MRR target woven into the demo: 6-month revenue ladder ($420 → $10,800), bootstrap P&amp;L with $0.038/DAU cost ceiling, a real $4.99 Stripe receipt screenshot in the video — Business Case 30% be…</p>
-      <a class="open" href="mockups/the-indie-hacker/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-indie-hacker/index.html" title="the-indie-hacker" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-indie-hacker/index.html" target="_blank" aria-label="Open the-indie-hacker fullscreen"></a>
+      </div>
+      <p class="framing">$10k MRR target woven into the demo: 6-month revenue ladder ($420 → $10,800), bootstrap P&amp;L with $0.038/DAU cost ceiling, a real $4.99 Stripe receipt screen…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-indie-hacker/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-indie-hacker">Vote</button>
+      </div>
     </article>
-    <article class="card top-pick">
+    <article class="card top-pick" data-slug="the-ai-native">
       <header>
         <span class="rank">#3</span>
         <span class="score">0.26</span>
         <h3>the-ai-native</h3>
         <span class="panels">TP#2</span>
       </header>
-      <p class="framing">Visualize the multi-agent system itself as the product surface — orchestrator topology, live MCP tool calls, streaming Gemini reasoning trace — so judges can literally see why single-agent collapses a…</p>
-      <a class="open" href="mockups/the-ai-native/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-ai-native/index.html" title="the-ai-native" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-ai-native/index.html" target="_blank" aria-label="Open the-ai-native fullscreen"></a>
+      </div>
+      <p class="framing">Visualize the multi-agent system itself as the product surface — orchestrator topology, live MCP tool calls, streaming Gemini reasoning trace — so judges can li…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-ai-native/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-ai-native">Vote</button>
+      </div>
     </article>
-    <article class="card top-pick">
+    <article class="card top-pick" data-slug="the-design-forward">
       <header>
         <span class="rank">#4</span>
         <span class="score">0.24</span>
         <h3>the-design-forward</h3>
         <span class="panels">UP#1</span>
       </header>
-      <p class="framing">Treat ShortFlix as a daily editorial dossier — a curated 'magazine issue' published every morning by the curator-agent — making 발견의 즐거움 visceral on the Demo 20% axis through typography, white-space an…</p>
-      <a class="open" href="mockups/the-design-forward/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-design-forward/index.html" title="the-design-forward" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-design-forward/index.html" target="_blank" aria-label="Open the-design-forward fullscreen"></a>
+      </div>
+      <p class="framing">Treat ShortFlix as a daily editorial dossier — a curated 'magazine issue' published every morning by the curator-agent — making 발견의 즐거움 visceral on the Demo 20%…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-design-forward/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-design-forward">Vote</button>
+      </div>
     </article>
-    <article class="card top-pick">
+    <article class="card top-pick" data-slug="the-enterprise-buyer">
       <header>
         <span class="rank">#5</span>
         <span class="score">0.24</span>
         <h3>the-enterprise-buyer</h3>
         <span class="panels">BP#2</span>
       </header>
-      <p class="framing">Stay on Track 1 but show the same multi-agent stack as a creator-marketing B2B product (ShortFlix Brand Cloud) with SAML/SCIM, audit log, residency — Business Case 30% picks up an enterprise SaaS line…</p>
-      <a class="open" href="mockups/the-enterprise-buyer/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-enterprise-buyer/index.html" title="the-enterprise-buyer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-enterprise-buyer/index.html" target="_blank" aria-label="Open the-enterprise-buyer fullscreen"></a>
+      </div>
+      <p class="framing">Stay on Track 1 but show the same multi-agent stack as a creator-marketing B2B product (ShortFlix Brand Cloud) with SAML/SCIM, audit log, residency — Business C…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-enterprise-buyer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-enterprise-buyer">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-designer">
       <header>
         <span class="rank">#6</span>
         <span class="score">0.16</span>
         <h3>the-designer</h3>
         <span class="panels">UP#2</span>
       </header>
-      <p class="framing">Visual storytelling: render the daily issue as a bold editorial cover (huge typography, mixed-blend hero, halftone numerals, masthead grid of 8 tiles) so the demo's first frame is unmistakably crafted…</p>
-      <a class="open" href="mockups/the-designer/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-designer/index.html" title="the-designer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-designer/index.html" target="_blank" aria-label="Open the-designer fullscreen"></a>
+      </div>
+      <p class="framing">Visual storytelling: render the daily issue as a bold editorial cover (huge typography, mixed-blend hero, halftone numerals, masthead grid of 8 tiles) so the de…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-designer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-designer">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-pragmatist">
       <header>
         <span class="rank">#7</span>
         <span class="score">0.13</span>
         <h3>the-pragmatist</h3>
         <span class="panels">TP#3, RP#2</span>
       </header>
-      <p class="framing">Treat the 2026-06-05 PT deadline as the binding constraint and design backwards: a 30-day Gantt with cut-list, risk register and submission-checklist DoD — protecting Tech 30% + Demo 20% by guaranteei…</p>
-      <a class="open" href="mockups/the-pragmatist/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-pragmatist/index.html" title="the-pragmatist" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-pragmatist/index.html" target="_blank" aria-label="Open the-pragmatist fullscreen"></a>
+      </div>
+      <p class="framing">Treat the 2026-06-05 PT deadline as the binding constraint and design backwards: a 30-day Gantt with cut-list, risk register and submission-checklist DoD — prot…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-pragmatist/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-pragmatist">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-community-builder">
       <header>
         <span class="rank">#8</span>
         <span class="score">0.12</span>
         <h3>the-community-builder</h3>
         <span class="panels">BP#3</span>
       </header>
-      <p class="framing">Multi-user from day 1: friends' picks become training signal for the curator-agent overnight, public curator profiles + shared rooms turn discovery into a network — Innovation 20% via human-in-the-loo…</p>
-      <a class="open" href="mockups/the-community-builder/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-community-builder/index.html" title="the-community-builder" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-community-builder/index.html" target="_blank" aria-label="Open the-community-builder fullscreen"></a>
+      </div>
+      <p class="framing">Multi-user from day 1: friends' picks become training signal for the curator-agent overnight, public curator profiles + shared rooms turn discovery into a netwo…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-community-builder/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-community-builder">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-mobile-first">
       <header>
         <span class="rank">#9</span>
         <span class="score">0.08</span>
         <h3>the-mobile-first</h3>
         <span class="panels">UP#3</span>
       </header>
-      <p class="framing">Optimize for the 30-second hook of the demo video: PWA install in 3 taps, full-screen 9:16 player with cross-platform source badge, on-card 'why' chip — proving Demo 20% by physically letting judges i…</p>
-      <a class="open" href="mockups/the-mobile-first/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-mobile-first/index.html" title="the-mobile-first" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-mobile-first/index.html" target="_blank" aria-label="Open the-mobile-first fullscreen"></a>
+      </div>
+      <p class="framing">Optimize for the 30-second hook of the demo video: PWA install in 3 taps, full-screen 9:16 player with cross-platform source badge, on-card 'why' chip — proving…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-mobile-first/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-mobile-first">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-speed-obsessed">
       <header>
         <span class="rank">#10</span>
         <span class="score">0.00</span>
         <h3>the-speed-obsessed</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Make latency the demo's protagonist: a stopwatch overlay shows tap → first curated card in 1.18 s p50 / 1.94 s p95, with a flame chart proving parallel MCP fanout beats single-agent serial calls — spe…</p>
-      <a class="open" href="mockups/the-speed-obsessed/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-speed-obsessed/index.html" title="the-speed-obsessed" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-speed-obsessed/index.html" target="_blank" aria-label="Open the-speed-obsessed fullscreen"></a>
+      </div>
+      <p class="framing">Make latency the demo's protagonist: a stopwatch overlay shows tap → first curated card in 1.18 s p50 / 1.94 s p95, with a flame chart proving parallel MCP fano…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-speed-obsessed/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-speed-obsessed">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-cost-conscious">
       <header>
         <span class="rank">#11</span>
         <span class="score">0.00</span>
         <h3>the-cost-conscious</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Render Business Case 30% as a $500 GCP-credit ledger with 6 cost-cutting tactics that don't hurt judging — proving the multi-agent system is also the cheapest credible per-recommendation architecture …</p>
-      <a class="open" href="mockups/the-cost-conscious/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-cost-conscious/index.html" title="the-cost-conscious" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-cost-conscious/index.html" target="_blank" aria-label="Open the-cost-conscious fullscreen"></a>
+      </div>
+      <p class="framing">Render Business Case 30% as a $500 GCP-credit ledger with 6 cost-cutting tactics that don't hurt judging — proving the multi-agent system is also the cheapest c…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-cost-conscious/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-cost-conscious">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-data-nerd">
       <header>
         <span class="rank">#12</span>
         <span class="score">0.00</span>
         <h3>the-data-nerd</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Make multi-agent superiority a data artifact, not a claim: t-SNE embedding scatter, SHAP-style feature importance, 412→9 funnel, and a 3×3 platform-distribution matrix prove curator multi-agent (3-3-3…</p>
-      <a class="open" href="mockups/the-data-nerd/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-data-nerd/index.html" title="the-data-nerd" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-data-nerd/index.html" target="_blank" aria-label="Open the-data-nerd fullscreen"></a>
+      </div>
+      <p class="framing">Make multi-agent superiority a data artifact, not a claim: t-SNE embedding scatter, SHAP-style feature importance, 412→9 funnel, and a 3×3 platform-distribution…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-data-nerd/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-data-nerd">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-privacy-hawk">
       <header>
         <span class="rank">#13</span>
         <span class="score">0.00</span>
         <h3>the-privacy-hawk</h3>
         <span class="panels">RP#1</span>
       </header>
-      <p class="framing">Treat compliance as a first-class agent (the trend-safety-agent) and deliver a pre-submission audit (A− grade, 9/11 controls passing) — turning the IP/ToS rule from a checkbox into Business Case 30% d…</p>
-      <a class="open" href="mockups/the-privacy-hawk/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-privacy-hawk/index.html" title="the-privacy-hawk" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-privacy-hawk/index.html" target="_blank" aria-label="Open the-privacy-hawk fullscreen"></a>
+      </div>
+      <p class="framing">Treat compliance as a first-class agent (the trend-safety-agent) and deliver a pre-submission audit (A− grade, 9/11 controls passing) — turning the IP/ToS rule …</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-privacy-hawk/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-privacy-hawk">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-contrarian">
       <header>
         <span class="rank">#14</span>
         <span class="score">0.00</span>
         <h3>the-contrarian</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Reject the 'unified short-form feed reader' framing as the demo's poison-pill and reframe ShortFlix as an algorithm-bubble jailbreak — the only narrative that maps cleanly to Innovation 20% AND the mu…</p>
-      <a class="open" href="mockups/the-contrarian/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-contrarian/index.html" title="the-contrarian" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-contrarian/index.html" target="_blank" aria-label="Open the-contrarian fullscreen"></a>
+      </div>
+      <p class="framing">Reject the 'unified short-form feed reader' framing as the demo's poison-pill and reframe ShortFlix as an algorithm-bubble jailbreak — the only narrative that m…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-contrarian/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-contrarian">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-anti-ai">
       <header>
         <span class="rank">#15</span>
         <span class="score">0.00</span>
         <h3>the-anti-ai</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Make the model invisible: keep the four agents in the back office, deliver a quiet hand-set 'weekly' reading page with no chat UI, no streaming trace, no sparkle icons — the radical 2026 UI choice tha…</p>
-      <a class="open" href="mockups/the-anti-ai/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-anti-ai/index.html" title="the-anti-ai" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-anti-ai/index.html" target="_blank" aria-label="Open the-anti-ai fullscreen"></a>
+      </div>
+      <p class="framing">Make the model invisible: keep the four agents in the back office, deliver a quiet hand-set 'weekly' reading page with no chat UI, no streaming trace, no sparkl…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-anti-ai/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-anti-ai">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-cli-devotee">
       <header>
         <span class="rank">#16</span>
         <span class="score">0.00</span>
         <h3>the-cli-devotee</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Power-user PWA with a command palette as the default surface: ⌘K opens `:curate`, `:why`, `:save`, `:trace`; every keystroke maps to one MCP call so judges see the agent system as something they can d…</p>
-      <a class="open" href="mockups/the-cli-devotee/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-cli-devotee/index.html" title="the-cli-devotee" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-cli-devotee/index.html" target="_blank" aria-label="Open the-cli-devotee fullscreen"></a>
+      </div>
+      <p class="framing">Power-user PWA with a command palette as the default surface: ⌘K opens `:curate`, `:why`, `:save`, `:trace`; every keystroke maps to one MCP call so judges see …</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-cli-devotee/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-cli-devotee">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-dreamer">
       <header>
         <span class="rank">#17</span>
         <span class="score">0.00</span>
         <h3>the-dreamer</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">5-year vision deck on top of the 2026 stack: today 4 agents · 1 user; in 2031 a federation of curators trading novelty under DP-noise — proves Innovation 20% is not a stunt for the demo, it is a runwa…</p>
-      <a class="open" href="mockups/the-dreamer/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-dreamer/index.html" title="the-dreamer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-dreamer/index.html" target="_blank" aria-label="Open the-dreamer fullscreen"></a>
+      </div>
+      <p class="framing">5-year vision deck on top of the 2026 stack: today 4 agents · 1 user; in 2031 a federation of curators trading novelty under DP-noise — proves Innovation 20% is…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-dreamer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-dreamer">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-educator">
       <header>
         <span class="rank">#18</span>
         <span class="score">0.00</span>
         <h3>the-educator</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Onboarding-heavy 5-step flow with a per-pick 'why this video?' receipt — teaches the user (and the judges) that ShortFlix is four named agents doing four named jobs. Trust scales with comprehension; I…</p>
-      <a class="open" href="mockups/the-educator/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-educator/index.html" title="the-educator" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-educator/index.html" target="_blank" aria-label="Open the-educator fullscreen"></a>
+      </div>
+      <p class="framing">Onboarding-heavy 5-step flow with a per-pick 'why this video?' receipt — teaches the user (and the judges) that ShortFlix is four named agents doing four named …</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-educator/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-educator">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-embedded">
       <header>
         <span class="rank">#19</span>
         <span class="score">0.00</span>
         <h3>the-embedded</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Radical bet — ship no PWA of our own. Distribute ShortFlix as a 4 KB &lt;script&gt; embed that any blog/Notion/Substack can drop into a post; the four agents stay on Cloud Run, the surface becomes wha…</p>
-      <a class="open" href="mockups/the-embedded/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-embedded/index.html" title="the-embedded" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-embedded/index.html" target="_blank" aria-label="Open the-embedded fullscreen"></a>
+      </div>
+      <p class="framing">Radical bet — ship no PWA of our own. Distribute ShortFlix as a 4 KB &lt;script&gt; embed that any blog/Notion/Substack can drop into a post; the four agents st…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-embedded/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-embedded">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-game-designer">
       <header>
         <span class="rank">#20</span>
         <span class="score">0.00</span>
         <h3>the-game-designer</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Turn 발견의 즐거움 into a measurable behavior loop: streaks · daily quests · taste leveling on a thin overlay above the curator output. D7 retention sim 0.41 → 0.62. Demo 20% wins on a screen judges can't h…</p>
-      <a class="open" href="mockups/the-game-designer/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-game-designer/index.html" title="the-game-designer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-game-designer/index.html" target="_blank" aria-label="Open the-game-designer fullscreen"></a>
+      </div>
+      <p class="framing">Turn 발견의 즐거움 into a measurable behavior loop: streaks · daily quests · taste leveling on a thin overlay above the curator output. D7 retention sim 0.41 → 0.62. …</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-game-designer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-game-designer">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-ops-veteran">
       <header>
         <span class="rank">#21</span>
         <span class="score">0.00</span>
         <h3>the-ops-veteran</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Show the demo through the lens of running it tomorrow: a NOC dashboard with a $500 GCP credit ledger, RapidAPI bill ceiling, p50/p95 SLO sparklines, runbook + open alerts. Multi-agent superiority on t…</p>
-      <a class="open" href="mockups/the-ops-veteran/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-ops-veteran/index.html" title="the-ops-veteran" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-ops-veteran/index.html" target="_blank" aria-label="Open the-ops-veteran fullscreen"></a>
+      </div>
+      <p class="framing">Show the demo through the lens of running it tomorrow: a NOC dashboard with a $500 GCP credit ledger, RapidAPI bill ceiling, p50/p95 SLO sparklines, runbook + o…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-ops-veteran/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-ops-veteran">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-oss-maintainer">
       <header>
         <span class="rank">#22</span>
         <span class="score">0.00</span>
         <h3>the-oss-maintainer</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Community-owned curator: Apache-2.0 repo with 1.4k stars in 14 days, public Curator Training Data v0.1 (CC-BY-SA-4.0), fork-friendly architecture, 3-seat rotating maintainer governance — Innovation 20…</p>
-      <a class="open" href="mockups/the-oss-maintainer/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-oss-maintainer/index.html" title="the-oss-maintainer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-oss-maintainer/index.html" target="_blank" aria-label="Open the-oss-maintainer fullscreen"></a>
+      </div>
+      <p class="framing">Community-owned curator: Apache-2.0 repo with 1.4k stars in 14 days, public Curator Training Data v0.1 (CC-BY-SA-4.0), fork-friendly architecture, 3-seat rotati…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-oss-maintainer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-oss-maintainer">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-reluctant-adopter">
       <header>
         <span class="rank">#23</span>
         <span class="score">0.00</span>
         <h3>the-reluctant-adopter</h3>
         <span class="panels">RP#3</span>
       </header>
-      <p class="framing">Skeptic-driven design audit: 7 objections (incl. 'isn't this just a feed reader?', 'why not one Gemini call?', 'where does ADK earn its keep?'), each answered with hard receipts (numbers, eval rates, …</p>
-      <a class="open" href="mockups/the-reluctant-adopter/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-reluctant-adopter/index.html" title="the-reluctant-adopter" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-reluctant-adopter/index.html" target="_blank" aria-label="Open the-reluctant-adopter fullscreen"></a>
+      </div>
+      <p class="framing">Skeptic-driven design audit: 7 objections (incl. 'isn't this just a feed reader?', 'why not one Gemini call?', 'where does ADK earn its keep?'), each answered w…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-reluctant-adopter/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-reluctant-adopter">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-slack-native">
       <header>
         <span class="rank">#24</span>
         <span class="score">0.00</span>
         <h3>the-slack-native</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Where work happens: ShortFlix appears as a Slack/Discord bot pinned to a #discoveries channel, posting the daily 9 picks as expandable receipt blocks with slash-command interactions (`/sf curate`, `/s…</p>
-      <a class="open" href="mockups/the-slack-native/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-slack-native/index.html" title="the-slack-native" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-slack-native/index.html" target="_blank" aria-label="Open the-slack-native fullscreen"></a>
+      </div>
+      <p class="framing">Where work happens: ShortFlix appears as a Slack/Discord bot pinned to a #discoveries channel, posting the daily 9 picks as expandable receipt blocks with slash…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-slack-native/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-slack-native">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-solo-founder">
       <header>
         <span class="rank">#25</span>
         <span class="score">0.00</span>
         <h3>the-solo-founder</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">One operator's pinboard: 30-day calendar, maintain-or-cut list, submission DoD checklist, post-hackathon promise. Every feature must pass 'can I maintain this alone after the demo?' or it gets cut/kil…</p>
-      <a class="open" href="mockups/the-solo-founder/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-solo-founder/index.html" title="the-solo-founder" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-solo-founder/index.html" target="_blank" aria-label="Open the-solo-founder fullscreen"></a>
+      </div>
+      <p class="framing">One operator's pinboard: 30-day calendar, maintain-or-cut list, submission DoD checklist, post-hackathon promise. Every feature must pass 'can I maintain this a…</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-solo-founder/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-solo-founder">Vote</button>
+      </div>
     </article>
-    <article class="card candidate">
+    <article class="card candidate" data-slug="the-spreadsheet-jockey">
       <header>
         <span class="rank">#26</span>
         <span class="score">0.00</span>
         <h3>the-spreadsheet-jockey</h3>
         <span class="panels">—</span>
       </header>
-      <p class="framing">Power-user dense data grid: 412 candidate rows × 28 columns (novelty, cross-plat score, region_freq_30d, tag_entropy, safety, copyright, ground_conf, ToS risk, views_24h, save_rate, watch_75%, p_click…</p>
-      <a class="open" href="mockups/the-spreadsheet-jockey/index.html" target="_blank">Open mockup →</a>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-spreadsheet-jockey/index.html" title="the-spreadsheet-jockey" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-spreadsheet-jockey/index.html" target="_blank" aria-label="Open the-spreadsheet-jockey fullscreen"></a>
+      </div>
+      <p class="framing">Power-user dense data grid: 412 candidate rows × 28 columns (novelty, cross-plat score, region_freq_30d, tag_entropy, safety, copyright, ground_conf, ToS risk, …</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-spreadsheet-jockey/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-spreadsheet-jockey">Vote</button>
+      </div>
     </article>
 </div>
+<script>
+  // Vote persistence (localStorage)
+  const VOTE_KEY = 'shortflix_h1_votes';
+  let votes = JSON.parse(localStorage.getItem(VOTE_KEY) || '[]');
+  function rerender() {
+    document.querySelectorAll('.card').forEach(c => {
+      c.classList.toggle('voted', votes.includes(c.dataset.slug));
+    });
+  }
+  rerender();
+  document.querySelectorAll('.btn-vote').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const slug = btn.dataset.slug;
+      const i = votes.indexOf(slug);
+      if (i >= 0) votes.splice(i, 1); else votes.push(slug);
+      localStorage.setItem(VOTE_KEY, JSON.stringify(votes));
+      rerender();
+    });
+  });
+  document.getElementById('clearVotes').addEventListener('click', () => {
+    if (confirm('Clear all your votes from this browser?')) {
+      votes = [];
+      localStorage.removeItem(VOTE_KEY);
+      rerender();
+    }
+  });
+
+  // Filter
+  const PANEL_PICKS = {
+    tp: ['the-researcher', 'the-ai-native', 'the-pragmatist'],
+    bp: ['the-indie-hacker', 'the-enterprise-buyer', 'the-community-builder'],
+    up: ['the-design-forward', 'the-designer', 'the-mobile-first'],
+    rp: ['the-privacy-hawk', 'the-pragmatist', 'the-reluctant-adopter'],
+    top: ['the-researcher', 'the-indie-hacker', 'the-ai-native', 'the-design-forward', 'the-enterprise-buyer'],
+  };
+  document.querySelectorAll('.toolbar button[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.toolbar button[data-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      document.querySelectorAll('.card').forEach(c => {
+        const slug = c.dataset.slug;
+        if (f === 'all') c.classList.remove('hidden');
+        else c.classList.toggle('hidden', !PANEL_PICKS[f].includes(slug));
+      });
+    });
+  });
+
+  // Search
+  document.getElementById('search').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.card').forEach(c => {
+      const text = c.textContent.toLowerCase();
+      c.classList.toggle('hidden', q && !text.includes(q));
+    });
+  });
+</script>
 </body>
 </html>
