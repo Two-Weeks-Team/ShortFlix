@@ -1,0 +1,21 @@
+{
+  "_schema_version": "1.0.0",
+  "_freeze_type": "pre_development_scaffold",
+  "_frozen_at_utc": "2026-05-07T08:15:11Z",
+  "gate": "H2",
+  "run_id": "r-20260506T121945Z",
+  "user_decision": "Freeze approved — proceed to actual implementation",
+  "frozen_artifacts_sha256": {
+    "specs/openapi.yaml": "034ba875d80f1cbd7feb47e3081ecbf578a8dc6c0da0d3d1a8250446d1324339",
+    "specs/SPEC.md": "7c425a4f6477c47c4e9094902130588a5dd721fc3e7303a229b844e98c623011",
+    "prisma/schema.prisma": "25788902115b850e03974648243323da1f8bd4a8f17d503d2fde56f300df4a14",
+    "runs/r-20260506T121945Z/chosen_preview.json": "2868e5921eb5a11286d73eb501970443aa850a8e899e6f7d50e97b431ebb5b01",
+    "runs/r-20260506T121945Z/design-approved.json": "9e877c2e287c01a00b53a8567810ababadacbdb681c1d85f83eb327cba0367dd",
+    "runs/r-20260506T121945Z/mitigations.json": "7b0dbea1ece5a5a5846ef6245c089065911864df7c25b91cb94ca38584207199",
+    "runs/r-20260506T121945Z/composite-plan.md": "54c324ce0770ad0b91dbd109ebc6e79726585db44994c6ac19c996d53877ee00",
+    "README.md": "634162cd17ce8761ad3f3ff1a23cf25500d755cdf69f51724442fc5b048442a1",
+    "CHANGELOG.md": "77de3311239e30f52b802cae2693832212fc76f1ccde4c33214e994628d41a0e",
+    "docs/DEMO_SCRIPT.md": "427545f7e17be9c1249532fc487c2f391aa68dcd7227a8bd003b1457e0aa468e"
+  },
+  "git_commit_at_freeze": "aec3003cd5b5731981562b0c5f90018924685e45"
+}
