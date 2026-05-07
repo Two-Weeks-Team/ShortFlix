@@ -1,0 +1,42 @@
+# Cloud Scheduler — nightly batch trigger
+# Fires daily at 06:00 KST (Asia/Seoul) → POSTs orchestrator /internal/nightly-batch
+# Use OIDC token signed by sa-scheduler so orchestrator can verify caller identity.
+#
+# Apply with:
+#   gcloud scheduler jobs create http shortflix-nightly-batch \
+#     --schedule "0 6 * * *" \
+#     --time-zone "Asia/Seoul" \
+#     --uri "https://shortflix-orchestrator-PROJECT_NUMBER.REGION.run.app/internal/nightly-batch" \
+#     --http-method POST \
+#     --oidc-service-account-email "sa-scheduler@PROJECT_ID.iam.gserviceaccount.com" \
+#     --oidc-token-audience "https://shortflix-orchestrator-PROJECT_NUMBER.REGION.run.app" \
+#     --location REGION \
+#     --project PROJECT_ID
+
+apiVersion: scheduler.googleapis.com/v1
+kind: Job
+metadata:
+  name: shortflix-nightly-batch
+  project: PROJECT_ID
+  location: REGION
+spec:
+  description: "Nightly Curator pre-warm. 06:00 KST → orchestrator /internal/nightly-batch."
+  schedule: "0 6 * * *"
+  timeZone: Asia/Seoul
+  attemptDeadline: 540s        # < orchestrator timeoutSeconds (300s) + retry buffer
+  retryConfig:
+    retryCount: 3
+    minBackoffDuration: 30s
+    maxBackoffDuration: 300s
+    maxDoublings: 3
+  httpTarget:
+    uri: https://shortflix-orchestrator-PROJECT_NUMBER.REGION.run.app/internal/nightly-batch
+    httpMethod: POST
+    headers:
+      Content-Type: application/json
+    body: |
+      eyJzb3VyY2UiOiJjbG91ZC1zY2hlZHVsZXIiLCJraW5kIjoibmlnaHRseS1iYXRjaCJ9
+      # base64 of: {"source":"cloud-scheduler","kind":"nightly-batch"}
+    oidcToken:
+      serviceAccountEmail: sa-scheduler@PROJECT_ID.iam.gserviceaccount.com
+      audience: https://shortflix-orchestrator-PROJECT_NUMBER.REGION.run.app

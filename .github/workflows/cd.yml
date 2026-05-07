@@ -1,0 +1,74 @@
+name: CD (Cloud Build → Cloud Run)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Manual deploy reason"
+        required: false
+        default: "manual"
+
+permissions:
+  contents: read
+  id-token: write   # required for Workload Identity Federation
+
+concurrency:
+  group: cd-main
+  cancel-in-progress: false
+
+env:
+  GCP_PROJECT_ID: shortflix
+  GCP_REGION: asia-northeast3
+  AR_REPO: shortflix-images
+
+jobs:
+  deploy:
+    name: "Cloud Build → Cloud Run (8 services)"
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify spec lock (SHA-256)
+        run: shasum -a 256 -c specs/openapi.lock.txt
+
+      - name: Assert no non-Vertex LLM endpoints (MD-03)
+        run: bash scripts/assert-llm-endpoints.sh
+
+      - id: auth
+        name: Authenticate to GCP (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Submit Cloud Build
+        run: |
+          gcloud builds submit \
+            --config=deploy/cloudbuild.yaml \
+            --substitutions=_REGION=${GCP_REGION},_AR_REPO=${AR_REPO},_NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }} \
+            --project=${GCP_PROJECT_ID} \
+            .
+
+      - name: Smoke test deployed services
+        run: |
+          set -euo pipefail
+          for svc in shortflix-web shortflix-api shortflix-orchestrator; do
+            URL=$(gcloud run services describe $svc --region=${GCP_REGION} --project=${GCP_PROJECT_ID} --format='value(status.url)')
+            echo ">>> Smoke test $svc → $URL"
+            HEALTH_PATH="/health"
+            if [ "$svc" = "shortflix-web" ] || [ "$svc" = "shortflix-api" ]; then HEALTH_PATH="/api/health"; fi
+            # Internal services may not be publicly invokable — only smoke-test public ones.
+            if [ "$svc" = "shortflix-orchestrator" ]; then
+              echo "Skipping public smoke for internal-ingress $svc."
+              continue
+            fi
+            curl -fsS --retry 5 --retry-delay 5 "${URL}${HEALTH_PATH}"
+            echo
+          done

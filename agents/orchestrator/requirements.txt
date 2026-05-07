@@ -1,0 +1,11 @@
+# Pinned per MD-03 supply-chain rider.
+# Bumping these is a deliberate change that must pass scripts/assert-llm-endpoints.sh in CI.
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+google-cloud-aiplatform==1.71.1
+google-cloud-firestore==2.19.0
+opentelemetry-api==1.28.2
+opentelemetry-sdk==1.28.2
+opentelemetry-exporter-gcp-trace==1.7.0
+httpx==0.27.2
+pydantic==2.10.2

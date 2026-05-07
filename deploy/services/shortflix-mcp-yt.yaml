@@ -1,0 +1,56 @@
+# Cloud Run: shortflix-mcp-yt
+# Egress allowlist (MD-03): only *.rapidapi.com + *.googleapis.com via VPC connector + Cloud NAT.
+# CI guards: scripts/assert-llm-endpoints.sh + scripts/assert-mcp-egress.sh
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: shortflix-mcp-yt
+  labels:
+    app: shortflix
+    tier: mcp
+    platform: youtube
+  annotations:
+    run.googleapis.com/ingress: internal
+    run.googleapis.com/description: "MCP server — YouTube via RapidAPI. Egress: *.rapidapi.com only."
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "5"
+        run.googleapis.com/cpu-throttling: "true"
+        run.googleapis.com/execution-environment: gen2
+        # Egress lockdown (MD-03 R1 mitigation):
+        run.googleapis.com/vpc-access-connector: projects/PROJECT_ID/locations/REGION/connectors/shortflix-egress
+        run.googleapis.com/vpc-access-egress: all-traffic
+    spec:
+      serviceAccountName: sa-mcp-yt@PROJECT_ID.iam.gserviceaccount.com
+      containerConcurrency: 40
+      timeoutSeconds: 60
+      containers:
+        - image: REGION-docker.pkg.dev/PROJECT_ID/shortflix-images/shortflix-mcp-yt:latest
+          ports:
+            - name: http1
+              containerPort: 8090
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          env:
+            - name: MCP_NAME
+              value: mcp-yt
+            - name: RAPIDAPI_HOST
+              value: youtube-v31.p.rapidapi.com
+            - name: PLATFORM
+              value: youtube
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8090
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
+  traffic:
+    - percent: 100
+      latestRevision: true

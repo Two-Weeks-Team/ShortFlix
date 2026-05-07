@@ -1,0 +1,188 @@
+# IAM — least-privilege service accounts (per-service)
+# Profile: NEVER roles/owner. NEVER roles/editor. Bind only what each service must do.
+#
+# Apply this file using deploy/scripts/apply-iam.sh (referenced from deploy/README.md).
+# This file is declarative documentation; gcloud doesn't natively `apply` it. Use as the source of truth.
+#
+# Project: shortflix
+# All SAs are created in project ${PROJECT_ID}; substitute at apply time.
+
+service_accounts:
+  - id: sa-web
+    display_name: "ShortFlix Web (Cloud Run)"
+    description: "Runs Next.js PWA. Calls API only; no GCP service access."
+    roles: []   # Public web tier; no GCP-side privileges. Calls API via HTTPS.
+
+  - id: sa-api
+    display_name: "ShortFlix API (Cloud Run)"
+    description: "NestJS gateway. Reads/writes Firestore, reads secrets, invokes orchestrator."
+    roles:
+      - roles/datastore.user                       # Firestore read/write
+      - roles/secretmanager.secretAccessor         # JWT_SIGNING_KEY, OAuth secrets
+      - roles/run.invoker                          # only for shortflix-orchestrator (scoped via per-resource binding)
+      - roles/cloudtrace.agent                     # OTEL spans
+      - roles/logging.logWriter
+    secret_accessor_scopes:
+      - JWT_SIGNING_KEY
+      - GOOGLE_OAUTH_CLIENT_ID
+      - GOOGLE_OAUTH_CLIENT_SECRET
+    invoker_scopes:
+      - shortflix-orchestrator
+
+  - id: sa-orchestrator
+    display_name: "ShortFlix Orchestrator (Cloud Run)"
+    description: "ADK orchestrator. Invokes sub-agents; writes traces; reads Firestore for session state."
+    roles:
+      - roles/datastore.user
+      - roles/run.invoker
+      - roles/cloudtrace.agent
+      - roles/logging.logWriter
+      - roles/aiplatform.user                      # Vertex AI Gemini calls (planner)
+    invoker_scopes:
+      - shortflix-curator
+      - shortflix-search
+      - shortflix-trend-safety
+
+  - id: sa-curator
+    display_name: "ShortFlix Curator (Cloud Run)"
+    description: "Curator agent. Calls MCP services; writes Firestore daily-cards collection."
+    roles:
+      - roles/datastore.user
+      - roles/run.invoker
+      - roles/cloudtrace.agent
+      - roles/logging.logWriter
+      - roles/aiplatform.user
+    invoker_scopes:
+      - shortflix-mcp-yt
+      - shortflix-mcp-ig
+      - shortflix-mcp-tt
+
+  - id: sa-search
+    display_name: "ShortFlix Search (Cloud Run)"
+    description: "Search agent. Calls MCP services on demand."
+    roles:
+      - roles/run.invoker
+      - roles/cloudtrace.agent
+      - roles/logging.logWriter
+      - roles/aiplatform.user
+    invoker_scopes:
+      - shortflix-mcp-yt
+      - shortflix-mcp-ig
+      - shortflix-mcp-tt
+
+  - id: sa-trend-safety
+    display_name: "ShortFlix Trend-Safety (Cloud Run)"
+    description: "Moderation + trend scoring via Vertex AI Gemini. No external HTTP."
+    roles:
+      - roles/aiplatform.user                      # REQUIRED — Gemini invocation
+      - roles/cloudtrace.agent
+      - roles/logging.logWriter
+
+  - id: sa-mcp-yt
+    display_name: "ShortFlix MCP YT (Cloud Run)"
+    description: "Wraps RapidAPI YouTube. Reads RAPIDAPI_KEY from Secret Manager."
+    roles:
+      - roles/secretmanager.secretAccessor
+      - roles/cloudtrace.agent
+      - roles/logging.logWriter
+    secret_accessor_scopes:
+      - RAPIDAPI_KEY_YT
+
+  - id: sa-mcp-ig
+    display_name: "ShortFlix MCP IG (Cloud Run)"
+    description: "Wraps RapidAPI Instagram. Reads RAPIDAPI_KEY from Secret Manager."
+    roles:
+      - roles/secretmanager.secretAccessor
+      - roles/cloudtrace.agent
+      - roles/logging.logWriter
+    secret_accessor_scopes:
+      - RAPIDAPI_KEY_IG
+
+  - id: sa-mcp-tt
+    display_name: "ShortFlix MCP TT (Cloud Run)"
+    description: "Wraps RapidAPI TikTok. Reads RAPIDAPI_KEY from Secret Manager."
+    roles:
+      - roles/secretmanager.secretAccessor
+      - roles/cloudtrace.agent
+      - roles/logging.logWriter
+    secret_accessor_scopes:
+      - RAPIDAPI_KEY_TT
+
+  - id: sa-scheduler
+    display_name: "ShortFlix Cloud Scheduler"
+    description: "Triggers nightly batch via OIDC token to orchestrator."
+    roles:
+      - roles/run.invoker
+    invoker_scopes:
+      - shortflix-orchestrator
+
+  - id: sa-cloudbuild-deployer
+    display_name: "ShortFlix CI/CD Deployer"
+    description: "Cloud Build SA used by gh-actions to push images and replace Cloud Run services."
+    roles:
+      - roles/run.admin
+      - roles/iam.serviceAccountUser    # required to deploy services that use other SAs
+      - roles/artifactregistry.writer
+      - roles/storage.objectViewer
+      - roles/cloudbuild.builds.editor
+      - roles/logging.logWriter
+
+# ----------------------------------------------------------------------
+# Secret Manager — secrets that MUST exist in the project before first deploy.
+# These are documented here; values populated manually by the project owner.
+# ----------------------------------------------------------------------
+secrets:
+  - name: JWT_SIGNING_KEY
+    description: "HS256 JWT signing key for API session tokens (≥ 256-bit)."
+    accessors: [sa-api]
+  - name: GOOGLE_OAUTH_CLIENT_ID
+    description: "Google OAuth 2.0 web client ID."
+    accessors: [sa-api]
+  - name: GOOGLE_OAUTH_CLIENT_SECRET
+    description: "Google OAuth 2.0 web client secret."
+    accessors: [sa-api]
+  - name: RAPIDAPI_KEY_YT
+    description: "RapidAPI key for YouTube provider (separate per platform per MD-03)."
+    accessors: [sa-mcp-yt]
+  - name: RAPIDAPI_KEY_IG
+    description: "RapidAPI key for Instagram provider."
+    accessors: [sa-mcp-ig]
+  - name: RAPIDAPI_KEY_TT
+    description: "RapidAPI key for TikTok provider."
+    accessors: [sa-mcp-tt]
+
+# ----------------------------------------------------------------------
+# Per-service invoker bindings (--member ... --role roles/run.invoker)
+# ----------------------------------------------------------------------
+invoker_bindings:
+  - service: shortflix-api
+    members:
+      - allUsers                                   # PWA fronting; public
+  - service: shortflix-web
+    members:
+      - allUsers                                   # PWA itself; public
+  - service: shortflix-orchestrator
+    members:
+      - serviceAccount:sa-api@PROJECT_ID.iam.gserviceaccount.com
+      - serviceAccount:sa-scheduler@PROJECT_ID.iam.gserviceaccount.com
+  - service: shortflix-curator
+    members:
+      - serviceAccount:sa-orchestrator@PROJECT_ID.iam.gserviceaccount.com
+  - service: shortflix-search
+    members:
+      - serviceAccount:sa-orchestrator@PROJECT_ID.iam.gserviceaccount.com
+  - service: shortflix-trend-safety
+    members:
+      - serviceAccount:sa-orchestrator@PROJECT_ID.iam.gserviceaccount.com
+  - service: shortflix-mcp-yt
+    members:
+      - serviceAccount:sa-curator@PROJECT_ID.iam.gserviceaccount.com
+      - serviceAccount:sa-search@PROJECT_ID.iam.gserviceaccount.com
+  - service: shortflix-mcp-ig
+    members:
+      - serviceAccount:sa-curator@PROJECT_ID.iam.gserviceaccount.com
+      - serviceAccount:sa-search@PROJECT_ID.iam.gserviceaccount.com
+  - service: shortflix-mcp-tt
+    members:
+      - serviceAccount:sa-curator@PROJECT_ID.iam.gserviceaccount.com
+      - serviceAccount:sa-search@PROJECT_ID.iam.gserviceaccount.com

@@ -1,0 +1,49 @@
+# syntax=docker/dockerfile:1.7
+# ShortFlix Agent Template — Python 3.12 base for ADK + Vertex AI
+# Used by: orchestrator (8081), curator (8082), search (8083), trend-safety (8084)
+# Build with: --build-arg AGENT_NAME=orchestrator --build-arg AGENT_PORT=8081
+#
+# IMPORTANT: agents/<name>/ contains a placeholder skeleton (main.py + requirements.txt).
+# User adds the actual ADK code separately. This Dockerfile only assumes those two files exist.
+
+ARG PYTHON_VERSION=3.12.7
+
+# ---------- builder ----------
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
+ARG AGENT_NAME
+WORKDIR /build
+ENV PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+COPY agents/${AGENT_NAME}/requirements.txt ./
+# Pin google-cloud-aiplatform via requirements.txt (MD-03 supply-chain rider).
+RUN python -m venv /opt/venv \
+ && /opt/venv/bin/pip install --upgrade pip wheel \
+ && /opt/venv/bin/pip install -r requirements.txt
+
+# ---------- runtime ----------
+FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+ARG AGENT_NAME
+ARG AGENT_PORT=8080
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates tini curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 10001 app \
+    && useradd  --system --uid 10001 --gid app --home /app --shell /usr/sbin/nologin app
+ENV PATH="/opt/venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    AGENT_NAME=${AGENT_NAME} \
+    PORT=${AGENT_PORT}
+COPY --from=builder /opt/venv /opt/venv
+COPY --chown=app:app agents/${AGENT_NAME}/ ./
+USER app
+EXPOSE ${AGENT_PORT}
+# Cloud Run probes /health on the container port; FastAPI/Uvicorn convention assumed in skeleton.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl -fsS "http://127.0.0.1:${PORT}/health" || exit 1
+ENTRYPOINT ["tini","--"]
+# main.py expected to call: uvicorn.run(app, host="0.0.0.0", port=int(os.environ["PORT"]))
+CMD ["python","main.py"]

@@ -1,0 +1,216 @@
+# Cloud Build pipeline for ShortFlix (8 services)
+# Trigger: push to main (wired via .github/workflows/cd.yml using gcloud builds submit)
+# Project: shortflix
+# Artifact Registry repo: shortflix-images (region: asia-northeast3)
+#
+# Build is parallelized via parallel `id` steps that don't share waitFor chains.
+# All images tagged with both $SHORT_SHA and `latest`.
+#
+# Substitutions (override at submit time):
+#   _REGION            (default asia-northeast3)
+#   _AR_REPO           (default shortflix-images)
+#   _NEXT_PUBLIC_API_BASE_URL  (default https://shortflix-api-<hash>-an.a.run.app)
+
+substitutions:
+  _REGION: asia-northeast3
+  _AR_REPO: shortflix-images
+  _NEXT_PUBLIC_API_BASE_URL: https://shortflix-api.example.run.app
+
+options:
+  machineType: E2_HIGHCPU_8
+  logging: CLOUD_LOGGING_ONLY
+  dynamicSubstitutions: true
+  env:
+    - DOCKER_BUILDKIT=1
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-web:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-web:latest
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-api:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-api:latest
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-orchestrator:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-orchestrator:latest
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-curator:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-curator:latest
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-search:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-search:latest
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-trend-safety:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-trend-safety:latest
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-yt:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-yt:latest
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-ig:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-ig:latest
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-tt:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-tt:latest
+
+steps:
+  # ---- Web (Next.js) ----
+  - id: build-web
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/Dockerfile.web
+      - --build-arg
+      - NEXT_PUBLIC_API_BASE_URL=${_NEXT_PUBLIC_API_BASE_URL}
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-web:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-web:latest
+      - .
+
+  # ---- API (NestJS) ----
+  - id: build-api
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/Dockerfile.api
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-api:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-api:latest
+      - .
+
+  # ---- Agents (Python ADK) ----
+  - id: build-orchestrator
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/Dockerfile.agent.template
+      - --build-arg
+      - AGENT_NAME=orchestrator
+      - --build-arg
+      - AGENT_PORT=8081
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-orchestrator:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-orchestrator:latest
+      - .
+
+  - id: build-curator
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/Dockerfile.agent.template
+      - --build-arg
+      - AGENT_NAME=curator
+      - --build-arg
+      - AGENT_PORT=8082
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-curator:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-curator:latest
+      - .
+
+  - id: build-search
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/Dockerfile.agent.template
+      - --build-arg
+      - AGENT_NAME=search
+      - --build-arg
+      - AGENT_PORT=8083
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-search:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-search:latest
+      - .
+
+  - id: build-trend-safety
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/Dockerfile.agent.template
+      - --build-arg
+      - AGENT_NAME=trend-safety
+      - --build-arg
+      - AGENT_PORT=8084
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-trend-safety:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-trend-safety:latest
+      - .
+
+  # ---- MCP Servers (Node 22) ----
+  - id: build-mcp-yt
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/Dockerfile.mcp.template
+      - --build-arg
+      - MCP_NAME=mcp-yt
+      - --build-arg
+      - MCP_PORT=8090
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-yt:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-yt:latest
+      - .
+
+  - id: build-mcp-ig
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/Dockerfile.mcp.template
+      - --build-arg
+      - MCP_NAME=mcp-ig
+      - --build-arg
+      - MCP_PORT=8091
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-ig:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-ig:latest
+      - .
+
+  - id: build-mcp-tt
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - deploy/Dockerfile.mcp.template
+      - --build-arg
+      - MCP_NAME=mcp-tt
+      - --build-arg
+      - MCP_PORT=8092
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-tt:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-tt:latest
+      - .
+
+  # ---- Deploy step (replaces 8 services) ----
+  - id: deploy-all
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    waitFor:
+      - build-web
+      - build-api
+      - build-orchestrator
+      - build-curator
+      - build-search
+      - build-trend-safety
+      - build-mcp-yt
+      - build-mcp-ig
+      - build-mcp-tt
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        for svc in shortflix-web shortflix-api shortflix-orchestrator shortflix-curator \
+                   shortflix-search shortflix-trend-safety shortflix-mcp-yt shortflix-mcp-ig shortflix-mcp-tt; do
+          echo ">>> Deploying $svc"
+          gcloud run services replace deploy/services/${svc}.yaml \
+            --region=${_REGION} \
+            --project=$PROJECT_ID \
+            --quiet
+        done
+
+timeout: 1800s

@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Token spine — H1-locked palette in OKLCH (per fe-tailwind brief).
+ *
+ * Each token is split into L C H components so Tailwind's color() function can
+ * compose oklch() values at runtime. Hex fallbacks (in comments) match
+ * design-approved.json exactly.
+ */
+:root {
+  /* --bg #0d1117 */
+  --bg-l: 0.18;
+  --bg-c: 0.013;
+  --bg-h: 264;
+
+  /* --fg #e6edf3 */
+  --fg-l: 0.93;
+  --fg-c: 0.012;
+  --fg-h: 240;
+
+  /* muted #8a8aa3 */
+  --muted-l: 0.62;
+  --muted-c: 0.025;
+  --muted-h: 270;
+
+  /* border #2a2a44 */
+  --border-l: 0.28;
+  --border-c: 0.026;
+  --border-h: 280;
+
+  /* --accent #6e7eff */
+  --accent-l: 0.66;
+  --accent-c: 0.18;
+  --accent-h: 270;
+
+  /* --gold #ffd23f */
+  --gold-l: 0.86;
+  --gold-c: 0.16;
+  --gold-h: 88;
+
+  /* --pop #ff5fa2 */
+  --pop-l: 0.7;
+  --pop-c: 0.2;
+  --pop-h: 0;
+
+  /* --sky #7ad9ff */
+  --sky-l: 0.85;
+  --sky-c: 0.1;
+  --sky-h: 230;
+
+  /* --grass #5af28a */
+  --grass-l: 0.86;
+  --grass-c: 0.18;
+  --grass-h: 145;
+
+  /* --warn #ff944d */
+  --warn-l: 0.75;
+  --warn-c: 0.17;
+  --warn-h: 50;
+
+  /* --top #3fb950 (streak/status) */
+  --top-l: 0.7;
+  --top-c: 0.18;
+  --top-h: 145;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: oklch(var(--bg-l) var(--bg-c) var(--bg-h));
+  color: oklch(var(--fg-l) var(--fg-c) var(--fg-h));
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* a11y — visible focus ring per fe-a11y / WCAG 2.2 AA */
+:focus-visible {
+  outline: 2px solid oklch(var(--accent-l) var(--accent-c) var(--accent-h));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip-link for keyboard nav (fe-a11y) */
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 0.75rem;
+  background: oklch(var(--accent-l) var(--accent-c) var(--accent-h));
+  color: oklch(0.99 0 0);
+  border-radius: 6px;
+  z-index: 100;
+}
+
+/* Honor user motion preferences (fe-a11y / WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Editorial card hover — quiet, anti-ai voice */
+.card-quiet {
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+.card-quiet:hover {
+  border-color: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.6);
+}
+
+/* Loading shimmer */
+.shimmer {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(var(--border-l) var(--border-c) var(--border-h) / 0.6) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+}

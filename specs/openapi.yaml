@@ -1,0 +1,1243 @@
+openapi: 3.1.0
+info:
+  title: ShortFlix API
+  version: 0.1.1
+  summary: Cross-cultural short-form video discovery — REST + A2A + MCP boundaries.
+  description: |
+    ShortFlix is a Progressive Web App that publishes a daily nine-card weekly of cross-cultural
+    short-form video. This document covers three contract surfaces:
+
+    1. **REST API** (consumed by the PWA at `/app` and the landing at `/`).
+       Served by the **orchestrator** Cloud Run service.
+    2. **A2A (Agent-to-Agent) contracts** between the four Cloud Run agent services
+       (orchestrator, curator, unified-search, trend-safety).
+    3. **MCP tool contracts** for the three Cloud Run MCP wrappers around RapidAPI
+       (yt-shorts-mcp, ig-reels-mcp, tiktok-mcp). MCP itself is JSON-RPC 2.0; this document
+       describes the HTTP-layer entry plus the JSON-RPC method shapes referenced from the
+       `mcp` tag.
+
+    ## Cross-cutting requirements (apply unless overridden per-endpoint)
+
+    - **Auth**: OAuth 2.1 with PKCE (Authorization Code + PKCE; no implicit/password flows).
+      The Google authorization step is performed at Google's endpoint; the ShortFlix server
+      accepts the code at `POST /api/auth/google` and mints a session JWT delivered as an
+      HttpOnly + Secure + SameSite=Lax cookie. Bearer tokens are also accepted via
+      `Authorization: Bearer <jwt>` for non-cookie clients.
+    - **Scopes**: `read:today`, `read:search`, `write:quest`, `write:event`, `admin:bench`.
+      Read endpoints never require write scopes (spec-critic-security).
+    - **Idempotency**: every POST that mutates state accepts an `Idempotency-Key: <uuid>` header
+      (RFC draft + spec-critic-idempotency). Keys are stored 24h; replay returns the original
+      response, mismatched payload returns 409.
+    - **Errors**: all error responses use `application/problem+json` per RFC 7807. See
+      `#/components/schemas/Problem`.
+    - **i18n**: every user-facing string is `Accept-Language` negotiated (RFC 7231 §5.3.5).
+      Video card text is kept in source language with `sourceLang` tag; UI chrome ships en + ko
+      (extensible). Currency values are integer minor units (e.g., USD cents) — never float.
+    - **Performance**: list endpoints (`/api/today`, `/api/today/{date}`, `/api/ablation`)
+      support `ETag` + cursor pagination via `cursor` query parameter. p50 server response
+      budget: 250 ms read; 1.5 s search.
+    - **Accessibility**: all video objects expose `altText` (required) and `captionLang`
+      (optional but populated when captions exist).
+    - **Rate limit**: 60 req/min per user for read endpoints, 10 req/min for `/api/search`.
+      Limit headers per IETF draft: `RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`.
+  contact:
+    name: ShortFlix Team (Two-Weeks-Team)
+  license:
+    name: Apache-2.0
+
+servers:
+  - url: https://api.shortflix.run.app
+    description: Cloud Run development server (lazy-bound domain per H1 decision).
+  - url: http://localhost:8081
+    description: Local dev (test harness on .env.test, port 8081 — never 8080).
+
+tags:
+  - name: auth
+    description: Google OAuth 2.1 PKCE flow.
+  - name: today
+    description: Daily issue endpoints (read-only).
+  - name: search
+    description: Unified natural-language search across the three platforms.
+  - name: quest
+    description: Streak + 4-quest game state (full scope per H1 user decision).
+  - name: ablation
+    description: Drop-one-agent reveal table.
+  - name: events
+    description: Pick interaction events (view/save/share/dismiss/why-opened).
+  - name: a2a
+    description: Agent-to-agent contracts between the four Cloud Run services.
+  - name: mcp
+    description: MCP tool wrapper contracts (JSON-RPC 2.0 over HTTP).
+  - name: ops
+    description: Health, readiness, observability.
+
+paths:
+  # ───────────────────────────── AUTH ─────────────────────────────
+  /api/auth/google:
+    post:
+      tags: [auth]
+      summary: Exchange Google OAuth authorization code for a ShortFlix session.
+      description: |
+        OAuth 2.1 with PKCE. The client sends the `code` from Google's redirect plus the
+        `code_verifier` it created at the start of the flow. The server verifies the code
+        with Google, mints a session JWT, and delivers it as an HttpOnly cookie.
+
+        Idempotency: an Idempotency-Key MAY be supplied to make this call safe to retry
+        across a flaky network — the same `code` must only be exchanged once with Google.
+      operationId: exchangeGoogleCode
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguage'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleAuthRequest'
+      responses:
+        '200':
+          description: Session issued.
+          headers:
+            Set-Cookie:
+              description: HttpOnly + Secure + SameSite=Lax session cookie.
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/IdempotencyConflict' }
+        '422': { $ref: '#/components/responses/UnprocessableEntity' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/auth/logout:
+    post:
+      tags: [auth]
+      summary: Clear session cookie and revoke the session JWT.
+      description: |
+        Idempotent by design — repeating the call after the session is already invalid is
+        a no-op (returns 204). When an Idempotency-Key is supplied with a *different*
+        payload (the body MUST be empty or `{}`), 409 is returned per the global
+        idempotency contract.
+      operationId: logout
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+        - sessionCookie: []
+        - bearerAuth:    []
+      responses:
+        '204': { description: Session terminated. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/IdempotencyConflict' }
+
+  # ───────────────────────────── TODAY ─────────────────────────────
+  /api/today:
+    get:
+      tags: [today]
+      summary: Get today's 9-pick issue for the authenticated user's locale.
+      description: |
+        Returns the curator's 9-pick issue for the date corresponding to "now" in the user's
+        locale. Supports `If-None-Match` for ETag-based caching: when the client's ETag
+        matches the current issue, 304 is returned with no body.
+      operationId: getTodayIssue
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguage'
+        - in: header
+          name: If-None-Match
+          schema: { type: string }
+          description: ETag from a previous response; server may return 304.
+      security:
+        - sessionCookie: [read:today]
+        - bearerAuth:    [read:today]
+        - oauth2:        [read:today]
+      responses:
+        '200':
+          description: Today's issue.
+          headers:
+            ETag:
+              description: SHA-256-derived strong ETag for the issue.
+              schema: { type: string }
+            Cache-Control:
+              schema: { type: string, example: "private, max-age=120" }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '304': { description: Not Modified — caller's ETag matches. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/today/{date}:
+    get:
+      tags: [today]
+      summary: Get a historical issue (or page across multiple days).
+      description: |
+        Returns the issue for `date` (UTC YYYY-MM-DD) in the authenticated user's locale.
+        Cursor-paginated when fetching multiple days via the `cursor` parameter.
+      operationId: getHistoricalIssue
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguage'
+        - in: path
+          name: date
+          required: true
+          description: Issue date in UTC (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+            example: "2026-05-01"
+        - in: query
+          name: cursor
+          schema: { type: string }
+          description: Opaque pagination cursor returned by a previous response.
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 30, default: 1 }
+      security:
+        - sessionCookie: [read:today]
+        - bearerAuth:    [read:today]
+        - oauth2:        [read:today]
+      responses:
+        '200':
+          description: Historical issue page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssuePage'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  # ───────────────────────────── SEARCH ─────────────────────────────
+  /api/search:
+    post:
+      tags: [search]
+      summary: Natural-language unified search across the three platforms.
+      description: |
+        The orchestrator dispatches to the unified-search agent (Gemini), which decomposes
+        the natural-language query into a 3-platform query plan, fans out to MCP tools, and
+        ranks the merged result set. Idempotency-Key MAY be supplied; identical queries with
+        the same key within 24h replay the prior response.
+      operationId: searchUnified
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguage'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+        - sessionCookie: [read:search]
+        - bearerAuth:    [read:search]
+        - oauth2:        [read:search]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Ranked results.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/IdempotencyConflict' }
+        '422': { $ref: '#/components/responses/UnprocessableEntity' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  # ───────────────────────────── QUEST + STREAK ─────────────────────────────
+  /api/quests/{questId}:
+    get:
+      tags: [quest]
+      summary: Get a single quest's progress for today.
+      operationId: getQuest
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguage'
+        - in: path
+          name: questId
+          required: true
+          schema: { $ref: '#/components/schemas/QuestId' }
+      security:
+        - sessionCookie: [read:today]
+        - bearerAuth:    [read:today]
+        - oauth2:        [read:today]
+      responses:
+        '200':
+          description: Single-quest state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestProgressItem'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/quests/{questId}/completions:
+    post:
+      tags: [quest]
+      summary: Mark a quest complete (server validates progress >= target).
+      description: |
+        REST-canonical resource path. Creates a single completion record for `questId` for
+        the current user/day. Subsequent calls return 409 (already completed). The
+        `completions` sub-collection name expresses the action as a noun-resource per
+        spec-critic-api-design.
+      operationId: createQuestCompletion
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguage'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - in: path
+          name: questId
+          required: true
+          schema: { $ref: '#/components/schemas/QuestId' }
+      security:
+        - sessionCookie: [write:quest]
+        - bearerAuth:    [write:quest]
+        - oauth2:        [write:quest]
+      responses:
+        '201':
+          description: Quest completed.
+          headers:
+            Location:
+              description: URI of the created completion record.
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestCompleteResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: Quest already completed for today.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422':
+          description: Progress has not yet reached target.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/quests:
+    get:
+      tags: [quest]
+      summary: List all quest progress for today.
+      description: |
+        Returns the full quest set (CARTOGRAPHER, DIVERSIFIER, RECEIPT_READER, TIER_II) with
+        per-quest progress for the current user/day.
+      operationId: listQuestState
+      parameters:
+        - $ref: '#/components/parameters/AcceptLanguage'
+      security:
+        - sessionCookie: [read:today]
+        - bearerAuth:    [read:today]
+        - oauth2:        [read:today]
+      responses:
+        '200':
+          description: Today's quest state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestState'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/streak:
+    get:
+      tags: [quest]
+      summary: Get the authenticated user's streak.
+      operationId: getStreak
+      security:
+        - sessionCookie: [read:today]
+        - bearerAuth:    [read:today]
+        - oauth2:        [read:today]
+      responses:
+        '200':
+          description: Streak state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Streak'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ───────────────────────────── ABLATION ─────────────────────────────
+  /api/ablation:
+    get:
+      tags: [ablation]
+      summary: Drop-one-agent reveal table for a given issue date.
+      description: |
+        Returns the four-row ablation table (one row per dropped agent) plus the full-pipeline
+        baseline. Powers the in-app "What did the agents do?" modal toggle (MD-01). Supports
+        `If-None-Match` for ETag-based caching since ablation is computed once per issue.
+      operationId: getAblation
+      parameters:
+        - in: query
+          name: issueDate
+          schema: { type: string, format: date }
+          description: Defaults to the most recent published issue.
+        - in: header
+          name: If-None-Match
+          schema: { type: string }
+      security:
+        - sessionCookie: [read:today]
+        - bearerAuth:    [read:today]
+        - oauth2:        [read:today]
+      responses:
+        '200':
+          description: Ablation table.
+          headers:
+            ETag: { schema: { type: string } }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AblationResponse'
+        '304': { description: Not Modified. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ───────────────────────────── EVENTS ─────────────────────────────
+  /api/events/picks:
+    post:
+      tags: [events]
+      summary: Record one or more user interactions with Picks (batch).
+      description: |
+        Accepts a batch of pick events to avoid N+1 client→server calls when a user views
+        multiple cards in quick succession. Each event in the batch must carry its own
+        `clientEventId` for client-side replay deduplication.
+      operationId: recordPickEvents
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      security:
+        - sessionCookie: [write:event]
+        - bearerAuth:    [write:event]
+        - oauth2:        [write:event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PickEventBatchRequest'
+      responses:
+        '202':
+          description: Batch accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PickEventBatchResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/IdempotencyConflict' }
+        '422': { $ref: '#/components/responses/UnprocessableEntity' }
+
+  # ───────────────────────────── HEALTH/OPS ─────────────────────────────
+  /api/health:
+    get:
+      tags: [ops]
+      summary: Liveness probe (orchestrator service).
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: Service is alive.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+
+  /api/health/{service}:
+    get:
+      tags: [ops]
+      summary: Cross-service health probe (proxied via orchestrator).
+      description: |
+        Returns per-service liveness for any of the seven Cloud Run services (4 agents +
+        3 MCP wrappers). Used by the in-app "About" panel and by judges' inspection — every
+        service in the architecture diagram is independently verifiable.
+      operationId: getServiceHealth
+      security: []
+      parameters:
+        - in: path
+          name: service
+          required: true
+          schema:
+            type: string
+            enum:
+              - orchestrator
+              - curator
+              - unified-search
+              - trend-safety
+              - yt-shorts-mcp
+              - ig-reels-mcp
+              - tiktok-mcp
+      responses:
+        '200':
+          description: Service is alive.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  # ───────────────────────────── A2A (agent-to-agent) ─────────────────────────────
+  /a2a/dispatch:
+    post:
+      tags: [a2a]
+      summary: Orchestrator → agent dispatch.
+      description: |
+        Internal Cloud Run-to-Cloud Run call. Authenticated via Cloud Run service-to-service
+        IAM (`roles/run.invoker` + Google-signed identity tokens), not by user session. Each
+        request carries an OpenTelemetry `traceparent` header so the seven services appear as
+        distinct spans (MD-02). Idempotent on `(traceId, rpc)`.
+      operationId: a2aDispatch
+      security:
+        - serviceAccount: []
+      parameters:
+        - $ref: '#/components/parameters/Traceparent'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/A2ADispatchRequest'
+      responses:
+        '200':
+          description: Dispatch accepted; agent response in body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/A2AResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/IdempotencyConflict' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /a2a/respond:
+    post:
+      tags: [a2a]
+      summary: Agent → orchestrator callback (used by long-running tasks).
+      operationId: a2aRespond
+      security:
+        - serviceAccount: []
+      parameters:
+        - $ref: '#/components/parameters/Traceparent'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/A2AResponse'
+      responses:
+        '202': { description: Callback recorded. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/IdempotencyConflict' }
+
+  # ───────────────────────────── MCP TOOL CONTRACTS ─────────────────────────────
+  /mcp/{tool}/rpc:
+    post:
+      tags: [mcp]
+      summary: JSON-RPC entrypoint for one of the three MCP tool services.
+      description: |
+        MCP wraps each platform's RapidAPI provider behind a stable contract. Methods exposed:
+
+        - `list_candidates(params)` — returns 9..15 candidates per call.
+        - `get_video_meta(externalId)` — returns metadata for one externalId.
+        - `health()` — JSON-RPC liveness.
+
+        Egress allowlist (CI-enforced per MD-03): only `*.rapidapi.com` and `*.googleapis.com`
+        may be reached from these services.
+      operationId: mcpRpc
+      security:
+        - serviceAccount: []
+      parameters:
+        - in: path
+          name: tool
+          required: true
+          schema:
+            type: string
+            enum: [yt-shorts-mcp, ig-reels-mcp, tiktok-mcp]
+        - $ref: '#/components/parameters/Traceparent'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonRpcRequest'
+      responses:
+        '200':
+          description: JSON-RPC response (success OR error envelope).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcResponse'
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: sf_session
+      description: |
+        HttpOnly + Secure session cookie minted after `/api/auth/google` exchange.
+        OAuth 2.1 PKCE is required at the upstream (Google) leg.
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Bearer JWT containing scope claims. Used by non-cookie clients (CLI, demo recording
+        tooling). Same JWT contents as the session cookie.
+    oauth2:
+      type: oauth2
+      description: |
+        OAuth 2.1 with PKCE. The authorization endpoint is Google's; the ShortFlix server
+        accepts the resulting authorization code at `POST /api/auth/google`. The `tokenUrl`
+        below is the **first-party** endpoint that exchanges the code for a ShortFlix
+        session JWT. PKCE (S256) is mandatory — implicit and password flows are not offered.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+          tokenUrl: https://api.shortflix.run.app/api/auth/google
+          refreshUrl: https://api.shortflix.run.app/api/auth/refresh
+          scopes:
+            'read:today': Read today's issue, streak, quest state, ablation table.
+            'read:search': Run unified searches.
+            'write:quest': Mark quests complete; update streak.
+            'write:event': Record pick interaction events.
+            'admin:bench': (Internal) Trigger bench harness re-runs; not for end users.
+    serviceAccount:
+      type: http
+      scheme: bearer
+      bearerFormat: GoogleSignedIdToken
+      description: |
+        Service-to-service auth. Cloud Run validates the Google-signed identity token; the
+        caller's service account must have `roles/run.invoker` on the target service.
+
+  parameters:
+    AcceptLanguage:
+      in: header
+      name: Accept-Language
+      required: false
+      schema: { type: string, example: "ko, en;q=0.9" }
+      description: |
+        BCP-47 language preference per RFC 7231 §5.3.5. Server resolves to UI chrome locale
+        (en | ko at v0.1; falls back to en). Affects `Problem.title`, `Problem.detail`, and
+        the `labelKey`-resolved display strings on the QuestProgressItem schema.
+    IdempotencyKey:
+      in: header
+      name: Idempotency-Key
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: "550e8400-e29b-41d4-a716-446655440000"
+      description: |
+        UUIDv4. Required for all state-mutating POSTs in production. Same key + same payload
+        within 24h replays the original response. Same key + different payload returns 409
+        with type `https://shortflix.run.app/problems/idempotency-conflict`.
+    Traceparent:
+      in: header
+      name: traceparent
+      required: false
+      schema: { type: string, example: "00-0af7651916cd43dd8448eb211c80319c-b9c7c989f97918e1-01" }
+      description: |
+        W3C Trace Context — required on all A2A and MCP calls (MD-02). Propagated across the
+        seven Cloud Run services so trace tree shows agent boundaries to judges.
+
+  schemas:
+    # ── Auth ───────────────────────────────────────────────
+    GoogleAuthRequest:
+      type: object
+      additionalProperties: false
+      required: [code, codeVerifier, redirectUri]
+      description: PKCE code exchange envelope.
+      properties:
+        code:
+          type: string
+          description: Authorization code from Google's redirect.
+          minLength: 1
+          maxLength: 2048
+        codeVerifier:
+          type: string
+          description: PKCE code_verifier the client generated at flow start (S256 challenge).
+          minLength: 43
+          maxLength: 128
+        redirectUri:
+          type: string
+          format: uri
+          description: Must exactly match the redirect_uri used at the authorize step.
+
+    SessionResponse:
+      type: object
+      required: [user, expiresAt, scopes]
+      description: Session-establishment response.
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        expiresAt:
+          type: string
+          format: date-time
+          description: When the session JWT expires (UTC RFC 3339).
+        scopes:
+          type: array
+          items: { type: string }
+          description: Scopes granted to this session.
+
+    User:
+      type: object
+      required: [id, displayName, locale]
+      description: Privacy-minimal user object (per MD-06).
+      properties:
+        id:
+          type: string
+          description: Internal user id (CUID).
+        displayName:
+          type: string
+          description: User's chosen display name.
+        locale:
+          type: string
+          example: "en"
+          description: User's UI locale (BCP-47).
+        preferredLangs:
+          type: array
+          items: { type: string }
+          description: BCP-47 language tags the user prefers content in.
+
+    # ── Issue / Pick ───────────────────────────────────────
+    Issue:
+      type: object
+      required: [id, issueDate, locale, etag, picks, noveltyScore, publishedAt]
+      description: A daily issue — exactly nine picks for one (date, locale) tuple.
+      properties:
+        id: { type: string }
+        issueDate: { type: string, format: date }
+        locale: { type: string, example: "en" }
+        etag: { type: string, description: SHA-256-derived ETag. }
+        publishedAt: { type: string, format: date-time }
+        noveltyScore:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Aggregate novelty score (0..1). Exposed in the ablation reveal.
+        picks:
+          type: array
+          minItems: 9
+          maxItems: 9
+          description: Exactly 9 picks, ordered by `position`.
+          items: { $ref: '#/components/schemas/Pick' }
+
+    IssuePage:
+      type: object
+      required: [items]
+      description: Cursor-paginated page of historical issues.
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Issue' }
+        nextCursor:
+          type: string
+          nullable: true
+          description: Cursor for the next page; null when no more pages.
+
+    Pick:
+      type: object
+      required:
+        - id
+        - position
+        - platform
+        - videoUrl
+        - thumbnailUrl
+        - durationSec
+        - region
+        - sourceLang
+        - altText
+        - blurb
+        - rationale
+        - noveltyScore
+      description: |
+        One of the 9 cards in an Issue. `altText` is REQUIRED and must describe literal
+        visual content (not marketing copy) for screen-reader users (a11y).
+      properties:
+        id: { type: string }
+        position:
+          type: integer
+          minimum: 1
+          maximum: 9
+          description: 1-indexed position within the issue.
+        platform:
+          $ref: '#/components/schemas/Platform'
+        videoUrl: { type: string, format: uri }
+        thumbnailUrl: { type: string, format: uri }
+        durationSec: { type: integer, minimum: 1, maximum: 600 }
+        region:
+          type: string
+          minLength: 2
+          maxLength: 2
+          description: ISO 3166-1 alpha-2 of the content's apparent origin.
+          example: "NG"
+        sourceLang:
+          type: string
+          description: BCP-47 tag of the spoken/text content of the video.
+          example: "yo"
+        captionLang:
+          type: string
+          nullable: true
+          description: BCP-47 tag of provided captions; null if no captions exist.
+        altText:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: |
+            Accessibility description for screen readers. REQUIRED. Describes literal visual
+            content (e.g., "Two cooks tossing noodles on a wok over a wood fire at night")
+            — NOT editorial blurb or marketing copy.
+        blurb:
+          type: string
+          minLength: 1
+          maxLength: 800
+          description: Editorial 1-paragraph blurb in the source language (anti-ai voice).
+        rationale:
+          type: string
+          minLength: 1
+          maxLength: 280
+          description: Curator agent's one-sentence rationale (shown in the detail modal).
+        noveltyScore:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Per-pick novelty (0..1).
+        trendSafetyTags:
+          type: array
+          items: { type: string }
+          description: Tags emitted by the trend-safety agent (e.g., "safe", "trend_emerging").
+        agentTraceId:
+          type: string
+          nullable: true
+          description: OpenTelemetry trace id for this pick's reasoning chain.
+
+    Platform:
+      type: string
+      enum: [YOUTUBE_SHORTS, INSTAGRAM_REELS, TIKTOK]
+      description: Which short-form platform this content originated on.
+
+    # ── Search ─────────────────────────────────────────────
+    SearchRequest:
+      type: object
+      additionalProperties: false
+      required: [query]
+      description: Natural-language search request.
+      properties:
+        query:
+          type: string
+          minLength: 1
+          maxLength: 280
+          description: Natural-language query. UTF-8.
+        languages:
+          type: array
+          items: { type: string }
+          description: Optional list of BCP-47 source-language hints.
+          maxItems: 5
+
+    SearchResponse:
+      type: object
+      required: [results, queryPlan]
+      properties:
+        queryPlan:
+          type: object
+          description: The 3-platform query plan the unified-search agent produced.
+          required: [youtube, instagram, tiktok]
+          properties:
+            youtube: { type: string }
+            instagram: { type: string }
+            tiktok: { type: string }
+        results:
+          type: array
+          items: { $ref: '#/components/schemas/SearchResult' }
+        agentTraceId:
+          type: string
+          nullable: true
+
+    SearchResult:
+      type: object
+      required: [platform, videoUrl, thumbnailUrl, title, altText, sourceLang, rank]
+      description: One ranked search result. `altText` is REQUIRED for a11y.
+      properties:
+        platform: { $ref: '#/components/schemas/Platform' }
+        videoUrl: { type: string, format: uri }
+        thumbnailUrl: { type: string, format: uri }
+        title: { type: string }
+        altText:
+          type: string
+          minLength: 1
+          description: a11y description of the result thumbnail/preview.
+        sourceLang: { type: string }
+        rank: { type: integer, minimum: 1 }
+
+    # ── Quest + Streak ────────────────────────────────────
+    QuestId:
+      type: string
+      enum:
+        - CARTOGRAPHER
+        - DIVERSIFIER
+        - RECEIPT_READER
+        - TIER_II
+      description: |
+        The four daily quests:
+
+        - `CARTOGRAPHER` — visit N distinct regions in today's issue.
+        - `DIVERSIFIER` — open at least one card from each platform.
+        - `RECEIPT_READER` — tap "Why this issue?" on at least 3 cards.
+        - `TIER_II` — earn enough XP to unlock taste-tier II.
+
+    QuestProgressItem:
+      type: object
+      required: [questId, progress, target, completed, labelKey]
+      description: Per-quest progress for a single user/day.
+      properties:
+        questId: { $ref: '#/components/schemas/QuestId' }
+        progress:
+          type: integer
+          minimum: 0
+          description: Current progress (task-defined units).
+        target:
+          type: integer
+          minimum: 1
+          description: Target value to complete the quest.
+        completed: { type: boolean }
+        labelKey:
+          type: string
+          description: i18n key for the quest label (resolved client-side per Accept-Language).
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    QuestState:
+      type: object
+      required: [forDate, quests]
+      properties:
+        forDate:
+          type: string
+          format: date
+          description: UTC date the quest set applies to.
+        quests:
+          type: array
+          items: { $ref: '#/components/schemas/QuestProgressItem' }
+
+    QuestCompleteResponse:
+      type: object
+      required: [questId, completedAt, xpAwarded, streak]
+      properties:
+        questId: { $ref: '#/components/schemas/QuestId' }
+        completedAt: { type: string, format: date-time }
+        xpAwarded: { type: integer, minimum: 0 }
+        streak: { $ref: '#/components/schemas/Streak' }
+
+    Streak:
+      type: object
+      required: [currentDays, longestDays]
+      properties:
+        currentDays: { type: integer, minimum: 0 }
+        longestDays: { type: integer, minimum: 0 }
+        lastTickAt: { type: string, format: date-time }
+        freezeTokens:
+          type: integer
+          minimum: 0
+          description: Grace tokens that prevent streak reset for one missed day each.
+
+    # ── Ablation ───────────────────────────────────────────
+    AblationResponse:
+      type: object
+      required: [issueDate, baselineNovelty, rows]
+      description: |
+        Drop-one-agent ablation results (MD-01). Screen-reader rendering: the `rows` array
+        is exposed as a `<table>` with `droppedAgent` as row header; pickOverlap is a 0..1
+        fraction of picks shared with the full-pipeline baseline.
+      properties:
+        issueDate: { type: string, format: date }
+        baselineNovelty:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Novelty score of the full 4-agent pipeline.
+        rows:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            type: object
+            required: [droppedAgent, noveltyScore, pickOverlap]
+            properties:
+              droppedAgent:
+                type: string
+                enum: [ORCHESTRATOR, CURATOR, UNIFIED_SEARCH, TREND_SAFETY]
+                description: Which agent was held out for this row.
+              noveltyScore:
+                type: number
+                format: float
+                minimum: 0
+                maximum: 1
+                description: Novelty score with the agent dropped.
+              pickOverlap:
+                type: number
+                format: float
+                minimum: 0
+                maximum: 1
+                description: Fraction of picks shared with the full-pipeline baseline.
+
+    # ── Events ─────────────────────────────────────────────
+    PickEventBatchRequest:
+      type: object
+      additionalProperties: false
+      required: [events]
+      description: Batched pick events to avoid N+1 client→server requests.
+      properties:
+        events:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items: { $ref: '#/components/schemas/PickEventInput' }
+
+    PickEventInput:
+      type: object
+      additionalProperties: false
+      required: [clientEventId, pickId, eventType]
+      properties:
+        clientEventId:
+          type: string
+          format: uuid
+          description: Client-side dedup id; idempotent at the per-event level within the batch.
+        pickId: { type: string }
+        eventType:
+          type: string
+          enum: [VIEW, SAVE, SHARE, DISMISS, WHY_OPENED]
+        durationMs:
+          type: integer
+          minimum: 0
+          description: Required when eventType=VIEW.
+        occurredAt:
+          type: string
+          format: date-time
+          description: Client-observed event time. Server records its own receivedAt too.
+
+    PickEventBatchResponse:
+      type: object
+      required: [accepted, rejected]
+      properties:
+        accepted:
+          type: array
+          items:
+            type: object
+            required: [clientEventId, eventId]
+            properties:
+              clientEventId: { type: string, format: uuid }
+              eventId: { type: string }
+        rejected:
+          type: array
+          items:
+            type: object
+            required: [clientEventId, error]
+            properties:
+              clientEventId: { type: string, format: uuid }
+              error: { $ref: '#/components/schemas/Problem' }
+
+    # ── A2A ────────────────────────────────────────────────
+    A2ADispatchRequest:
+      type: object
+      additionalProperties: false
+      required: [toAgent, rpc, payload]
+      properties:
+        toAgent:
+          type: string
+          enum: [CURATOR, UNIFIED_SEARCH, TREND_SAFETY]
+        rpc:
+          type: string
+          description: 'RPC method name (e.g. "curator.rank", "unified_search.plan").'
+        payload:
+          type: object
+          description: RPC-specific payload (open schema by design).
+          additionalProperties: true
+        deadlineMs:
+          type: integer
+          minimum: 100
+          maximum: 60000
+          description: Per-call deadline in milliseconds.
+
+    A2AResponse:
+      type: object
+      required: [status, traceId]
+      properties:
+        status:
+          type: string
+          enum: [ok, err, timeout]
+        result:
+          type: object
+          nullable: true
+          additionalProperties: true
+        error:
+          allOf:
+            - $ref: '#/components/schemas/Problem'
+          nullable: true
+        traceId: { type: string }
+
+    # ── MCP / JSON-RPC ─────────────────────────────────────
+    JsonRpcRequest:
+      type: object
+      required: [jsonrpc, method, id]
+      description: JSON-RPC 2.0 request envelope.
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+        method:
+          type: string
+          enum: [list_candidates, get_video_meta, health]
+        params:
+          type: object
+          additionalProperties: true
+        id:
+          oneOf:
+            - { type: string }
+            - { type: integer }
+
+    JsonRpcResponse:
+      type: object
+      required: [jsonrpc, id]
+      description: JSON-RPC 2.0 response envelope (either result OR error must be set).
+      properties:
+        jsonrpc: { type: string, enum: ["2.0"] }
+        id:
+          oneOf:
+            - { type: string }
+            - { type: integer }
+            - { type: 'null' }
+        result:
+          type: object
+          nullable: true
+          additionalProperties: true
+        error:
+          type: object
+          nullable: true
+          required: [code, message]
+          properties:
+            code: { type: integer }
+            message: { type: string }
+            data:
+              type: object
+              additionalProperties: true
+
+    # ── Health ─────────────────────────────────────────────
+    Health:
+      type: object
+      required: [service, status, version]
+      properties:
+        service: { type: string }
+        status: { type: string, enum: [ok, degraded, down] }
+        version: { type: string }
+        commitSha: { type: string }
+        uptimeSec: { type: integer, minimum: 0 }
+
+    # ── Problem (RFC 7807) ─────────────────────────────────
+    Problem:
+      type: object
+      description: |
+        RFC 7807 problem details object. `title` and `detail` are localized per the
+        request's Accept-Language; the `lang` field declares which BCP-47 locale the
+        server actually rendered (which may be a fallback if the requested locale was
+        unsupported).
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+          description: 'URI reference identifying the problem class. Use "about:blank" if none.'
+          example: "https://shortflix.run.app/problems/idempotency-conflict"
+        title:
+          type: string
+          description: Short, human-readable summary. Localized.
+        status:
+          type: integer
+          description: HTTP status code.
+        detail:
+          type: string
+          description: Localized human-readable explanation specific to this occurrence.
+        instance:
+          type: string
+          format: uri
+          description: URI reference to the specific occurrence.
+        traceId:
+          type: string
+          description: OpenTelemetry trace id correlated with this error.
+        lang:
+          type: string
+          description: BCP-47 locale that title/detail were rendered in (e.g. "en", "ko").
+          example: "en"
+        errors:
+          type: array
+          description: Optional field-level error details (validation problems).
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field: { type: string }
+              message: { type: string }
+              code: { type: string }
+
+  responses:
+    BadRequest:
+      description: Malformed request.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthorized:
+      description: Missing or invalid credentials.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      description: Authenticated, but missing required scope or insufficient permission.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: Resource not found.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    UnprocessableEntity:
+      description: Request well-formed but semantically invalid.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    IdempotencyConflict:
+      description: |
+        Idempotency-Key was reused with a different request payload. Use a fresh UUIDv4
+        or replay the exact same body.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    RateLimited:
+      description: Too many requests.
+      headers:
+        RateLimit-Limit:    { schema: { type: integer } }
+        RateLimit-Remaining: { schema: { type: integer } }
+        RateLimit-Reset:    { schema: { type: integer } }
+        Retry-After:        { schema: { type: integer } }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    ServiceUnavailable:
+      description: Upstream service unavailable.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+security:
+  - sessionCookie: []

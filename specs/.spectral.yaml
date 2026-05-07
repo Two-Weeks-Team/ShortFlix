@@ -1,0 +1,7 @@
+extends:
+  - "spectral:oas"
+rules:
+  oas3-api-servers: warn
+  operation-tag-defined: warn
+  info-contact: off
+  oas3-unused-component: warn

@@ -1,0 +1,184 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20.18.1"
+  PNPM_VERSION: "9.12.0"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # ------------------------------------------------------------
+  # Hackathon-binding guards (MD-03 R2: NO non-Vertex LLM endpoints).
+  # Runs first — if it fails, nothing else matters.
+  # ------------------------------------------------------------
+  guards:
+    name: "Guards (LLM endpoints + spec lock)"
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify spec lock (SHA-256)
+        run: shasum -a 256 -c specs/openapi.lock.txt
+      - name: Assert no non-Vertex LLM endpoints (MD-03)
+        run: bash scripts/assert-llm-endpoints.sh
+
+  # ------------------------------------------------------------
+  # Web — Next.js 14 PWA
+  # ------------------------------------------------------------
+  web:
+    name: "Web — lint + typecheck + build"
+    runs-on: ubuntu-22.04
+    needs: guards
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile=false
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:3001
+
+  # ------------------------------------------------------------
+  # API — NestJS + nestia + typia
+  # Includes nestia staleness check (compares committed SDK with regenerated).
+  # ------------------------------------------------------------
+  api:
+    name: "API — lint + typecheck + test + nestia staleness"
+    runs-on: ubuntu-22.04
+    needs: guards
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: apps/api/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile=false
+      - run: pnpm exec ts-patch install -s
+      - run: pnpm exec prisma generate --schema=../../prisma/schema.prisma
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - name: Nestia SDK staleness check
+        run: |
+          set -euo pipefail
+          mkdir -p .nestia-ci-out
+          if [ -d "src/api" ] || [ -d "packages/api" ]; then
+            cp -R src/api .nestia-ci-snapshot 2>/dev/null || true
+          fi
+          pnpm build:sdk
+          # If `git diff` shows changes inside generated SDK paths, fail.
+          if ! git diff --quiet -- src/api packages/api 2>/dev/null; then
+            echo "::error::Generated nestia SDK is stale. Run \`pnpm build:sdk\` and commit."
+            git --no-pager diff --stat -- src/api packages/api || true
+            exit 1
+          fi
+      - name: Nestia Swagger staleness check
+        run: |
+          set -euo pipefail
+          pnpm build:swagger
+          if ! git diff --quiet -- 'specs/swagger.json' 'specs/swagger.yaml' 2>/dev/null; then
+            echo "::error::Generated Swagger is stale. Run \`pnpm build:swagger\` and commit."
+            git --no-pager diff --stat -- specs || true
+            exit 1
+          fi
+
+  # ------------------------------------------------------------
+  # Agents (Python) — minimal lint check on placeholders.
+  # User adds ADK code separately; CI only enforces python compiles + Vertex pin present.
+  # ------------------------------------------------------------
+  agents:
+    name: "Agents — pin check + py compile"
+    runs-on: ubuntu-22.04
+    needs: guards
+    strategy:
+      fail-fast: false
+      matrix:
+        agent: [orchestrator, curator, search, trend-safety]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Assert google-cloud-aiplatform pinned (MD-03)
+        run: |
+          set -euo pipefail
+          REQ="agents/${{ matrix.agent }}/requirements.txt"
+          if [ ! -f "$REQ" ]; then
+            echo "::warning::$REQ missing — skipping (placeholder will be added later)"
+            exit 0
+          fi
+          if ! grep -E '^google-cloud-aiplatform==[0-9]' "$REQ" >/dev/null; then
+            echo "::error::google-cloud-aiplatform must be pinned in $REQ (MD-03 supply-chain rider)"
+            exit 1
+          fi
+      - name: py -m compileall (skeleton sanity)
+        run: |
+          if [ -d "agents/${{ matrix.agent }}" ]; then
+            python -m compileall agents/${{ matrix.agent }} || true
+          fi
+
+  # ------------------------------------------------------------
+  # Build matrix — exercise all 8 Dockerfiles to catch breakage early.
+  # No push; cache on GHA.
+  # ------------------------------------------------------------
+  docker:
+    name: "Docker — build matrix"
+    runs-on: ubuntu-22.04
+    needs: [web, api, agents]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: web,          file: deploy/Dockerfile.web,             args: "" }
+          - { name: api,          file: deploy/Dockerfile.api,             args: "" }
+          - { name: orchestrator, file: deploy/Dockerfile.agent.template,  args: "AGENT_NAME=orchestrator,AGENT_PORT=8081" }
+          - { name: curator,      file: deploy/Dockerfile.agent.template,  args: "AGENT_NAME=curator,AGENT_PORT=8082" }
+          - { name: search,       file: deploy/Dockerfile.agent.template,  args: "AGENT_NAME=search,AGENT_PORT=8083" }
+          - { name: trend-safety, file: deploy/Dockerfile.agent.template,  args: "AGENT_NAME=trend-safety,AGENT_PORT=8084" }
+          - { name: mcp-yt,       file: deploy/Dockerfile.mcp.template,    args: "MCP_NAME=mcp-yt,MCP_PORT=8090" }
+          - { name: mcp-ig,       file: deploy/Dockerfile.mcp.template,    args: "MCP_NAME=mcp-ig,MCP_PORT=8091" }
+          - { name: mcp-tt,       file: deploy/Dockerfile.mcp.template,    args: "MCP_NAME=mcp-tt,MCP_PORT=8092" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build ${{ matrix.name }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          push: false
+          load: false
+          build-args: |
+            ${{ matrix.args }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}

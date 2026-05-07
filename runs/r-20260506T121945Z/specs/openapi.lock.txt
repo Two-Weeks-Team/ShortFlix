@@ -1,0 +1,15 @@
+# ShortFlix Spec Lock — runs/r-20260506T121945Z
+# Locked at: 2026-05-07 (Iteration 2 of evaluator-optimizer loop, 0 blocking remaining)
+# Profile: standard (max-equivalent expansion)
+# Author: SPEC_LEAD via spec-author/critic loop
+# Validators: Python yaml.safe_load + structural ref+brace checks (spectral CLI blocked by node24 dyld)
+#
+# Evaluator-optimizer outcome:
+#   Iter 1: 4 BLOCKING (SC1 oauth2 scheme; SC1 bearer/cookie missing 403; SC5 logout 409; SC7 verb-in-path)
+#   Iter 2: 0 BLOCKING (SC2/SC3/SC4/SC6 advisories addressed inline)
+#   Loop terminated by consensus, not by iteration cap.
+#
+# SHA-256 of locked artifacts:
+034ba875d80f1cbd7feb47e3081ecbf578a8dc6c0da0d3d1a8250446d1324339  specs/openapi.yaml
+25788902115b850e03974648243323da1f8bd4a8f17d503d2fde56f300df4a14  prisma/schema.prisma
+7c425a4f6477c47c4e9094902130588a5dd721fc3e7303a229b844e98c623011  specs/SPEC.md

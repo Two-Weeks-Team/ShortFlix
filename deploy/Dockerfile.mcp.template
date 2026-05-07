@@ -1,0 +1,51 @@
+# syntax=docker/dockerfile:1.7
+# ShortFlix MCP Server Template — Node 22 base
+# Used by: mcp-yt, mcp-ig, mcp-tt (each wraps RapidAPI for one platform)
+# DECISION: Node 22 (not Python) — TS MCP SDK is more mature for HTTP-streaming transport;
+#           shared toolchain with apps/api reduces lockfile drift.
+# Build with: --build-arg MCP_NAME=mcp-yt --build-arg MCP_PORT=8090
+#
+# Egress allowlist (MD-03 rider): runtime only contacts *.rapidapi.com + *.googleapis.com.
+# Enforced at infra layer via VPC connector + Cloud NAT (see deploy/services/mcp-*.yaml).
+
+ARG NODE_VERSION=22.11.0
+
+# ---------- deps ----------
+FROM node:${NODE_VERSION}-bookworm-slim AS deps
+ARG MCP_NAME
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
+COPY agents/${MCP_NAME}/package.json agents/${MCP_NAME}/pnpm-lock.yaml* ./
+RUN --mount=type=cache,id=pnpm-mcp,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile=false --prod=false
+
+# ---------- builder ----------
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
+ARG MCP_NAME
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
+COPY --from=deps /app/node_modules ./node_modules
+COPY agents/${MCP_NAME}/ ./
+RUN pnpm build && pnpm prune --prod
+
+# ---------- runtime ----------
+FROM node:${NODE_VERSION}-bookworm-slim AS runtime
+ARG MCP_NAME
+ARG MCP_PORT=8090
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates tini \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 10001 app \
+    && useradd  --system --uid 10001 --gid app --home /app --shell /usr/sbin/nologin app
+ENV NODE_ENV=production \
+    MCP_NAME=${MCP_NAME} \
+    PORT=${MCP_PORT}
+COPY --from=builder --chown=app:app /app/dist ./dist
+COPY --from=builder --chown=app:app /app/node_modules ./node_modules
+COPY --from=builder --chown=app:app /app/package.json ./package.json
+USER app
+EXPOSE ${MCP_PORT}
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:'+process.env.PORT+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+ENTRYPOINT ["tini","--"]
+CMD ["node","dist/main.js"]

@@ -1,0 +1,319 @@
+// ShortFlix — Data Model (Prisma 5.x)
+// Run: r-20260506T121945Z
+// Locked composite: mobile-first PWA + game-designer landing + anti-ai voice
+//
+// Design principles:
+//   - Local dev: SQLite (provider="sqlite") via DATABASE_URL=file:./dev.db
+//   - Production: Cloud SQL (PostgreSQL) — same schema works (no postgres-only types used)
+//   - Firestore is used ONLY for the nightly-batch cache of `Issue` documents (read-only at runtime
+//     for `/api/today`); the source of truth for everything mutable is Cloud SQL.
+//   - PII surface is minimized per MD-06: we store Google sub-id, display name, locale, last-N
+//     watch hashes only. No email, no profile picture URL beyond an ephemeral signed reference.
+//   - All timestamps are UTC. Frontend renders in user's Accept-Language tz hint.
+//
+// Provider switch:
+//   datasource db { provider = "sqlite" url = env("DATABASE_URL") }   ← local
+//   datasource db { provider = "postgresql" url = env("DATABASE_URL") } ← prod (Cloud SQL)
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── Identity ─────────────────────────────
+
+/// User account. Created on first successful Google OAuth code exchange.
+/// `googleSubId` is the OIDC `sub` claim — globally stable, never reused.
+/// Per MD-06: we deliberately do NOT store email, profile picture, or refresh token
+/// in plaintext. The Google ID token is verified server-side and discarded after
+/// session JWT minting.
+model User {
+  id              String    @id @default(cuid())
+  googleSubId     String    @unique
+  displayName     String
+  locale          String    @default("en") // BCP-47 e.g. "en", "ko", "pt-BR"
+  preferredLangs  String    @default("en") // CSV of BCP-47 — used by curator for content lang preference
+  createdAt       DateTime  @default(now())
+  lastSeenAt      DateTime  @default(now())
+  deletedAt       DateTime?
+
+  watchHashes     WatchHash[]
+  questProgress   QuestProgress[]
+  streak          Streak?
+  searches        SearchQuery[]
+  consents        Consent[]
+  ablationViews   AblationView[]
+  pickEvents      PickEvent[]
+
+  @@index([googleSubId])
+  @@index([deletedAt])
+}
+
+/// Privacy-preserving watch history: only a SHA-256 of (userId + videoExternalId)
+/// truncated to 16 hex chars is stored. The original videoExternalId is not retained.
+/// Used by curator agent for novelty deduplication only. Last-N (N=200) per user; older entries pruned.
+model WatchHash {
+  id        String   @id @default(cuid())
+  userId    String
+  hash      String   // 16-hex-char (SHA-256 prefix)
+  watchedAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, watchedAt])
+  @@unique([userId, hash])
+}
+
+/// User consent records (GDPR Art. 7 evidence). One row per consent event.
+/// Required by MD-06 (DPIA stub) and spec-critic-security.
+model Consent {
+  id          String   @id @default(cuid())
+  userId      String
+  scope       String   // "analytics" | "personalization" | "automated_decision_override"
+  granted     Boolean
+  grantedAt   DateTime @default(now())
+  policyHash  String   // SHA-256 of the privacy policy markdown the user saw
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, scope])
+}
+
+// ───────────────────────────── Daily Issue (curator output) ─────────────────────────────
+
+/// One Issue per (issueDate, locale) — i.e. per-day, per-locale grouping.
+/// `etag` is computed as SHA-256 of (issueDate || sortedPickIds || revision). Returned in
+/// `ETag` header on GET /api/today; supports If-None-Match → 304 (per spec-critic-performance).
+model Issue {
+  id            String      @id @default(cuid())
+  issueDate     DateTime    // UTC date at 00:00; uniqueness key
+  locale        String      @default("en")  // serving locale
+  revision      Int         @default(1)
+  etag          String      @unique
+  publishedAt   DateTime    @default(now())
+  curatorRunId  String      // OpenTelemetry trace ID of the nightly run that produced this Issue
+  noveltyScore  Float       // aggregate novelty score (0..1) — exposed in ablation reveal
+  novelty       Float?      // alias for noveltyScore (kept distinct so we can record raw vs adjusted later)
+
+  picks         Pick[]
+
+  @@unique([issueDate, locale])
+  @@index([issueDate])
+  @@index([publishedAt])
+}
+
+/// One of the 9 cards in an Issue. `position` is 1..9.
+/// `videoExternalId` is opaque — the platform-specific ID is namespaced by `platform`.
+/// `altText` and `captionLang` are required (a11y per spec-critic-a11y).
+/// `sourceLang` is the BCP-47 language code of the spoken/text content of the video itself.
+model Pick {
+  id              String    @id @default(cuid())
+  issueId         String
+  position        Int       // 1..9
+  platform        Platform
+  videoExternalId String    // RapidAPI-vended ID
+  videoUrl        String    // canonical URL (deep-link)
+  thumbnailUrl    String    // signed/CDN-cached thumbnail
+  durationSec     Int
+  region          String    // ISO 3166-1 alpha-2 of the content's apparent origin (best-effort)
+  sourceLang      String    // BCP-47 of the content
+  captionLang     String?   // BCP-47 of provided captions (null if none)
+  altText         String    // a11y description (NOT marketing copy)
+  blurb           String    // editorial 1-paragraph blurb (anti-ai voice)
+  rationale       String    // curator agent's one-sentence rationale (shown in detail modal)
+  noveltyScore    Float     // per-pick novelty (0..1)
+  trendSafetyTags String    @default("[]") // JSON array of safety tags ["safe", "trend_emerging", ...]
+  agentTrace      String?   // OpenTelemetry trace ID for this pick's reasoning chain
+
+  issue           Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  pickEvents      PickEvent[]
+
+  @@unique([issueId, position])
+  @@index([videoExternalId])
+}
+
+enum Platform {
+  YOUTUBE_SHORTS
+  INSTAGRAM_REELS
+  TIKTOK
+}
+
+/// Individual user interactions with a Pick (view, save, share, dismiss).
+/// Used for retention analytics + future personalization signal.
+model PickEvent {
+  id          String        @id @default(cuid())
+  userId      String
+  pickId      String
+  eventType   PickEventType
+  occurredAt  DateTime      @default(now())
+  durationMs  Int?          // for VIEW events
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pick        Pick          @relation(fields: [pickId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+  @@index([pickId, eventType])
+}
+
+enum PickEventType {
+  VIEW
+  SAVE
+  SHARE
+  DISMISS
+  WHY_OPENED
+}
+
+// ───────────────────────────── Search ─────────────────────────────
+
+/// Natural-language search request → unified-search agent → 3-platform query plan.
+/// Stored for analytics + cache lookup (same NL query within 60s returns cached plan).
+model SearchQuery {
+  id          String   @id @default(cuid())
+  userId      String
+  rawQuery    String
+  acceptLang  String   // negotiated language for the search response
+  queryPlan   String   // JSON: {youtube: "...", instagram: "...", tiktok: "..."}
+  resultCount Int      @default(0)
+  createdAt   DateTime @default(now())
+  agentTrace  String?  // OTel trace id
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  results     SearchResult[]
+
+  @@index([userId, createdAt])
+}
+
+/// Individual results from a unified search. Truncated to top 30 across platforms.
+model SearchResult {
+  id              String      @id @default(cuid())
+  searchQueryId   String
+  platform        Platform
+  videoExternalId String
+  videoUrl        String
+  thumbnailUrl    String
+  title           String
+  altText         String      // a11y
+  sourceLang      String
+  rank            Int
+
+  searchQuery     SearchQuery @relation(fields: [searchQueryId], references: [id], onDelete: Cascade)
+
+  @@index([searchQueryId, rank])
+}
+
+// ───────────────────────────── Game (streak + 4 quests) ─────────────────────────────
+
+/// Per-user streak. One row per user. Resets if a 24h window elapses without a VIEW event.
+model Streak {
+  userId        String   @id
+  currentDays   Int      @default(0)
+  longestDays   Int      @default(0)
+  lastTickAt    DateTime @default(now())
+  freezeTokens  Int      @default(0) // grace tokens to prevent reset
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Per-user, per-day, per-quest progress. Quests reset daily at user-locale midnight.
+model QuestProgress {
+  id          String     @id @default(cuid())
+  userId      String
+  questId     QuestId
+  forDate     DateTime   // UTC midnight of the day this progress applies to
+  progress    Int        @default(0) // task-defined units (e.g., regions visited)
+  target      Int        // task-defined target
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questId, forDate])
+  @@index([userId, completedAt])
+}
+
+/// The 4 daily quests (full game scope per H1 user decision).
+enum QuestId {
+  CARTOGRAPHER     // visit N distinct regions in today's issue
+  DIVERSIFIER      // open at least one card from each platform
+  RECEIPT_READER   // tap "Why this issue?" on at least 3 cards
+  TIER_II          // earn enough XP to unlock taste-tier II
+}
+
+// ───────────────────────────── Ablation (drop-one-agent reveal) ─────────────────────────────
+
+/// One row per (issueId, droppedAgent) — populated by the bench harness.
+/// GET /api/ablation returns this table for the on-page modal toggle.
+model AblationResult {
+  id              String       @id @default(cuid())
+  issueId         String
+  droppedAgent    AgentName
+  noveltyScore    Float
+  pickOverlap     Float        // 0..1 — fraction of picks shared with full pipeline
+  computedAt      DateTime     @default(now())
+
+  @@unique([issueId, droppedAgent])
+  @@index([issueId])
+}
+
+enum AgentName {
+  ORCHESTRATOR
+  CURATOR
+  UNIFIED_SEARCH
+  TREND_SAFETY
+}
+
+/// One row per user view of the ablation modal — analytics for "did judges actually open this?".
+model AblationView {
+  id          String    @id @default(cuid())
+  userId      String?   // nullable — anonymous views allowed pre-login
+  issueId     String
+  openedAt    DateTime  @default(now())
+
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([issueId, openedAt])
+}
+
+// ───────────────────────────── Idempotency ─────────────────────────────
+
+/// Idempotency-Key store (RFC + spec-critic-idempotency).
+/// Any POST request with an Idempotency-Key header writes a row before processing.
+/// Subsequent requests with the same key + same userId + same path replay the stored response.
+/// TTL: 24h (cleanup job).
+model IdempotencyRecord {
+  key           String   @id // Idempotency-Key header value (UUIDv4 expected)
+  userId        String
+  method        String
+  path          String
+  requestHash   String   // SHA-256 of (canonicalized request body + path)
+  responseCode  Int
+  responseBody  String   // serialized JSON response
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
+}
+
+// ───────────────────────────── A2A audit (agent-to-agent calls) ─────────────────────────────
+
+/// Records each A2A dispatch+response between Cloud Run services.
+/// Required for OpenTelemetry trace verification at judging time (MD-02).
+model A2ACall {
+  id            String    @id @default(cuid())
+  traceId       String
+  fromAgent     AgentName
+  toAgent       AgentName
+  rpc           String    // e.g. "curator.rank", "unified_search.plan"
+  startedAt     DateTime  @default(now())
+  endedAt       DateTime?
+  status        String    // "ok" | "err" | "timeout"
+  errorCode     String?
+
+  @@index([traceId])
+  @@index([fromAgent, toAgent, startedAt])
+}

@@ -1,0 +1,71 @@
+# Cloud Run: shortflix-orchestrator (Python ADK)
+# Profile: latency-critical (every PWA query routes through here) → min-instances=1
+# Memory: 1Gi · CPU: 2 (ADK chains spawn sub-agent calls; needs headroom)
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: shortflix-orchestrator
+  labels:
+    app: shortflix
+    tier: agent
+    role: orchestrator
+  annotations:
+    run.googleapis.com/ingress: internal-and-cloud-load-balancing
+    run.googleapis.com/description: "Orchestrator agent (ADK). Routes intents to Curator/Search/Trend-Safety."
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "5"
+        run.googleapis.com/cpu-throttling: "false"
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/startup-cpu-boost: "true"
+    spec:
+      serviceAccountName: sa-orchestrator@PROJECT_ID.iam.gserviceaccount.com
+      containerConcurrency: 20
+      timeoutSeconds: 300
+      containers:
+        - image: REGION-docker.pkg.dev/PROJECT_ID/shortflix-images/shortflix-orchestrator:latest
+          ports:
+            - name: http1
+              containerPort: 8081
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          env:
+            - name: AGENT_NAME
+              value: orchestrator
+            - name: VERTEX_PROJECT
+              value: PROJECT_ID
+            - name: VERTEX_LOCATION
+              value: us-central1
+            - name: CURATOR_URL
+              value: https://shortflix-curator-PROJECT_NUMBER.REGION.run.app
+            - name: SEARCH_URL
+              value: https://shortflix-search-PROJECT_NUMBER.REGION.run.app
+            - name: TREND_SAFETY_URL
+              value: https://shortflix-trend-safety-PROJECT_NUMBER.REGION.run.app
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: https://cloudtrace.googleapis.com
+            - name: OTEL_SERVICE_NAME
+              value: orchestrator
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
+  traffic:
+    - percent: 100
+      latestRevision: true
