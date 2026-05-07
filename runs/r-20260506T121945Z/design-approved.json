@@ -1,0 +1,50 @@
+{
+  "_schema_version": "1.0.0",
+  "_locked_at_utc": "2026-05-07T07:31:41Z",
+  "gate": "H1",
+  "user_decisions": {
+    "1_composite": {
+      "answer": "lock as recommended",
+      "value": "mobile-first + game-designer + anti-ai"
+    },
+    "2_representative": {
+      "answer": "Two-Weeks-Team",
+      "value": "self as Representative on org account"
+    },
+    "3_domain": {
+      "answer": "lazy-bind",
+      "value": "Cloud Run run.app during dev → final domain decided pre-submission"
+    },
+    "4_gcp_project": {
+      "answer": "new",
+      "value": "shortflix (fresh project for $500 credit + clean R2 audit)"
+    },
+    "5_demo_persona": {
+      "answer": "multiple personas",
+      "value": "3 personas (e.g., Maya/Doyoon/Liam) rotating through demo's first scenes"
+    },
+    "6_game_scope": {
+      "answer": "full",
+      "value": "Streak + 4-Quest full version (Cartographer/Diversifier/Receipt-Reader/Tier-II)"
+    },
+    "7_stripe_receipt": {
+      "answer": "test mode",
+      "value": "Stripe test-mode receipt (watermark hidden)"
+    },
+    "8_brand_name": {
+      "answer": "lazy-bind",
+      "value": "Use 'ShortFlix' as working name; final lock at D+24 with submission text"
+    }
+  },
+  "binding_riders": "All 10 mitigations.json riders apply to spec/build phase regardless of composite",
+  "deferred_decisions": [
+    "Final domain (decide D+25 along with Stripe receipt scene)",
+    "Final brand name (decide D+24 along with submission text lock)"
+  ],
+  "spec_dd_inputs": {
+    "openapi_yaml_target": "specs/openapi.yaml",
+    "prisma_schema_target": "prisma/schema.prisma",
+    "constraints": "Track 1 stack mandatory + 10 mitigation riders + 3-layer surface architecture",
+    "spec_authors_brief": "See composite-plan.md sections 3 (architecture), 4 (topology), 5 (gap closures)"
+  }
+}

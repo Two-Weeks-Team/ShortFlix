@@ -1,0 +1,28 @@
+{
+  "_schema_version": "1.0.0",
+  "_lock_type": "composite",
+  "_locked_at_utc": "2026-05-07T07:31:41Z",
+  "primary_advocate": "the-mobile-first",
+  "primary_role": "main_pwa_at_/app",
+  "secondary_advocates": [
+    {
+      "slug": "the-game-designer",
+      "role": "landing_page_at_/",
+      "scope": "full"
+    },
+    {
+      "slug": "the-anti-ai",
+      "role": "voice_and_copy_throughout",
+      "scope": "editorial"
+    }
+  ],
+  "fallback_advocates": [],
+  "rationale": "User selected 3-advocate composition explicitly: mobile-first PWA as the daily-use surface, game-designer landing for acquisition+retention, anti-ai voice for brand differentiation. Meta-tally ranks: #9, #20, #15 respectively.",
+  "spec_alignment": {
+    "stack": "ADK + Gemini API + MCP + Cloud Run (locked)",
+    "persona": "Global content discovery enthusiast (3 sample personas: Maya/Doyoon/Liam)",
+    "killer_feature": "AI Cross-Platform Curator with drop-one-agent ablation reveal",
+    "sync_model": "Hybrid (curated cache + real-time RapidAPI search)",
+    "emotional_axis": "발견의 즐거움 (operationalized as XP via game-designer overlay)"
+  }
+}
