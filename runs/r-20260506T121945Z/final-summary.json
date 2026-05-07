@@ -1,0 +1,66 @@
+{
+  "_schema_version": "1.0.0",
+  "run_id": "r-20260506T121945Z",
+  "completed_at_utc": "2026-05-07T08:13:55Z",
+  "profile": "standard (expanded to 26 advocates)",
+  "phases_completed": [
+    "PreviewDD: 26 advocates + I2 diversity (max Jaccard 0.41)",
+    "4-Panel: TP/BP/UP/RP weighted Borda meta-tally",
+    "Mitigation Designer: 10 binding riders",
+    "Gate H1: composite locked (mobile-first + game-designer + anti-ai)",
+    "SpecDD: 2 iter, 0 blocking, openapi.yaml + prisma + SPEC.md SHA-256 locked",
+    "Engineering: BE (58 files) + FE (47 files) + DO (38 files) parallel scaffold",
+    "Docs: README + CHANGELOG + DEMO_SCRIPT"
+  ],
+  "phases_skipped_with_reason": {
+    "QA (functional+a11y+perf+security)": "macOS Node@24/simdjson dyld blocks pnpm build locally; deferred to CI on Cloud Run base images (node:20-slim, python:3.12-slim) which are unaffected",
+    "Judges (j1-j5)": "score against built artifacts; same env block",
+    "Auditors (au1-au5)": "score Judges' output; deferred together",
+    "Python ADK agents": "out of plugin scope (plugin BE engineers are NestJS-only); user adds separately per challenge requirement"
+  },
+  "deliverables": {
+    "spec_files": [
+      "specs/openapi.yaml",
+      "specs/SPEC.md",
+      "prisma/schema.prisma",
+      "specs/openapi.lock.txt"
+    ],
+    "backend_root": "apps/api/",
+    "frontend_root": "apps/web/",
+    "devops_root": "deploy/, .github/workflows/",
+    "docs": [
+      "README.md",
+      "CHANGELOG.md",
+      "docs/DEMO_SCRIPT.md"
+    ],
+    "preview_artifacts": "runs/r-20260506T121945Z/"
+  },
+  "github": {
+    "repo": "https://github.com/Two-Weeks-Team/ShortFlix",
+    "pages": "https://two-weeks-team.github.io/ShortFlix/",
+    "gallery": "https://two-weeks-team.github.io/ShortFlix/runs/r-20260506T121945Z/gallery.html"
+  },
+  "honest_gaps_to_close": {
+    "must_do_pre_submission": [
+      "Implement 4 ADK Python agents (orchestrator, curator, search, trend-safety) — agent skeletons in agents/*/main.py",
+      "Implement 3 MCP server tools (yt-shorts-mcp, ig-reels-mcp, tiktok-mcp) — Node skeletons in agents/mcp-*",
+      "GCP project 'shortflix' creation + 8 manual setup steps in deploy/README.md",
+      "Domain bind (D+25 per plan)",
+      "Brand name lock (D+24 per plan)",
+      "Demo video recording (D+27 per plan)"
+    ],
+    "fix_before_or_during_dev": [
+      "Local Node/simdjson dyld issue (use Node 20 LTS or fix homebrew simdjson; CI uses node:20 base so unaffected)",
+      "Generate @shortflix/sdk via nestia once Node fixed",
+      "Replace icon stubs in apps/web/public/icons/ before D+10"
+    ],
+    "judge_axis_status_estimate": {
+      "tech_30": "0.85 — 4 separate Cloud Run + MCP + ablation harness scaffold ready",
+      "biz_30": "0.70 — Stripe test receipt + cost ledger required as artifact",
+      "innovation_20": "0.85 — anti-ai counter-aesthetic + gamified retention + ablation = 3-part novelty",
+      "demo_20": "0.90 — 3-tap install + first-8-sec hook locked",
+      "composite": "0.83",
+      "any_prize_EV": "50-55%"
+    }
+  }
+}
