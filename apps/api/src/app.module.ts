@@ -5,7 +5,7 @@ import { AuthModule } from "./auth/auth.module";
 import { CsrfMiddleware } from "./common/middleware/csrf.middleware";
 import { RateLimitMiddleware } from "./common/middleware/rate-limit.middleware";
 import { SecurityHeadersMiddleware } from "./common/middleware/security-headers.middleware";
-import { loadConfig } from "./config/configuration";
+import { ConfigModule } from "./config/config.module";
 import { EventsModule } from "./events/events.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
@@ -15,6 +15,7 @@ import { TodayModule } from "./today/today.module";
 
 @Module({
   imports: [
+    ConfigModule, // @Global — provides APP_CONFIG to all downstream modules
     PrismaModule,
     AuthModule,
     A2AModule,
@@ -25,13 +26,6 @@ import { TodayModule } from "./today/today.module";
     EventsModule,
     HealthModule,
   ],
-  providers: [
-    {
-      provide: "APP_CONFIG",
-      useFactory: () => loadConfig(),
-    },
-  ],
-  exports: ["APP_CONFIG"],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
