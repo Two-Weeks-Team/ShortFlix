@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TrustStrip } from "@/components/landing/trust-strip";
 import { PersonaRotator } from "@/components/landing/persona-rotator";
-import { StreakStrip } from "@/components/quest/streak-strip";
+// StreakStrip removed from landing — it requires React Query context which fails
+// during SSR for anonymous users. Authenticated streak lives at /app/quest.
 
 // Client components below use React Query; skip SSG to avoid prerender-time
 // "No QueryClient set" — pages render at request time with the provider mounted.
@@ -70,7 +71,17 @@ export default function LandingPage() {
           </div>
 
           <aside className="space-y-4">
-            <StreakStrip />
+            <div className="rounded-2xl border border-border bg-bg/60 p-4">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-muted">
+                Day 1 of your Discovery Quest
+              </p>
+              <p className="mt-2 text-sm text-fg">
+                Streak · XP · Cartographer · Diversifier · Receipt-Reader
+              </p>
+              <p className="mt-2 text-xs text-muted">
+                Sign in to begin issue 001.
+              </p>
+            </div>
             <div className="rounded-2xl border border-border bg-bg/60 p-4">
               <p className="font-mono text-[11px] uppercase tracking-widest text-muted">
                 Today&apos;s posture
