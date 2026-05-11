@@ -1,0 +1,67 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - main [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - paragraph [ref=e7]: ShortFlix
+        - paragraph [ref=e8]: Cross-cultural short-form, hand-set on the page
+      - link "Open today's issue →" [ref=e9] [cursor=pointer]:
+        - /url: /app/today
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: issue 001 · 2026-05-07
+        - heading "Discovery is the product, not the model." [level=1] [ref=e14]
+        - paragraph [ref=e15]: Four agents work overnight. You read nine picks at breakfast.
+        - paragraph [ref=e16]: YouTube doesn't show you Lagos. TikTok doesn't show you Lisbon. Instagram doesn't show you Sichuan. Today's issue does.
+        - generic [ref=e17]:
+          - link "Begin issue 001" [ref=e18] [cursor=pointer]:
+            - /url: /app/today
+          - link "What did the agents do?" [ref=e19] [cursor=pointer]:
+            - /url: /app/today#why
+        - paragraph [ref=e20]: e.g. Maya in Berlin · en / de
+      - complementary [ref=e21]:
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: Day 1 of your Discovery Quest
+          - paragraph [ref=e24]: Streak · XP · Cartographer · Diversifier · Receipt-Reader
+          - paragraph [ref=e25]: Sign in to begin issue 001.
+        - generic [ref=e26]:
+          - paragraph [ref=e27]: Today's posture
+          - list [ref=e28]:
+            - listitem [ref=e29]:
+              - generic [ref=e30]: Regions
+              - generic [ref=e31]: 3 / 195
+            - listitem [ref=e32]:
+              - generic [ref=e33]: Platform mix
+              - generic [ref=e34]: 3-3-3
+            - listitem [ref=e35]:
+              - generic [ref=e36]: Novelty target
+              - generic [ref=e37]: "0.80"
+    - generic [ref=e39]:
+      - heading "Today's questsThree open. One locked." [level=2] [ref=e40]
+      - list [ref=e41]:
+        - listitem [ref=e42]:
+          - paragraph [ref=e43]: CARTOGRAPHER
+          - heading "The Cartographer" [level=3] [ref=e44]
+          - paragraph [ref=e45]: Visit a region you haven't seen in 30 days. Curator already picked candidates.
+        - listitem [ref=e46]:
+          - paragraph [ref=e47]: DIVERSIFIER
+          - heading "The Diversifier" [level=3] [ref=e48]
+          - paragraph [ref=e49]: End the day with a 3-3-3 platform mix.
+        - listitem [ref=e50]:
+          - paragraph [ref=e51]: RECEIPT READER
+          - heading "The Receipt-Reader" [level=3] [ref=e52]
+          - paragraph [ref=e53]: Tap 'why this issue?' on three picks.
+        - listitem [ref=e54]:
+          - paragraph [ref=e55]: TIER II· locked
+          - heading "The Cartographer · Tier II" [level=3] [ref=e56]
+          - paragraph [ref=e57]: Locked until Lv 8. Read five new regions in one week.
+    - generic [ref=e59]:
+      - paragraph [ref=e60]:
+        - text: Built on
+        - generic [ref=e61]: ADK·
+        - generic [ref=e62]: Gemini·
+        - generic [ref=e63]: MCP·
+        - generic [ref=e64]: Cloud Run
+      - paragraph [ref=e65]: © 2026 ShortFlix
+  - alert [ref=e66]

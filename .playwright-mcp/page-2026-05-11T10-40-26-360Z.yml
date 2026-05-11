@@ -1,0 +1,45 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - paragraph [ref=e6]: ShortFlix
+        - generic [ref=e7]: Cross-cultural short-form, hand-set on the page
+    - main [ref=e8]:
+      - generic [ref=e9]:
+        - heading "Search" [level=1] [ref=e10]
+        - search [ref=e11]:
+          - generic [ref=e12]: Search across the three platforms
+          - searchbox "Search across the three platforms" [ref=e13]
+          - button "Search" [ref=e14] [cursor=pointer]
+        - paragraph [ref=e15]: Tomorrow's issue arrives at 06:00 your time.
+    - region "Install ShortFlix" [ref=e16]:
+      - generic [ref=e17]: +
+      - generic [ref=e18]:
+        - paragraph [ref=e19]: Install ShortFlix
+        - paragraph [ref=e20]: Add to home screen · works offline.
+      - button "Install" [ref=e21] [cursor=pointer]
+    - navigation "App" [ref=e22]:
+      - list [ref=e23]:
+        - listitem [ref=e24]:
+          - link "Today" [ref=e25] [cursor=pointer]:
+            - /url: /app/today
+            - generic [ref=e26]: ◉
+            - generic [ref=e27]: Today
+        - listitem [ref=e28]:
+          - link "Search" [ref=e29] [cursor=pointer]:
+            - /url: /app/search
+            - generic [ref=e30]: ⌕
+            - generic [ref=e31]: Search
+        - listitem [ref=e32]:
+          - link "Saved" [ref=e33] [cursor=pointer]:
+            - /url: /app/saved
+            - generic [ref=e34]: ✦
+            - generic [ref=e35]: Saved
+        - listitem [ref=e36]:
+          - link "Quest" [ref=e37] [cursor=pointer]:
+            - /url: /app/quest
+            - generic [ref=e38]: ★
+            - generic [ref=e39]: Quest
+  - alert [ref=e40]

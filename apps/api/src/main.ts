@@ -10,6 +10,24 @@ async function bootstrap(): Promise<void> {
   const app: INestApplication = await NestFactory.create(AppModule, {
     bufferLogs: true,
   });
+
+  // CORS — web (Next.js PWA) calls /api/* cross-origin. CORS_ORIGINS env can
+  // override with a comma-separated allowlist; defaults cover the deployed
+  // shortflix-web Cloud Run URL + local dev. Credentials enabled for cookie auth.
+  const corsOrigins = (
+    process.env.CORS_ORIGINS ??
+    "https://shortflix-web-882201353419.asia-northeast3.run.app,http://localhost:3000,http://localhost:3001"
+  )
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  app.enableCors({
+    origin: corsOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key", "X-CSRF-Token"],
+  });
+
   app.use(helmet({ contentSecurityPolicy: false })); // SecurityHeadersMiddleware sets CSP.
   app.use(cookieParser());
   app.useGlobalFilters(new HttpExceptionFilter());

@@ -20,9 +20,13 @@ import type {
 } from "./types";
 import { uuidv4 } from "./utils";
 
+// API base URL — points at the NestJS gateway, NOT the web's own origin.
+// Falls back to a relative empty string so that browser requests stay
+// same-origin if the build-time var is unset (works when web+api share a host).
 export const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
   process.env.NEXT_PUBLIC_APP_URL ??
-  "https://shortflix-web-PROJECT_ID.a.run.app";
+  "";
 
 export class ApiError extends Error {
   problem: Problem;
