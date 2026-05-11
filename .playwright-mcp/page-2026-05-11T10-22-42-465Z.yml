@@ -1,0 +1,58 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - paragraph [ref=e6]: ShortFlix
+        - generic [ref=e7]: Cross-cultural short-form, hand-set on the page
+    - main [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - heading "Today's quests" [level=1] [ref=e11]
+          - paragraph [ref=e12]: Three open. One locked.
+        - 'region "Daily streak: 0 days" [ref=e13]':
+          - generic [ref=e14]:
+            - heading "Daily streak" [level=3] [ref=e15]
+            - generic [ref=e16]: ★ 0 days
+          - list [ref=e17]:
+            - listitem "Past day, completed" [ref=e18]: M
+            - listitem "Past day, completed" [ref=e19]: T
+            - listitem "Past day, completed" [ref=e20]: W
+            - listitem "Past day, completed" [ref=e21]: T
+            - listitem "Past day, completed" [ref=e22]: F
+            - listitem "Past day, completed" [ref=e23]: S
+            - listitem "Today, current day" [ref=e24]: ★
+            - listitem "Upcoming day" [ref=e25]: M
+            - listitem "Upcoming day" [ref=e26]: T
+            - listitem "Upcoming day" [ref=e27]: W
+        - paragraph [ref=e28]: 412 candidates → 9 picks. Curator is choosing.
+    - region "Install ShortFlix" [ref=e29]:
+      - generic [ref=e30]: +
+      - generic [ref=e31]:
+        - paragraph [ref=e32]: Install ShortFlix
+        - paragraph [ref=e33]: Add to home screen · works offline.
+      - button "Install" [ref=e34] [cursor=pointer]
+    - navigation "App" [ref=e35]:
+      - list [ref=e36]:
+        - listitem [ref=e37]:
+          - link "Today" [ref=e38] [cursor=pointer]:
+            - /url: /app/today
+            - generic [ref=e39]: ◉
+            - generic [ref=e40]: Today
+        - listitem [ref=e41]:
+          - link "Search" [ref=e42] [cursor=pointer]:
+            - /url: /app/search
+            - generic [ref=e43]: ⌕
+            - generic [ref=e44]: Search
+        - listitem [ref=e45]:
+          - link "Saved" [ref=e46] [cursor=pointer]:
+            - /url: /app/saved
+            - generic [ref=e47]: ✦
+            - generic [ref=e48]: Saved
+        - listitem [ref=e49]:
+          - link "Quest" [ref=e50] [cursor=pointer]:
+            - /url: /app/quest
+            - generic [ref=e51]: ★
+            - generic [ref=e52]: Quest
+  - alert [ref=e53]
