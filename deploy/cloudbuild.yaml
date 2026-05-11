@@ -204,10 +204,18 @@ steps:
       - -c
       - |
         set -euo pipefail
+        mkdir -p /tmp/svc-rendered
         for svc in shortflix-web shortflix-api shortflix-orchestrator shortflix-curator \
                    shortflix-search shortflix-trend-safety shortflix-mcp-yt shortflix-mcp-ig shortflix-mcp-tt; do
+          echo ">>> Rendering deploy/services/${svc}.yaml"
+          # Substitute PROJECT_ID and REGION placeholders inside the YAML.
+          # `:$PROJECT_ID` (with leading colon) is preserved for image tags like
+          # 'asia-northeast3-docker.pkg.dev/PROJECT_ID/...'. Same for sa@PROJECT_ID.
+          sed -e "s|PROJECT_ID|$PROJECT_ID|g" \
+              -e "s|REGION|${_REGION}|g" \
+              deploy/services/${svc}.yaml > /tmp/svc-rendered/${svc}.yaml
           echo ">>> Deploying $svc"
-          gcloud run services replace deploy/services/${svc}.yaml \
+          gcloud run services replace /tmp/svc-rendered/${svc}.yaml \
             --region=${_REGION} \
             --project=$PROJECT_ID \
             --quiet
