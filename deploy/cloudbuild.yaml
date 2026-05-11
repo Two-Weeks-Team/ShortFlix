@@ -208,10 +208,10 @@ steps:
         set -euo pipefail
         for svc in shortflix-web shortflix-api shortflix-orchestrator shortflix-curator \
                    shortflix-search shortflix-trend-safety shortflix-mcp-yt shortflix-mcp-ig shortflix-mcp-tt; do
-          IMG="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${svc}"
-          echo ">>> Pushing $IMG:$SHORT_SHA and :latest"
-          docker push "${IMG}:$SHORT_SHA"
-          docker push "${IMG}:latest"
+          IMG_PATH="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/$${svc}"
+          echo ">>> Pushing $${IMG_PATH}:$SHORT_SHA and :latest"
+          docker push "$${IMG_PATH}:$SHORT_SHA"
+          docker push "$${IMG_PATH}:latest"
         done
 
   # ---- Deploy step (replaces 9 services) ----
