@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>AgentLoom SDK — embed multi-agent flows in your B2B product</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.55 -apple-system,Inter,sans-serif;color:#0f172a;background:#f1f5f9}
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+.head{background:#0f172a;color:#fff;padding:16px 20px;border-radius:12px;display:flex;justify-content:space-between;align-items:center}
+.head h1{margin:0;font-size:20px;letter-spacing:-.01em}
+.head .sub{font-size:13px;color:#94a3b8;margin-top:2px}
+.tag{background:#22d3ee;color:#083344;font-size:11px;padding:3px 10px;border-radius:99px;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px}
+.card h3{margin:0 0 10px;font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:.06em}
+pre{background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;font:12px/1.55 ui-monospace,monospace;overflow-x:auto;margin:0}
+.kw{color:#c084fc}.s{color:#86efac}.fn{color:#fbbf24}.dim{color:#64748b}.c{color:#475569;font-style:italic}
+.product{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:10px}
+.product .ttl{font-size:13px;font-weight:700;color:#0f172a}
+.product .desc{font-size:12px;color:#64748b}
+.product .badge{font-size:11px;background:#22d3ee;color:#083344;padding:2px 8px;border-radius:99px;font-weight:700;margin-left:6px}
+.cust{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px;align-items:center}
+.cust:last-child{border:0}.cust b{font-size:14px}.cust .meta{font-size:11px;color:#64748b}
+.flow{font-size:12px;line-height:1.7;color:#475569}
+.flow b{color:#0f172a}
+.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.row:last-child{border:0}.row b{font-variant-numeric:tabular-nums}
+.big{font-size:30px;font-weight:800;color:#0f172a;letter-spacing:-.02em}
+footer{text-align:center;font-size:11px;color:#64748b;margin-top:14px}
+</style>
+<div class="wrap">
+<div class="head"><div><h1>AgentLoom · embed multi-agent flows in 4 lines of code</h1><div class="sub">B2B SaaS·SI를 위한 agent SDK · 자체 제품 안에 호스팅되는 agent</div></div><span class="tag">Track 3 · APAC · SDK GTM</span></div>
+
+<div class="grid">
+ <div class="card">
+  <h3>SDK · pip install agentloom (4 lines)</h3>
+<pre><span class="kw">from</span> agentloom <span class="kw">import</span> AgentLoom, MCP, A2A
+<span class="dim"></span>
+<span class="c"># 1) 자사 SaaS의 백엔드에 직접 임베드</span>
+loom = <span class="fn">AgentLoom</span>(model=<span class="s">"gemini-2.5-pro"</span>)
+
+loom.<span class="fn">use_mcp</span>(MCP.<span class="fn">stripe</span>())          <span class="c"># 자사 결제 데이터</span>
+loom.<span class="fn">use_mcp</span>(MCP.<span class="fn">postgres</span>(my_db))     <span class="c"># 자사 DB</span>
+loom.<span class="fn">connect_a2a</span>(<span class="s">"hr-agent.acme.com"</span>) <span class="c"># 사내 다른 agent</span>
+
+<span class="c"># 2) 자사 API 핸들러에서 호출</span>
+<span class="kw">@app</span>.<span class="fn">post</span>(<span class="s">"/api/refund"</span>)
+<span class="kw">async def</span> <span class="fn">refund</span>(req):
+    result = <span class="kw">await</span> loom.<span class="fn">run</span>(
+        agents=[<span class="s">"intake"</span>, <span class="s">"policy"</span>, <span class="s">"compute"</span>, <span class="s">"audit"</span>],
+        task=req.body,
+    )
+    <span class="kw">return</span> result.decision
+</pre>
+  <div class="flow" style="margin-top:10px">
+   <b>4-agent flow는 자사 backend 프로세스 안에서 실행.</b><br>
+   외부 SaaS에 데이터 노출 0. Cloud Run / GKE / 자체 K8s 어디서나 가능.<br>
+   <b>licensing</b>: 호출당 ₩28 + 기본료 ₩980K/mo. 9개 회사 LOI 보유 (mock).
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>실제 임베드 사례 (LOI / 베타)</h3>
+  <div class="product"><div class="ttl">FlexHR (HR SaaS, 토스 동문 4명)<span class="badge">베타</span></div>
+   <div class="desc">FlexHR 안에 '채용 스크리닝' 4-agent flow 임베드. 사용자(인사담당자)는 FlexHR UI 그대로 사용.</div></div>
+  <div class="product"><div class="ttl">레터리 (B2B 마케팅 자동화)<span class="badge">LOI</span></div>
+   <div class="desc">레터리 안에 '뉴스레터 카피' agent 임베드. 자체 브랜드 유지.</div></div>
+  <div class="product"><div class="ttl">테크스타즈 SI그룹<span class="badge">LOI</span></div>
+   <div class="desc">대기업 납품 솔루션에 자사 brand 유지하면서 agent 호스팅. White-label.</div></div>
+
+  <h3 style="margin-top:14px">왜 SDK가 우승한다</h3>
+  <ul style="font-size:13px;line-height:1.7;padding-left:18px;margin:0">
+   <li>1인 dev가 25일에 빌드 가능 — UI를 짤 필요 없음</li>
+   <li>Track 3 score: ADK + Gemini + MCP + A2A + Cloud Run 모두 SDK 표면에 노출</li>
+   <li>OSS 코어 (Apache 2.0) + 클라우드 hosted plan → GTM 2개 경로</li>
+   <li>심사관에게 "내 제품에 4줄 추가하면 multi-agent 됨" 명확한 메시지</li>
+  </ul>
+ </div>
+</div>
+
+<div class="grid" style="margin-top:14px">
+ <div class="card">
+  <h3>Agent topology (라이브러리 자체 구조)</h3>
+  <div class="flow">
+   <b>core/orchestrator</b> · ADK agent group, async asyncio<br>
+   <b>core/mcp_registry</b> · MCP server pool (lazy-load)<br>
+   <b>core/a2a_client</b> · A2A spec compliant; .well-known/agent.json fetch · capability matching<br>
+   <b>core/policy</b> · prompt injection guard · output schema · retry<br>
+   <b>plugins/stripe, postgres, slack, kakaowork</b> · MCP plugins<br>
+   <b>cloud/run</b> · Cloud Run autoscaler hint integration
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>Pricing & traction</h3>
+  <div class="big">9 LOI / 2 베타</div>
+  <div style="font-size:12px;color:#64748b;margin-bottom:10px">in 1.5 months (예상 mock)</div>
+  <div class="row"><span>OSS 핵심</span><b>무료 (Apache 2.0)</b></div>
+  <div class="row"><span>Cloud Pro</span><b>₩980K/mo + ₩28/call</b></div>
+  <div class="row"><span>Enterprise</span><b>₩9.8M/mo + SLA</b></div>
+  <div class="row"><span>잠재 ARR (50 customers)</span><b>₩590M</b></div>
+  <div class="row"><span>2026-08 target</span><b>$10K MRR</b></div>
+ </div>
+</div>
+<footer>the-embedded · SDK GTM = Track 3 + OSS 가시성 · multi-agent를 다른 B2B 제품에 hosts · APAC + Global</footer>
+</div>
+</html>

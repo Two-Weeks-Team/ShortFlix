@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>ThinkBoard — Gemini reasoning visible live (legal contract review)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:13px/1.5 -apple-system,Inter,sans-serif;color:#0a0e1e;background:#fafbff}
+.wrap{max-width:1240px;margin:0 auto;padding:14px}
+.head{background:#0a0e1e;color:#fff;padding:12px 18px;border-radius:8px;display:flex;justify-content:space-between;align-items:center}
+.head h1{margin:0;font-size:17px}.tag{background:#a78bfa;color:#1e1b4b;font-size:11px;padding:3px 8px;border-radius:99px;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-top:12px}
+.col{background:#fff;border:1px solid #e2e5f0;border-radius:10px;padding:14px}
+.col h3{margin:0 0 10px;font-size:12px;color:#5b6079;text-transform:uppercase;letter-spacing:.06em}
+.doc{font-family:Georgia,serif;font-size:13px;line-height:1.65;color:#2a2e44}
+.doc h4{margin:14px 0 4px;color:#0a0e1e}
+.hi{background:#fef3c7;padding:1px 2px}
+.hi-r{background:#fee2e2;padding:1px 2px}
+.thought{background:#f5f3ff;border-left:3px solid #7c3aed;padding:10px 12px;border-radius:0 8px 8px 0;margin-bottom:8px;font-size:13px;line-height:1.55}
+.thought .who{font-size:11px;color:#7c3aed;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.thought .step{font-family:ui-monospace,monospace;font-size:11px;color:#5b6079;margin-bottom:4px}
+.thought b{color:#5b21b6}
+.tool{background:#e0f2fe;border-left:3px solid #0284c7;padding:8px 10px;border-radius:0 6px 6px 0;margin-bottom:6px;font-size:12px;font-family:ui-monospace,monospace}
+.tool b{color:#075985}
+.a2a{background:#dcfce7;border-left:3px solid #16a34a;padding:8px 10px;border-radius:0 6px 6px 0;margin-bottom:6px;font-size:12px}
+.a2a b{color:#15803d}
+.fin{background:#0a0e1e;color:#fff;padding:12px;border-radius:8px;font-size:13px;line-height:1.55;margin-top:10px}
+.fin b{color:#fde68a}
+footer{text-align:center;font-size:11px;color:#5b6079;margin-top:14px}
+.token{display:inline-block;padding:0 3px;border-radius:2px;margin:1px 0;background:#f5f3ff}
+.flow{font-size:11px;color:#5b6079;line-height:1.7;background:#f5f3ff;padding:8px 10px;border-radius:6px;margin-top:10px}
+</style>
+<div class="wrap">
+<div class="head"><h1>ThinkBoard · Gemini의 사고과정이 라이브로 보이는 계약 검토 agent</h1><span class="tag">Track 3 · DEMO 20% MAX</span></div>
+
+<div class="grid">
+ <div class="col">
+  <h3>입력 · 비밀유지계약서 (NDA) 14p</h3>
+  <div class="doc">
+   <h4>§3. 비밀정보의 범위</h4>
+   비밀정보란 일방 당사자가 상대 당사자에게 제공한 일체의 정보를 의미한다. <span class="hi-r">제공 받은 자는 정보 수령 후 7년간 비밀유지 의무를 부담한다.</span>
+   <h4>§5. 위약금</h4>
+   <span class="hi-r">위반시 위약금은 ₩100,000,000 (일억원정) 으로 정한다. 실손해와 별도로 청구 가능하다.</span>
+   <h4>§7. 관할법원</h4>
+   <span class="hi">본 계약과 관련된 분쟁은 서울중앙지방법원을 전속관할로 한다.</span>
+   <h4>§9. 준거법</h4>
+   <span class="hi-r">본 계약의 준거법은 대한민국 법으로 한다. 단, 일방의 본점 소재지법을 적용할 수도 있다.</span>
+  </div>
+ </div>
+
+ <div class="col">
+  <h3>Gemini 사고과정 (live)</h3>
+  <div class="thought">
+   <div class="step">step-1 · plan</div>
+   <div class="who">🧠 ReasonAgent (Gemini 2.5 Pro · thinking mode)</div>
+   <b>먼저 § 별로 위험도를 분류하자.</b> "비밀정보의 범위", "위약금", "준거법" 3개 조항이 표준 NDA 대비 비대칭적이다. 한국 상사거래 NDA 표준을 RAG로 가져와서 §5 위약금부터 검증.
+  </div>
+  <div class="tool"><b>→ MCP call:</b> vertex_search.query("NDA 위약금 표준 한국 상사거래 손해배상 예정")</div>
+  <div class="tool"><b>← 7 results</b> (대법원 2017다224944 + 표준약관 4건 + 학술논문 2건)</div>
+
+  <div class="thought">
+   <div class="step">step-2 · synthesize</div>
+   <div class="who">🧠 ReasonAgent</div>
+   <b>판례 대조 결과:</b> 위약금 1억원 단독 청구 + 실손해 별도 청구는 대법원 판례상 <b>"손해배상 예정"</b>로 인정되면 중복청구 불가. 그러나 본 조항은 "별도로 청구 가능"으로 명시 → 위약벌로 해석되어 <b>과중하다고 감액 가능</b>.
+  </div>
+
+  <div class="a2a"><b>↗ A2A:</b> 사내 법무 partner agent (legal-partner.acme.com)에게 의견 요청 → 답: "위약벌 추정시 민법 398조 적용, 감액 청구 가능. 협상 우선순위 1순위."</div>
+
+  <div class="thought">
+   <div class="step">step-3 · finalize</div>
+   <div class="who">🧠 ReasonAgent</div>
+   <b>3가지 협상 포인트 도출:</b><br>
+   ① §3 비밀기간 7년 → 시장 평균 3년으로 단축 (한국 상거래 평균 데이터 첨부)<br>
+   ② §5 위약금 1억 + 실손해 별도 → "위약금만 청구, 실손해 입증시 차액 청구" 문구로 수정<br>
+   ③ §9 준거법 ambiguous clause → 단일 한국법으로 명확화 (상대방 본점법 옵션 삭제)
+  </div>
+
+  <div class="fin">
+   <b>📋 최종 의견</b><br>
+   3개 조항 위험 high · 2개 조항 위험 medium · 11개 조항 위험 low. 위 3개 협상 카드를 영문/국문으로 자동 작성했고, 상대방 변호사용 redline 문서 1.4 MB 첨부했습니다. 협상 성공률 추정 <b>72%</b> (유사 케이스 84건 학습 기반).
+  </div>
+
+  <div class="flow">
+   <b>왜 demo가 강한가</b> · 심사관이 "와 Gemini가 진짜 사고를 한다" 라이브로 보이는 thinking trace + tool call + A2A 호출 모두 시각화. Track 3 채점관이 agent decomposition 만점 가능성 ↑.
+  </div>
+ </div>
+</div>
+<footer>the-ai-native · Tech 30%점 + Demo 20%점 동시 강화 · Track 3 (B2B 법무 + SI 법무팀) + APAC</footer>
+</div>
+</html>

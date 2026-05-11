@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>QuestOps — gamified compliance training agent (HR + 보안교육)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,Inter,sans-serif;color:#fff;background:#0a0612}
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+.head{background:linear-gradient(135deg,#7c3aed,#f59e0b);padding:18px 22px;border-radius:14px;display:flex;justify-content:space-between;align-items:center;color:#fff}
+.head h1{margin:0;font-size:21px;letter-spacing:-.01em}
+.tag{background:rgba(0,0,0,.3);font-size:11px;padding:3px 10px;border-radius:99px}
+.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px}
+.card{background:#14102a;border:1px solid #2a2348;border-radius:14px;padding:16px}
+.card h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;color:#a78bfa;letter-spacing:.06em}
+.quest{background:linear-gradient(135deg,#1f1538,#0a0612);border:1px solid #6d28d9;border-radius:12px;padding:14px;margin-bottom:10px}
+.quest .badge{font-size:10px;background:#f59e0b;color:#000;padding:2px 8px;border-radius:99px;font-weight:800;letter-spacing:.06em}
+.quest .ttl{font-size:16px;font-weight:700;margin:6px 0 4px}
+.quest .desc{font-size:13px;color:#c5bbe8;line-height:1.55}
+.rewards{display:flex;gap:6px;margin-top:8px}
+.r{font-size:11px;background:#2a1f4f;color:#fde68a;padding:3px 8px;border-radius:99px}
+.r.xp{color:#86efac}.r.gold{color:#fde68a}.r.gem{color:#7dd3fc}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.opt{background:#1a1437;border:1px solid #3a2d5e;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer}
+.opt:hover{background:#241c52}.opt.right{background:#0f3a26;border-color:#10b981}
+.opt b{display:block;color:#a78bfa;font-size:11px;margin-bottom:2px}
+.npc{background:#14102a;border-left:3px solid #f59e0b;padding:8px 10px;border-radius:0 8px 8px 0;margin-top:8px;font-size:13px}
+.npc b{color:#fde68a}
+.stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #2a2348;font-size:13px}
+.stat:last-child{border:0}.stat b{font-variant-numeric:tabular-nums;color:#fde68a}
+.bar{height:10px;background:#1a1437;border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#7c3aed,#f59e0b)}
+.flow{font-size:12px;line-height:1.7;color:#c5bbe8}
+.flow b{color:#fff}
+.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #2a2348;font-size:13px}
+.row:last-child{border:0}
+footer{text-align:center;font-size:11px;color:#7e6bb0;margin-top:14px}
+</style>
+<div class="wrap">
+<div class="head"><h1>QuestOps · 사내 보안·컴플라이언스 교육을 RPG로</h1><span class="tag">Track 3 · APAC</span></div>
+
+<div class="grid">
+ <div class="card">
+  <h3>오늘의 퀘스트 · 박○○ (마케팅팀, Lv.12)</h3>
+  <div class="quest">
+   <span class="badge">⚡ DAILY QUEST</span>
+   <div class="ttl">개인정보보호 던전 — 보스: PII Leaker</div>
+   <div class="desc">고객DB 추출 요청 메일이 도착했습니다. 정말 GDPR Art.6의 합법적 처리 근거가 있나요? 함정에 빠지지 마세요.</div>
+   <div class="rewards">
+    <span class="r xp">+ 240 XP</span><span class="r gold">+ 18 골드</span><span class="r gem">+ 1 보안 보석</span>
+   </div>
+  </div>
+
+  <div class="npc">
+   <b>🧙 NPC: 컴플라이언스 마스터 (Gemini Pro):</b><br>
+   영업팀 김○○이 "이 1만명 고객 DB를 partner 회사 mr_lee@xyz에게 보내달라" 메일 보냈음. 영업 동의 받았다는 첨부도 있음. 영업 동의서 검토하니 5년 전 마케팅 동의이고, 제3자 제공 동의 항목 ❌.<br><br>
+   <b>박○○님, 어떻게 응대할까요?</b>
+  </div>
+  <div class="choice">
+   <div class="opt"><b>A</b>"영업 동의서 있다니까 보내드릴게요"</div>
+   <div class="opt right"><b>B</b>"제3자 제공 동의 ❌ → 거부 + DPO에 보고"</div>
+   <div class="opt"><b>C</b>"파일에 비밀번호만 걸어서 보낼게요"</div>
+   <div class="opt"><b>D</b>"법무팀에 문의 후 회신드릴게요"</div>
+  </div>
+  <div class="npc" style="margin-top:8px;border-left-color:#10b981">
+   <b>✓ 정답: B</b> (D도 부분점수)<br>
+   PIPA 17조 + GDPR Art.6: 5년 전 마케팅 동의는 제3자 제공 동의로 갈음할 수 없음. 보낼 경우 위반 + 과징금 매출의 3%. 박○○님 +180 XP, 부서 리더보드 3위 ↑
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>박○○ 상태</h3>
+  <div class="stat"><span>레벨</span><b>12 (보안전사)</b></div>
+  <div class="bar"><i style="width:62%"></i></div>
+  <div style="font-size:11px;color:#a78bfa;margin-top:2px">2,840 / 4,600 XP → Lv.13 (보안기사)</div>
+  <div class="stat" style="margin-top:10px"><span>완료 퀘스트</span><b>34/52</b></div>
+  <div class="stat"><span>부서 랭킹</span><b>3 / 22</b></div>
+  <div class="stat"><span>회사 랭킹</span><b>118 / 1,420</b></div>
+  <div class="stat"><span>오답 패턴</span><b>금융정보 처리 (3 wrong)</b></div>
+
+  <h3 style="margin-top:14px">왜 게임?</h3>
+  <ul style="font-size:13px;line-height:1.65;padding-left:18px;margin:0;color:#c5bbe8">
+   <li>한국 HR 시장 의무교육 = 매년 8시간 × 전직원. 평균 완료율 41%</li>
+   <li>QuestOps 베타 (서울 IT 1곳, 280명): 완료율 <b style="color:#fde68a">88%</b></li>
+   <li>HR/CSO buyer 명확 — 컴플라이언스 입증 자료 자동 생성</li>
+  </ul>
+
+  <h3 style="margin-top:14px">Agent topology</h3>
+  <div class="flow">
+   <b>ScenarioAgent</b> · Gemini Pro로 매일 시나리오 자동 생성<br>
+   <b>NPCAgent</b> · 캐릭터 voice로 멘토링<br>
+   <b>JudgeAgent</b> · 답변 판정 (정·오·부분점)<br>
+   <b>GuildAgent (A2A)</b> · 부서 partner agent 호출 (랭킹·이벤트)<br>
+   <b>AuditAgent (MCP)</b> · 인사평가 시스템에 완료내역 자동 전송
+  </div>
+
+  <h3 style="margin-top:14px">ROI</h3>
+  <div class="row"><span>완료율</span><b style="color:#86efac">41% → 88%</b></div>
+  <div class="row"><span>월 SaaS · 1,000인</span><b>₩4.8M</b></div>
+  <div class="row"><span>잠재 한국 직장인</span><b>2,700만</b></div>
+ </div>
+</div>
+<footer>the-game-designer · Demo에서 압도적 인상 (RPG UI) · Track 3 · APAC · HR/보안교육 ARR 시장 ₩4.2조</footer>
+</div>
+</html>

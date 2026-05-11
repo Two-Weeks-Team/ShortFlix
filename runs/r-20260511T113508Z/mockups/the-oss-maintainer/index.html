@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>openseowriter — OSS multi-agent SEO content factory</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,Inter,sans-serif;color:#24292f;background:#fff}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}
+.repo{border:1px solid #d0d7de;border-radius:6px;padding:16px;background:#f6f8fa}
+.repo h1{margin:0 0 4px;font-size:20px;color:#0969da;font-weight:600}
+.repo .sub{font-size:14px;color:#57606a}
+.badges{margin-top:10px}
+.badge{display:inline-block;padding:2px 8px;font-size:11px;border-radius:3px;background:#1f883d;color:#fff;margin-right:4px}
+.badge.b{background:#0969da}.badge.y{background:#9a6700;background:#bf8700}.badge.g{background:#1f883d}
+.badge.dim{background:#6e7781}
+.readme{margin-top:18px;border:1px solid #d0d7de;border-radius:6px;padding:18px}
+.readme h2{font-size:18px;border-bottom:1px solid #d8dee4;padding-bottom:6px}
+.readme h3{font-size:14px;margin-top:18px}
+pre{background:#f6f8fa;padding:12px;border-radius:6px;font:12.5px/1.5 ui-monospace,monospace;overflow-x:auto}
+.kw{color:#cf222e}.s{color:#0a3069}.fn{color:#8250df}.c{color:#6e7781;font-style:italic}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.stat{padding:10px;border:1px solid #d0d7de;border-radius:6px;background:#fff}
+.stat .b{font-size:22px;font-weight:600;color:#24292f}.stat .l{font-size:11px;color:#57606a;text-transform:uppercase;letter-spacing:.05em}
+.arch{background:#fff;border:1px solid #d0d7de;border-radius:6px;padding:14px;font-size:13px;color:#3a3f47;line-height:1.7}
+.arch b{color:#0969da}
+.toc{font-size:12px;color:#0969da;margin:8px 0}
+.bizmodel{background:#fff8e1;border:1px solid #f1c40f;border-radius:6px;padding:14px;margin-top:14px;font-size:13px;line-height:1.6}
+.bizmodel h3{margin:0 0 6px;color:#9a6700}
+.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1c40f33;font-size:12px}
+.row:last-child{border:0}.row b{font-variant-numeric:tabular-nums}
+footer{text-align:center;font-size:11px;color:#57606a;margin-top:18px}
+</style>
+<div class="wrap">
+<div class="repo">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+   <h1>📚 openseowriter / openseowriter</h1>
+   <div style="font-size:13px"><span class="badge dim">⭐ 2,148</span> <span class="badge dim">🍴 184</span></div>
+  </div>
+  <div class="sub">multi-agent SEO content factory · ADK + Gemini + MCP · Korean & global blogs · 4 agents disagree to write better.</div>
+  <div class="badges">
+   <span class="badge g">License Apache-2.0</span>
+   <span class="badge b">Python 3.11+</span>
+   <span class="badge y">Cloud Run ready</span>
+   <span class="badge g">A2A compliant</span>
+   <span class="badge dim">main: passing</span>
+  </div>
+</div>
+
+<div class="readme">
+ <div class="toc">README · Quickstart · Architecture · Cloud · Roadmap · Sponsors</div>
+
+ <h2>Quickstart</h2>
+<pre>$ <span class="kw">pip install</span> openseowriter
+$ <span class="kw">export</span> GOOGLE_API_KEY=...
+
+$ osw write \
+    --topic <span class="s">"한국 1인 사업자 세무 신고 가이드"</span> \
+    --target-keywords <span class="s">"종합소득세,간이과세,홈택스"</span> \
+    --tone trustworthy \
+    --length 2400 \
+    --publish wordpress://...</pre>
+
+ <h3>How it works (4 agents)</h3>
+ <div class="arch">
+  <b>① KeywordAgent</b> — Vertex AI Search + Google Trends (MCP) → 검색량·CPC·난이도 분석<br>
+  <b>② OutlineAgent</b> — 경쟁 상위 10개 글 분석 → 7-section 구조 도출<br>
+  <b>③ DraftAgent (Gemini Pro)</b> — 한국어/영어 콘텐츠 작성, 출처 인용<br>
+  <b>④ FactCheckerAgent (A2A)</b> — 외부 fact-checker partner agent와 cross-validation<br>
+  <i>두 agent가 disagree 하면 user에게 highlight 표시.</i>
+ </div>
+
+ <div class="stats">
+  <div class="stat"><div class="l">GitHub Stars</div><div class="b">2,148</div></div>
+  <div class="stat"><div class="l">월 다운로드</div><div class="b">14K</div></div>
+  <div class="stat"><div class="l">Issues 해결</div><div class="b">142 / 168</div></div>
+  <div class="stat"><div class="l">contributors</div><div class="b">28</div></div>
+ </div>
+
+ <h2>Cloud Plan</h2>
+<pre><span class="c"># Self-hosted OSS는 무료. 클라우드 hosted plan에 SLA·팀 협업·다국어.</span>
+osw cloud login
+osw cloud deploy --plan team --seats 5</pre>
+
+ <div class="bizmodel">
+  <h3>OSS GTM 사다리</h3>
+  <div class="row"><span>GitHub OSS (free, Apache-2)</span><b>2,148 ⭐</b></div>
+  <div class="row"><span>Cloud Hosted Solo</span><b>$19/mo</b></div>
+  <div class="row"><span>Cloud Team (5 seats)</span><b>$79/mo</b></div>
+  <div class="row"><span>Enterprise white-label</span><b>$2.4K/mo</b></div>
+  <div class="row"><span>예상 ARR (M+12)</span><b>$240K</b></div>
+  <div class="row"><span>전환률 (OSS→Cloud, target)</span><b>3.4%</b></div>
+ </div>
+
+ <h2 style="margin-top:18px">Roadmap</h2>
+ <ul style="font-size:13px;line-height:1.7">
+  <li>v0.4 · 카카오톡 채널 자동 발행 connector (MCP)</li>
+  <li>v0.5 · A2A partner registry — fact-checker, 이미지 생성 agent 마켓플레이스</li>
+  <li>v0.6 · Multi-tenant cloud SLA 99.9%</li>
+ </ul>
+</div>
+<footer>the-oss-maintainer · OSS = GitHub stars + judge가 직접 install 가능 · Track 3 + APAC · 한국 콘텐츠 마케팅 buyer</footer>
+</div>
+</html>

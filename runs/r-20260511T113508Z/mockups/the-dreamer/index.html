@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>SeoulCity OS — agentic civic infrastructure (3-year vision)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.55 -apple-system,Inter,sans-serif;color:#fff;background:#020617}
+.wrap{max-width:1180px;margin:0 auto;padding:24px}
+.hero{padding:40px 20px;text-align:center;background:radial-gradient(ellipse at top,#1e3a8a55,transparent 60%),radial-gradient(ellipse at bottom right,#7c3aed44,transparent 50%)}
+.hero h1{font-size:46px;margin:0 0 8px;letter-spacing:-.03em;line-height:1.05;background:linear-gradient(120deg,#60a5fa,#c084fc,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{font-size:16px;color:#94a3b8;max-width:660px;margin:0 auto}
+.tag{display:inline-block;background:rgba(96,165,250,.15);border:1px solid #60a5fa;color:#bfdbfe;padding:4px 10px;border-radius:99px;font-size:11px;margin-bottom:14px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px}
+.step{background:linear-gradient(180deg,#0f172a,#0c1325);border:1px solid #1e293b;border-radius:14px;padding:18px}
+.step .y{font-size:11px;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.step .h{font-size:18px;font-weight:700;margin:4px 0 8px}
+.step .d{font-size:13px;color:#94a3b8;line-height:1.55}
+.step .mile{font-size:11px;color:#fcd34d;margin-top:8px}
+.proof{background:#0f172a;border:1px solid #1e293b;border-radius:14px;padding:18px;margin-top:24px}
+.proof h3{margin:0 0 10px;font-size:12px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em}
+.bar{display:flex;gap:8px;margin-bottom:8px}
+.cell{flex:1;background:#0a1426;border:1px solid #1e293b;border-radius:8px;padding:10px}
+.cell .l{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.cell .v{font-size:18px;font-weight:700;color:#fff;margin-top:2px}
+.scene{margin-top:18px;background:#0a1426;border:1px solid #1e293b;border-radius:14px;padding:18px}
+.scene h3{margin:0 0 8px;font-size:13px;color:#fcd34d;letter-spacing:.06em;text-transform:uppercase}
+.scene p{font-size:13.5px;color:#cbd5e1;line-height:1.7;margin:6px 0}
+.scene b{color:#fff}
+.startbox{background:linear-gradient(120deg,#1e3a8a,#581c87);border-radius:14px;padding:22px;margin-top:24px;text-align:center}
+.startbox h2{margin:0 0 6px;font-size:22px}
+.startbox p{font-size:14px;color:#dbeafe;margin:0 0 14px}
+.startbox .now{background:#fcd34d;color:#000;padding:8px 16px;border-radius:99px;font-weight:700;display:inline-block;font-size:13px}
+footer{text-align:center;font-size:11px;color:#64748b;margin-top:24px}
+</style>
+<div class="wrap">
+<div class="hero">
+  <div class="tag">CHALLENGE → 3-YEAR VISION</div>
+  <h1>SeoulCity OS<br><span style="font-size:24px;background:none;color:#cbd5e1;-webkit-text-fill-color:#cbd5e1">an operating system for civic life</span></h1>
+  <p class="sub">1인 시민이 카카오톡 한 줄로 "주민등록 출생신고 + 어린이집 신청 + 양육수당 자동 신청"을 던지면, 14개 부서 agent가 A2A로 협업해서 28일 → 3시간으로 단축한다.</p>
+</div>
+
+<div class="steps">
+ <div class="step">
+  <div class="y">YEAR 1 · 2026</div><div class="h">Beachhead — 마포구청</div>
+  <div class="d">민원 8개 (출생·전입·주차·과태료·자영업 인허가 등) 자동화. ADK 4-agent topology. Cloud Run + Vertex Search 인덱스 행정문서 24만건.</div>
+  <div class="mile">★ Challenge 출품 = 마포구청 PoC 시연. 평일 280건 처리.</div>
+ </div>
+ <div class="step">
+  <div class="y">YEAR 2 · 2027</div><div class="h">서울 25개 구 확장</div>
+  <div class="d">A2A로 구청 간 partner agent 연결. 전입신고는 구청 2곳이 자동 동기화. 시민 1인이 한 카카오톡 thread로 행정 처리. 시청 OpenAPI 47개 통합.</div>
+  <div class="mile">★ 시민 만족도 +24pp, 평균 처리시간 67% 감소.</div>
+ </div>
+ <div class="step">
+  <div class="y">YEAR 3 · 2028</div><div class="h">전국 + 공공기관 마켓플레이스</div>
+  <div class="d">228개 시·군·구 확장. 국세청·근로복지공단·국민연금 등 공공기관 A2A registry. 외국인 거주증·다국어 지원. ASEAN 정부 라이센싱 협의 시작.</div>
+  <div class="mile">★ ARR ₩48B · 정부 SaaS 1위. APAC 정부 SaaS 모델 export.</div>
+ </div>
+</div>
+
+<div class="scene">
+  <h3>Demo (30s) — 출생신고 시나리오</h3>
+  <p><b>14:02</b> 박○○님 카카오톡: "방금 둘째 태어났어요 ㅠㅠ 행복하지만 신고 8개 해야 하는데 너무 정신 없어요. 도와주세요."</p>
+  <p><b>14:02</b> 🏛 SeoulCity OS: "축하드려요. 둘째 출생신고를 시작합니다. 4 agent가 자동으로 8개 신고를 처리할게요. 자녀 이름과 카카오 페이 본인인증 PIN만 알려주세요."</p>
+  <p><b>14:14</b> 🏛 "✅ 출생신고 완료 · ✅ 전입신고 자동 갱신 · ✅ 양육수당 신청 (110만원/월) · ✅ 어린이집 대기순번 등록 · ✅ 다자녀 카드 발급 신청 · ✅ 산후도우미 정부지원 신청 · ✅ 건강보험 피부양자 등록 · ✅ 의료비 본인부담 면제 등록. 본인인증 1회로 8건 완료. 평일 4-7일 처리예정."</p>
+</div>
+
+<div class="proof">
+ <h3>Year 1 (Challenge 출품 mockup) — 측정 가능한 수치</h3>
+ <div class="bar">
+  <div class="cell"><div class="l">처리 단축</div><div class="v">28일 → 3h</div></div>
+  <div class="cell"><div class="l">담당공무원 시간 절감</div><div class="v">−72%</div></div>
+  <div class="cell"><div class="l">시민 만족 NPS</div><div class="v">+34pp</div></div>
+  <div class="cell"><div class="l">잠재 ARR (서울 25구)</div><div class="v">₩9.6B</div></div>
+ </div>
+</div>
+
+<div class="startbox">
+ <h2>지금 출품하는 idea = 그 vision의 첫 chunk.</h2>
+ <p>마포구청 8개 민원 자동화. 4 agent · ADK · A2A · MCP · Cloud Run. 25일에 빌드 가능. 그러나 demo에서 보여주는 건 <b>3년 후 도시 단위 OS</b>로 가는 첫 걸음.</p>
+ <span class="now">the-dreamer · Track 3 + APAC + Grand Prize 도전</span>
+</div>
+
+<footer>the-dreamer · 3-year horizon · 정부/공공기관 buyer · Demo에서 비전 인상 + Year-1 측정 수치 동시</footer>
+</div>
+</html>

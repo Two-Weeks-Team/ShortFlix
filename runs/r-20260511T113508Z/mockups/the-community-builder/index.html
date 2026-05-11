@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>GuildOps — 1인 사업자 길드 멀티테넌트 agent</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,Inter,sans-serif;color:#1a1d2e;background:#f4f4f8}
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+.head{background:linear-gradient(120deg,#6366f1,#a855f7);color:#fff;padding:18px;border-radius:14px;display:flex;justify-content:space-between;align-items:center}
+.head h1{margin:0;font-size:20px}
+.tag{background:rgba(255,255,255,.18);font-size:11px;padding:3px 10px;border-radius:99px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.card{background:#fff;border:1px solid #e3e5ee;border-radius:12px;padding:16px}
+.card h3{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#6366f1}
+.guild{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px solid #e3e5ee;margin-bottom:8px}
+.guild .av{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0}
+.g1{background:#6366f1}.g2{background:#10b981}.g3{background:#f59e0b}.g4{background:#ec4899}
+.guild .name{font-weight:700;font-size:14px}
+.guild .desc{font-size:11px;color:#6b6e7e}
+.guild .stat{margin-left:auto;text-align:right;font-size:11px;color:#6b6e7e}
+.guild .stat b{display:block;color:#1a1d2e;font-size:13px}
+.req{background:#f7f7fb;border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;border-left:3px solid #6366f1}
+.req .who{font-weight:700;font-size:11px;color:#6366f1;text-transform:uppercase}
+.req .body{margin-top:2px;line-height:1.5}
+.req .ans{margin-top:6px;font-size:12px;color:#4b4e60;background:#fff;padding:6px 8px;border-radius:6px;line-height:1.5}
+.req .ans b{color:#10b981}
+.netfx{background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:14px;border-radius:10px;margin-top:8px}
+.netfx .b{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.netfx .l{font-size:11px;opacity:.85;text-transform:uppercase;letter-spacing:.05em}
+.flow{font-size:12px;line-height:1.7;color:#4b4e60}
+.flow b{color:#1a1d2e}
+.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f1f6;font-size:13px}
+.row:last-child{border:0}.row b{font-variant-numeric:tabular-nums}
+footer{text-align:center;font-size:11px;color:#6b6e7e;margin-top:14px}
+</style>
+<div class="wrap">
+<div class="head"><h1>GuildOps · 1인 사업자 길드 — 멀티테넌트 agent 네트워크</h1><span class="tag">Track 3 · APAC · Day-1 network effect</span></div>
+
+<div class="grid">
+ <div class="card">
+  <h3>활동 중인 길드 (베타 D+12)</h3>
+  <div class="guild"><div class="av g1">스</div>
+    <div><div class="name">스마트스토어 길드</div><div class="desc">네이버 셀러 1인 사장 모임</div></div>
+    <div class="stat"><b>184명</b>오늘 312 q&a</div>
+  </div>
+  <div class="guild"><div class="av g2">컨</div>
+    <div><div class="name">1인 개발자 컨설팅 길드</div><div class="desc">프리랜서 개발자 단가/세무</div></div>
+    <div class="stat"><b>96명</b>오늘 47 q&a</div>
+  </div>
+  <div class="guild"><div class="av g3">크</div>
+    <div><div class="name">크리에이터 길드</div><div class="desc">유튜브·인스타 수익화</div></div>
+    <div class="stat"><b>242명</b>오늘 480 q&a</div>
+  </div>
+  <div class="guild"><div class="av g4">F&B</div>
+    <div><div class="name">자영업 F&amp;B 길드</div><div class="desc">카페·식당 1인 운영</div></div>
+    <div class="stat"><b>148명</b>오늘 198 q&a</div>
+  </div>
+
+  <div class="netfx">
+   <div class="l">길드 네트워크 효과</div>
+   <div class="b">+34% retention</div>
+   <div style="font-size:11px;opacity:.85;margin-top:4px">길드 가입 첫 1주일 응답 본 1인 사업자는 7일 retention 81% vs solo 60%</div>
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>오늘의 길드 큐 (스마트스토어 길드)</h3>
+  <div class="req">
+   <div class="who">박○○ (셀러 11개월)</div>
+   <div class="body">네이버 스마트스토어 반품 사기 의심 건. 고객이 빈 박스 사진 보냄. 어떻게 대응?</div>
+   <div class="ans">
+    <b>🤝 GuildAgent (collective + Gemini):</b> 길드 내 3명이 비슷한 경험 있음 (수민·지호·창현). 평균 대응 시간 7일.
+    <b>권장</b>: 즉시 무게 차이 확인 요청 → CCTV 보존 → 네이버 분쟁조정센터 24시간 내 신청 양식 (자동 작성). 길드 내 변호사 멤버 1명 30분 멘토링 매칭 가능.
+   </div>
+  </div>
+  <div class="req">
+   <div class="who">김○○ (셀러 3년차)</div>
+   <div class="body">광고비 ROAS 떨어짐 — 동종 셀러 평균 알 수 있나요?</div>
+   <div class="ans">
+    <b>🤝 GuildAgent:</b> <b>같은 카테고리(생활용품) 길드 멤버 32명 익명 평균 ROAS 2.8</b> (2026-04 기준, 양심제출). 김님 1.9는 하위 28%. 키워드 단가 비교 분석 첨부 ✓
+   </div>
+  </div>
+  <div class="req">
+   <div class="who">최○○ (신규)</div>
+   <div class="body">소득세 신고가 처음인데 두려워요…</div>
+   <div class="ans">
+    <b>🤝 GuildAgent:</b> A2A로 '세무 길드' partner에게 위임 호출 ✓. 5월 종소세 신고 가이드 (스마트스토어 셀러 특화) 자동 작성 진행 중.
+   </div>
+  </div>
+ </div>
+</div>
+
+<div class="grid" style="margin-top:14px">
+ <div class="card">
+  <h3>Agent topology · 멀티테넌트 + A2A 길드간 연결</h3>
+  <div class="flow">
+   <b>TenantRouter</b> — 발신자 길드 식별 (멀티테넌시 핵심)<br>
+   <b>CollectiveMemoryAgent</b> — Vertex Search로 본 길드 과거 Q&amp;A 검색<br>
+   <b>ExpertMatchAgent</b> — 같은 카테고리 멤버 매칭 (익명 ID)<br>
+   <b>CrossGuildAgent (A2A)</b> — 다른 길드의 agent 호출 (세무·법무)<br>
+   <b>BenchmarkAgent</b> — 길드 익명 KPI 평균치 (ROAS/CAC/마진)<br>
+   <b>PolicyAgent</b> — 멤버 데이터 격리 + 익명화 강제
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>Day-1 network effect 매트릭스</h3>
+  <div class="row"><span>1명 가입 시 → 길드 가치</span><b>+1%</b></div>
+  <div class="row"><span>100명 길드 → 신규 가입자에게</span><b>20× 가치</b></div>
+  <div class="row"><span>익명 벤치마크 통계</span><b>10+ 멤버부터 unlock</b></div>
+  <div class="row"><span>크로스 길드 partner 호출</span><b>50+ 멤버부터 unlock</b></div>
+  <hr style="border:0;border-top:1px solid #f0f1f6;margin:8px 0">
+  <div class="row"><span>월 구독 (길드 멤버십)</span><b>₩19,000/인</b></div>
+  <div class="row"><span>5,000 멤버 ARR target</span><b>₩1.14B</b></div>
+  <div class="row"><span>유사 비교 (Stan, Circle)</span><b>$30/mo</b></div>
+ </div>
+</div>
+<footer>the-community-builder · Network effect Day-1 · Track 3 (1인 사업자 SaaS) + APAC · 익명 벤치마킹 = 한국 데이터 모드 차별화</footer>
+</div>
+</html>

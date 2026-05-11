@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>InboxLawyer — 1인 사업자 법무 메일 자동응답 agent</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.55 -apple-system,Inter,sans-serif;color:#0a0a0a;background:#fafafa}
+.wrap{max-width:980px;margin:0 auto;padding:18px}
+.head{background:linear-gradient(135deg,#000,#1a1a1a);color:#fff;padding:18px 22px;border-radius:10px;display:flex;justify-content:space-between;align-items:center}
+.head h1{margin:0;font-size:20px;letter-spacing:-.01em}
+.tag{background:#10b981;color:#000;font-size:11px;padding:3px 8px;border-radius:99px;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:14px}
+.col{background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:16px}
+.col h3{margin:0 0 10px;font-size:12px;color:#666;text-transform:uppercase;letter-spacing:.06em}
+.email{font-size:13px;line-height:1.6;background:#f7f7f7;padding:12px;border-radius:6px;border:1px solid #ececec}
+.email .from{font-weight:600;font-size:12px;color:#0a0a0a}
+.email .meta{font-size:11px;color:#888;margin-bottom:6px}
+.reply{background:#dcfce7;border:1px solid #86efac;padding:12px;border-radius:6px;margin-top:10px;font-size:13px;line-height:1.6}
+.reply .hd{font-size:11px;color:#15803d;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.flow{font-size:11px;color:#555;line-height:1.65;margin-top:10px;background:#fafafa;border:1px dashed #ddd;padding:10px;border-radius:6px}
+.flow b{color:#0a0a0a}
+.ladder{font-family:'JetBrains Mono',monospace;font-size:12px;background:#000;color:#0f0;padding:14px;border-radius:8px;line-height:1.7}
+.ladder .now{background:#10b981;color:#000;padding:2px 6px;border-radius:3px}
+.bigmrr{font-size:34px;font-weight:800;color:#10b981;letter-spacing:-.02em;margin-top:8px}
+.kpi{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.kpi:last-child{border:0}.kpi b{font-variant-numeric:tabular-nums}
+.steps{font-size:11px;color:#555;line-height:1.7}
+.steps li{margin-bottom:6px}
+.steps b{color:#0a0a0a}
+footer{text-align:center;font-size:11px;color:#888;margin-top:14px}
+</style>
+<div class="wrap">
+<div class="head"><h1>InboxLawyer · 1인 사업자 법무 메일 0초 응답</h1><span class="tag">$10K MRR ladder</span></div>
+
+<div class="grid">
+ <div class="col">
+  <h3>받은 메일 · 2026-05-11 09:14</h3>
+  <div class="email">
+   <div class="from">박과장 — 더카페미디어 콘텐츠팀</div>
+   <div class="meta">제목: SoundFX 라이선스 사용 범위 문의 — 회신 부탁드립니다</div>
+   안녕하세요, 4월 22일 구매한 SoundFX Pack-04 라이선스 관련 문의드립니다.<br>
+   저희가 자체 제작 유튜브 영상 외에 클라이언트 광고 영상에도 해당 음원을 사용 가능한지요?<br>
+   클라이언트는 LG생활건강이며, 사용 매체는 YouTube Pre-roll + TVCF 입니다.<br>
+   회신 부탁드립니다. — 박○○ 드림
+  </div>
+
+  <div class="flow">
+   <b>ContextAgent</b> → Gmail thread 5건, 발신자 = 기존 고객, 4/22 INV-0247 매칭<br>
+   <b>LicenseAgent (MCP → license DB · own product catalog)</b> → Pack-04 = 'Indie Tier', TVCF 사용 시 'Broadcast Tier' 필요<br>
+   <b>LegalAgent (Gemini Pro)</b> → 한국 음저협 규정 + 자사 EULA 5.2조 cross-check<br>
+   <b>RevOpsAgent (A2A → Stripe partner)</b> → Tier 업그레이드 견적 $890 자동 발급<br>
+   <b>DraftAgent</b> → 정중한 영문/한글 회신 작성
+  </div>
+
+  <div class="reply">
+   <div class="hd">▶ Auto-Draft (사용자 1-click 승인 대기 · 0.8s 생성)</div>
+   박과장님 안녕하세요, 문의 감사합니다.<br><br>
+   Pack-04는 Indie Tier 라이선스로 자체 유튜브 채널 사용에는 적합합니다만,
+   <b>광고주(LG생활건강) 제3자 상업 송출 + TVCF 매체 결합 사용</b>은 자사 EULA 5.2조에 따라
+   <b>Broadcast Tier 업그레이드</b>가 필요합니다.<br><br>
+   업그레이드 견적서 첨부드립니다 (₩1,178,000 / 1년). 결제 즉시 라이선스가 자동 갱신됩니다.<br><br>
+   추가 문의 있으시면 회신 부탁드립니다. — Sound Library Team
+  </div>
+ </div>
+
+ <div class="col">
+  <h3>$10K MRR · 6-month ladder</h3>
+  <div class="bigmrr">$10,240<span style="font-size:14px;color:#666"> projected MRR @ M+6</span></div>
+  <div class="ladder">
+M0  20 users  $   180  free<br>
+M1  68       $   612  <br>
+M2 142       $ 1,420  <br>
+M3 246       $ 2,932  <br>
+M4 384       $ 4,990  <br>
+M5 540       $ 7,420  <br>
+<span class="now">M6 720       $10,240</span>  goal<br>
+   <br>ARPU $14.20 · Indie $9 · Pro $24
+  </div>
+
+  <h3 style="margin-top:18px">왜 indie인가</h3>
+  <ul class="steps">
+   <li><b>1인 maintain</b>: Cloud Run + Firestore + Gmail OAuth. 0인 운영.</li>
+   <li><b>일평균 메일 회신 1.7h 절약</b> × 1인 사업자 = 시급 ₩40K × 1.7 = ₩68K/일</li>
+   <li><b>Korea 1인 사업자 시장</b> 942만명 (PG 정보, 2025). 0.01% = 942 users.</li>
+   <li><b>Track 3 fit</b>: 1인 사업자 = SMB B2B buyer. A2A로 Stripe·Gmail·KakaoTalk Work 연동.</li>
+  </ul>
+
+  <h3 style="margin-top:14px">월 KPI</h3>
+  <div class="kpi"><span>메일 처리</span><b>21,400</b></div>
+  <div class="kpi"><span>건당 cost</span><b>$0.018</b></div>
+  <div class="kpi"><span>건당 가격 (Pro)</span><b>$0.094</b></div>
+  <div class="kpi"><span>GP margin</span><b>81%</b></div>
+  <div class="kpi"><span>Churn (M3 target)</span><b>&lt;3%</b></div>
+ </div>
+</div>
+<footer>the-indie-hacker · Pricing 사다리 명확 · 1인 사업자 942만 TAM · Track 3 + APAC</footer>
+</div>
+</html>

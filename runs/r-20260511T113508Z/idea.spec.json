@@ -1,0 +1,62 @@
+{
+  "_schema_version": "1.0.0",
+  "_filled_ratio": 0.56,
+  "_interview_status": "skipped_open_exploration",
+  "_interview_note": "User requested open pivot exploration. Skipping I1 Socratic — letting 26 advocates discover persona/JTBD/killer_feature/monetization independently. Constraints are seed-locked.",
+  "idea_summary": "Open pivot exploration to maximize Google for Startups AI Agents Challenge prize EV. Target Track 3 (B2B) + Regional APAC. 25-day, 1-dev budget. ADK + Gemini + MCP + Cloud Run + Vertex AI Search + A2A required.",
+  "primary_surface": {
+    "platform": "hybrid",
+    "sync_model": "hybrid",
+    "_note": "advocates choose"
+  },
+  "target_persona": null,
+  "jobs_to_be_done": null,
+  "killer_feature": null,
+  "monetization_model": null,
+  "success_metric": "Maximize EV across (Track 3 Best $10K) + (Regional APAC $5K) + (Grand $15K). Score against Tech 30 + Biz 30 + Innovation 20 + Demo 20.",
+  "must_have_constraints": [
+    {
+      "type": "platform",
+      "value": "ADK (Agent Development Kit) — mandatory"
+    },
+    {
+      "type": "platform",
+      "value": "Gemini API or Vertex AI 3rd-party only"
+    },
+    {
+      "type": "platform",
+      "value": "MCP (Model Context Protocol) tools"
+    },
+    {
+      "type": "platform",
+      "value": "Google Cloud (Cloud Run / Agent Engine / GKE)"
+    },
+    {
+      "type": "platform",
+      "value": "A2A protocol if targeting Track 3"
+    },
+    {
+      "type": "regulatory",
+      "value": "Greenfield (no ShortFlix code reuse), public GitHub, 1-2min EN demo video"
+    },
+    {
+      "type": "other",
+      "value": "B2B preferred for Track 3 (clear buyer + ROI math)"
+    },
+    {
+      "type": "other",
+      "value": "25-day, 1-dev × 6h/day = 80-100h effective budget"
+    },
+    {
+      "type": "data_residency",
+      "value": "Developer in Korea — APAC eligible for $5K Regional"
+    }
+  ],
+  "non_goals": [
+    "Reusing ShortFlix code or concept",
+    "Consumer-only Track 1 (saturated; ~5% EV)",
+    "Track 2 (Optimize) — no pre-existing agent",
+    "Direct unofficial scraping",
+    "OpenAI/Anthropic/AI Studio LLM calls"
+  ]
+}

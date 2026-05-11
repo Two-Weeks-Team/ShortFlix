@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Chaebolt RFP — 한국 대기업 SI 입찰 자동 응답 agent</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,'Noto Sans KR',sans-serif;color:#0a0a0a;background:#f4f4f4}
+.wrap{max-width:1180px;margin:0 auto;padding:20px}
+.bar{background:#0a2540;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-radius:4px}
+.bar h1{margin:0;font-size:18px;font-weight:700}.tag{font-size:11px;background:#c89a3f;padding:3px 10px;border-radius:2px;letter-spacing:.05em}
+.grid{display:grid;grid-template-columns:280px 1fr 280px;gap:16px;margin-top:16px}
+.col{background:#fff;border:1px solid #d8d8d8;padding:16px;border-radius:4px}
+.col h3{margin:0 0 12px;font-size:12px;font-weight:700;color:#0a2540;text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid #c89a3f;padding-bottom:6px}
+.rfp{font-size:13px;color:#3a3a3a;line-height:1.65}
+.rfp h4{margin:14px 0 4px;font-size:13px;color:#0a2540}
+.rfp ul{margin:0 0 10px;padding-left:18px}
+.section{background:#fafaf6;border-left:3px solid #c89a3f;padding:10px 12px;margin-bottom:10px;font-size:12px}
+.section .who{font-weight:700;color:#0a2540;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.section p{margin:4px 0 0;line-height:1.6}
+.score{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ebebeb;font-size:12px}
+.score:last-child{border:0}
+.score b{font-variant-numeric:tabular-nums}
+.deliv{font-size:12px;color:#3a3a3a;padding:6px 0;border-bottom:1px solid #f0f0f0}
+.deliv b{display:block;color:#0a2540}
+.win{margin-top:14px;background:#fff8e6;border:1px solid #c89a3f;padding:12px;border-radius:4px}
+.win .b{font-size:22px;font-weight:700;color:#0a2540}
+.win .l{font-size:11px;color:#6e6e6e;text-transform:uppercase;letter-spacing:.06em}
+.logos{display:flex;gap:14px;margin-top:8px;font-size:11px;color:#6e6e6e}
+.logo{background:#f0f0f0;padding:4px 10px;border-radius:2px}
+footer{margin-top:16px;font-size:11px;color:#6e6e6e;text-align:center}
+</style>
+<div class="wrap">
+<div class="bar"><h1>Chaebolt RFP · 대기업 SI 제안서 자동작성</h1><span class="tag">TRACK 3 · ENTERPRISE</span></div>
+
+<div class="grid">
+ <div class="col">
+  <h3>RFP 인풋</h3>
+  <div class="rfp">
+   <b>발주처</b> 현대모비스 ICT개발실<br>
+   <b>제목</b> 차세대 PLM 시스템 고도화<br>
+   <b>예산</b> 87억 원 (3년)<br>
+   <b>마감</b> 2026-05-25 14:00<br>
+   <b>답변 페이지</b> 184 ((技 124 + 가 60))<br>
+   <h4>요구 응답 (38개 항목)</h4>
+   <ul>
+    <li>SAP S/4HANA Public Cloud 연동 경험</li>
+    <li>전사 BOM 동기화 SLA 99.9% 보장 방안</li>
+    <li>품질 ISO 9001·IATF 16949 적용</li>
+    <li>현대모비스 보안기준 V2.4 준수</li>
+    <li>… 외 34개</li>
+   </ul>
+  </div>
+  <div class="logos">
+   <div class="logo">SAP partner</div><div class="logo">ISO 27001</div><div class="logo">ISMS</div>
+  </div>
+ </div>
+
+ <div class="col">
+  <h3>4-Agent Draft (12 minutes)</h3>
+  <div class="section">
+   <div class="who">📚 ArchiveAgent (Vertex AI Search · 자사 과거 제안서 240개)</div>
+   <p>2023년 LG에너지솔루션 PLM 고도화 (78억) 답변 §3.2가 90% 재사용 가능. SAP S/4HANA 연동은 자사 사례 5건 검색됨.</p>
+  </div>
+  <div class="section">
+   <div class="who">🏗 SolutionAgent (Gemini 2.5 Pro)</div>
+   <p>아키텍처 권장: GKE + Apigee + Cloud SQL + Pub/Sub + Vertex AI. BOM 동기화 SLA 99.95% (Cloud Spanner multi-region) — 발주처 요구 99.9% 상회.</p>
+  </div>
+  <div class="section">
+   <div class="who">📋 ComplianceAgent (A2A → 자사 보안팀 partner agent)</div>
+   <p>V2.4 보안기준 38개 통제 중 36개 자동 충족, 2개 (DLP, 망분리) 추가 솔루션 필요 → ₩240M 추가 예상.</p>
+  </div>
+  <div class="section">
+   <div class="who">💰 PriceAgent (MCP → 자사 ERP 단가 DB)</div>
+   <p>3년 TCO 84.2억 → 발주 예산 대비 −3.2%, 경쟁사 평균 −7%. 마진 18.4%. Win-prob 모델: <b>62%</b> (vs 무가공 기준 28%).</p>
+  </div>
+  <div class="section">
+   <div class="who">📝 NarrativeAgent (Gemini Pro)</div>
+   <p>184p 답변서 초안 생성 완료. 도식 14개 자동 작성. 임원 검토 12 hour 단축 → 마감 4일 여유 확보.</p>
+  </div>
+  <div class="win">
+   <div class="l">12분 후 산출물</div>
+   <div class="b">184p 제안서 초안 + Win-prob 62% + TCO 84.2억</div>
+   <div style="font-size:12px;color:#6e6e6e;margin-top:6px">기존 5인 × 8일 → agent 1회 + 검토 0.5일</div>
+  </div>
+ </div>
+
+ <div class="col">
+  <h3>점수 시뮬</h3>
+  <div class="score"><span>기술 평가 (60점)</span><b>54.2</b></div>
+  <div class="score"><span>가격 평가 (40점)</span><b>36.8</b></div>
+  <div class="score"><span>총점 추정</span><b>91.0/100</b></div>
+  <div class="score"><span>Win prob</span><b>62%</b></div>
+
+  <h3 style="margin-top:18px">왜 이게 통하는가</h3>
+  <div class="deliv"><b>한국 대기업 buyer</b>1년에 8조 원 SI 발주 — buyer 명확</div>
+  <div class="deliv"><b>SI 1인 매출</b>제안서 작성 5일 → 1시간 (× 12배 제안 응답)</div>
+  <div class="deliv"><b>SaaS 가격</b>건당 ₩4.8M (제안서 1건) · 연 240건 = ₩1.15B / SI</div>
+  <div class="deliv"><b>Beachhead</b>중견 SI 14곳 (LOI 가능)</div>
+  <div class="deliv"><b>Innovation</b>한국 RFP 양식 + 발주처 보안기준 vector embedding 최초</div>
+ </div>
+</div>
+<footer>the-enterprise-buyer · 1조 SI 발주 시장 · ROI: 제안서당 ₩28M 인건비 절감 · Track 3 + APAC</footer>
+</div>
+</html>

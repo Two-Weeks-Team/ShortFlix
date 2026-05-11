@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>LeaseLens — Korean commercial lease abstraction agent</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:13px/1.5 system-ui,-apple-system,sans-serif;color:#1a1d24;background:#fbfbf8}
+.wrap{max-width:1100px;margin:0 auto;padding:18px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid #e2e0d6;padding-bottom:12px}
+h1{margin:0;font-size:18px}.sub{color:#6b6f78;font-size:12px}
+.tag{background:#0a7d50;color:#fff;font-size:11px;padding:2px 8px;border-radius:4px}
+.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-top:14px}
+.col{background:#fff;border:1px solid #e2e0d6;border-radius:8px;padding:14px}
+.col h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;color:#6b6f78;letter-spacing:.05em}
+.lease{font-family:'Times New Roman',serif;font-size:11px;line-height:1.45;color:#3a3a3a;background:#faf8f0;padding:12px;border:1px solid #ebe7d6;border-radius:4px;max-height:240px;overflow:hidden;position:relative}
+.lease::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(transparent,#faf8f0)}
+.hl{background:#fff39e;padding:1px 2px}.hl-r{background:#fcd9d9;padding:1px 2px}
+.fact{display:grid;grid-template-columns:120px 1fr;gap:6px;padding:6px 0;border-bottom:1px dashed #ebe7d6;font-size:12px}
+.fact:last-child{border:0}.fact dt{color:#6b6f78}
+.flag{font-size:11px;padding:1px 6px;border-radius:99px;margin-left:4px}
+.flag.r{background:#fcd9d9;color:#8b1414}.flag.y{background:#fff3c4;color:#7a5a05}.flag.g{background:#d8efd8;color:#1a5a1a}
+.cost{background:#0a7d50;color:#fff;padding:14px;border-radius:8px;margin-top:14px}
+.cost .b{font-size:24px;font-weight:700}
+.cost .l{font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.06em}
+.tbl{width:100%;font-size:11px;margin-top:8px;border-collapse:collapse}
+.tbl th,.tbl td{padding:4px 6px;text-align:right;border-bottom:1px solid rgba(255,255,255,.2)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+footer{text-align:center;font-size:10px;color:#6b6f78;margin-top:14px}
+.agents{font-size:11px;color:#6b6f78;line-height:1.7;margin-top:10px}
+.agents b{color:#0a7d50}
+</style>
+<div class="wrap">
+<div class="head">
+  <div><h1>LeaseLens · 상가임대차계약 자동 검토</h1><div class="sub">스타트업 A — 강남구 역삼동 1층 카페 입점 검토</div></div>
+  <div><span class="tag">Track 3 · APAC · $9.40/mo infra</span></div>
+</div>
+
+<div class="grid">
+ <div class="col">
+  <h3>업로드된 임대차계약서 (PDF · 14 pages)</h3>
+  <div class="lease">
+   <p><b>제1조 (목적물)</b> 서울 강남구 역삼동 ○○빌딩 1층 25.6평 (84.79㎡)…</p>
+   <p><b>제3조 (보증금 및 차임)</b> 보증금 금일억오천만원정 (₩150,000,000), <span class="hl">월차임 금육백오십만원정 (₩6,500,000) — 매월 5일까지 선불</span>…</p>
+   <p><b>제5조 (계약기간)</b> <span class="hl">2026년 6월 1일부터 2028년 5월 31일까지 (2년)</span>…</p>
+   <p><b>제8조 (제소전 화해)</b> <span class="hl-r">임대인은 임차인의 동의 없이 제소전 화해 신청 가능, 임차인은 14일 이내 응답 의무…</span></p>
+   <p><b>제11조 (원상회복)</b> <span class="hl-r">임차인이 설치한 일체의 시설물은 임대차 종료시 임대인 소유로 귀속한다…</span></p>
+   <p><b>제13조 (제재금)</b> 차임 3개월 이상 연체시…</p>
+  </div>
+  <div class="agents" style="margin-top:12px">
+   <b>ExtractAgent (Gemini Flash):</b> PDF→텍스트, 30개 조항 파싱 (₩0.018)<br>
+   <b>RiskAgent (Gemini Pro):</b> 상가임대차보호법 vs 계약 조항 cross-check (₩0.094)<br>
+   <b>MarketAgent (A2A → 부동산114 partner):</b> 인근 시세 비교 (₩0.000 — partner 무료 호출)<br>
+   <b>NegotiationAgent (Gemini Pro):</b> 협상 카드 3장 생성 (₩0.078)<br>
+   <span style="display:block;margin-top:6px;color:#0a7d50"><b>건당 총 LLM 비용 ₩190 (~$0.14)</b></span>
+  </div>
+ </div>
+
+ <div class="col">
+  <h3>핵심 사실 (auto-abstracted)</h3>
+  <dl class="fact"><dt>월차임</dt><dd>₩6,500,000 <span class="flag y">인근 평균 ₩5,800,000 (+12%)</span></dd></dl>
+  <dl class="fact"><dt>보증금</dt><dd>₩150,000,000 <span class="flag g">시세 적정</span></dd></dl>
+  <dl class="fact"><dt>계약기간</dt><dd>2년 <span class="flag y">상가법 갱신청구권 10년 안내 필요</span></dd></dl>
+  <dl class="fact"><dt>제소전화해</dt><dd>편면적 신청권 <span class="flag r">상가법 위반 가능성 (8조)</span></dd></dl>
+  <dl class="fact"><dt>시설물 귀속</dt><dd>전부 임대인 <span class="flag r">권리금 회수 차단 — 협상 필수</span></dd></dl>
+  <dl class="fact"><dt>관리비 산정</dt><dd>실비정산 명시 없음 <span class="flag y">추가 부담 위험</span></dd></dl>
+
+  <div class="cost">
+   <div class="l">월 GCP 비용 추정 (1,000건 처리 기준)</div>
+   <div class="b">$9.40 <span style="font-size:13px;opacity:.7">/월</span></div>
+   <table class="tbl">
+    <tr><th>리소스</th><th>단가</th><th>월</th></tr>
+    <tr><td>Gemini Flash</td><td>$0.07/M tok</td><td>$1.20</td></tr>
+    <tr><td>Gemini Pro</td><td>$1.25/M tok</td><td>$5.80</td></tr>
+    <tr><td>Cloud Run (idle)</td><td>$0.40/day</td><td>$1.20</td></tr>
+    <tr><td>Vertex Search 인덱스</td><td>$1.20</td><td>$1.20</td></tr>
+   </table>
+   <div style="font-size:11px;margin-top:8px;opacity:.85">$500 크레딧 → <b>53개월</b> 무료 운영. 25일 데모 비용 약 $0.30.</div>
+  </div>
+ </div>
+</div>
+
+<footer>the-cost-conscious · 한국 33만 부동산 중개사 + 80만 자영업자 잠재 · Track 3 SMB · 운영비 시연이 demo 차별화</footer>
+</div>
+</html>

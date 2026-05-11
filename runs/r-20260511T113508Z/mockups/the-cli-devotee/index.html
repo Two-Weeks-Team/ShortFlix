@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>codex-review — AI code review agent CLI for dev teams</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:13px/1.5 ui-monospace,'JetBrains Mono','Fira Code',monospace;color:#d4d4d4;background:#1e1e1e}
+.wrap{max-width:1180px;margin:0 auto;padding:14px}
+.tabs{background:#252526;color:#c0c0c0;padding:0;border-radius:6px 6px 0 0;display:flex;border-bottom:1px solid #1e1e1e}
+.tab{padding:6px 14px;border-right:1px solid #1e1e1e;font-size:11px}
+.tab.a{background:#1e1e1e;color:#fff;border-bottom:2px solid #007acc}
+.term{background:#0c0c0c;color:#cccccc;padding:14px 16px;border-radius:0 0 6px 6px;min-height:380px;font-size:12.5px;line-height:1.55}
+.prompt{color:#22c55e}.path{color:#3b82f6}.cmd{color:#fff}
+.ok{color:#22c55e}.warn{color:#fbbf24}.err{color:#f87171}.dim{color:#888}
+.box{border:1px solid #444;border-radius:4px;padding:8px 10px;margin:8px 0;background:#181818}
+.box .ttl{color:#fbbf24;font-weight:700;margin-bottom:4px}
+.diff{font-size:12px}.diff .add{color:#22c55e;background:#06280b}
+.diff .del{color:#f87171;background:#2a0606}
+.grid{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-top:14px}
+.notes{background:#252526;border:1px solid #333;border-radius:6px;padding:14px;color:#cccccc;font-family:-apple-system,sans-serif;font-size:13px;line-height:1.55}
+.notes h3{margin:0 0 10px;color:#007acc;font-size:12px;text-transform:uppercase;letter-spacing:.06em;font-family:ui-monospace}
+.notes .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #333;font-size:12px}
+.notes .row:last-child{border:0}.notes .row b{color:#fff;font-variant-numeric:tabular-nums}
+.notes ul{margin:6px 0;padding-left:18px;font-size:12px;line-height:1.7}
+footer{text-align:center;font-size:11px;color:#888;margin-top:14px;font-family:-apple-system}
+.brand{color:#fbbf24}.h{color:#5cc8ff}
+</style>
+<div class="wrap">
+<div class="grid">
+ <div>
+  <div class="tabs">
+   <div class="tab a">terminal · ~/work/payments-api</div>
+   <div class="tab">git log</div>
+   <div class="tab">tests</div>
+  </div>
+  <div class="term">
+<span class="prompt">~/work/payments-api</span> <span class="cmd">$</span> <span class="cmd">codex-review pr 482 --review-agents=4 --target=main</span><br>
+<span class="dim">[codex-review v0.4.2 · powered by ADK + Gemini 2.5 + Vertex AI]</span><br>
+<br>
+<span class="ok">✓</span> Fetched PR #482 · 14 files · +624 / −210 LoC<br>
+<span class="ok">✓</span> Spawned 4 reviewer agents in parallel:<br>
+&nbsp;&nbsp;<span class="brand">↳</span> <span class="h">security-reviewer</span> (ADK · Gemini Pro + MCP-semgrep)<br>
+&nbsp;&nbsp;<span class="brand">↳</span> <span class="h">test-coverage-reviewer</span> (ADK · MCP-pytest-cov)<br>
+&nbsp;&nbsp;<span class="brand">↳</span> <span class="h">perf-reviewer</span> (ADK · MCP-pyspy + perf history)<br>
+&nbsp;&nbsp;<span class="brand">↳</span> <span class="h">api-contract-reviewer</span> (A2A → 모회사 standards-agent)<br>
+<br>
+<span class="warn">⚡</span> <b>security-reviewer</b> · 2.4s<br>
+<div class="box"><div class="ttl">⚠ SQL injection risk · payments/router.py:118</div>
+<div class="diff"><span class="del">- query = f"SELECT * FROM tx WHERE user_id = {user_id}"</span><br>
+<span class="add">+ query = "SELECT * FROM tx WHERE user_id = %s"</span><br>
+<span class="add">+ cur.execute(query, (user_id,))</span></div>
+<span class="dim">CWE-89 · semgrep r/python.lang.security.audit · severity HIGH</span></div>
+<br>
+<span class="ok">✓</span> <b>test-coverage-reviewer</b> · 3.1s<br>
+&nbsp;&nbsp;coverage: <span class="warn">79.4%</span> (target 85% · uncovered: idempotency_key flow at line 248-271)<br>
+<br>
+<span class="ok">✓</span> <b>perf-reviewer</b> · 4.0s<br>
+&nbsp;&nbsp;p95 latency regression: <span class="err">+34ms</span> (cause: <span class="h">tx.fetchall()</span> inside loop, n=240 case)<br>
+<br>
+<span class="ok">✓</span> <b>api-contract-reviewer</b> (A2A) · 1.8s<br>
+&nbsp;&nbsp;cross-team standards · OpenAPI diff: <span class="warn">2 breaking changes</span> (DELETE /v1/tx, field `tx.note` removed)<br>
+<br>
+<span class="brand">━━━ SUMMARY ━━━</span><br>
+<span class="err">✗ 1 BLOCKING</span> security (SQLi) · please fix before merge<br>
+<span class="warn">⚠ 3 ADVISE</span> coverage 79.4% · perf +34ms · 2 OpenAPI breakings<br>
+<span class="ok">✓ 0 STYLE</span> · 0 ARCHITECTURE concerns<br>
+<br>
+<span class="dim">Posting consolidated review to GitHub PR #482… ✓ <a style="color:#5cc8ff">https://github.com/...</a></span><br>
+<br>
+<span class="prompt">~/work/payments-api</span> <span class="cmd">$</span> <span style="background:#fff;width:8px;height:14px;display:inline-block;animation:b 1s steps(2) infinite"></span>
+  </div>
+ </div>
+
+ <div class="notes">
+  <h3>codex-review</h3>
+  <p>오픈소스 CLI agent. dev team이 PR 하나에 4개 reviewer agent를 병렬로 돌려서 30초 안에 리뷰 코멘트 받는다. Korean dev tool 시장 + 글로벌 OSS GTM.</p>
+
+  <h3>Track 3 fit</h3>
+  <ul>
+   <li>B2B buyer = dev team lead</li>
+   <li>A2A로 사내 'standards-agent'와 연결 (cross-team)</li>
+   <li>MCP tools: semgrep · pytest-cov · pyspy</li>
+   <li>Gemini Pro · Vertex AI Search (자사 회사 코드 history 인덱스)</li>
+  </ul>
+
+  <h3 style="margin-top:14px">ROI</h3>
+  <div class="row"><span>리뷰 대기 (인간)</span><b>4.2h</b></div>
+  <div class="row"><span>리뷰 대기 (codex-review)</span><b>0.4 min</b></div>
+  <div class="row"><span>1 dev 월 PR</span><b>16건</b></div>
+  <div class="row"><span>월 시간 절감</span><b>67h</b></div>
+  <div class="row"><span>OSS license</span><b>Apache 2.0</b></div>
+  <div class="row"><span>Cloud Pro</span><b>$49/dev/mo</b></div>
+
+  <h3 style="margin-top:14px">Demo hook (30s)</h3>
+  <p style="font-size:12px;color:#bbb">심사관 터미널에 PR 1개 입력 → 30초 내 4 agent 병렬로 코멘트 게시 → GitHub PR 페이지로 자동 이동. "이거 진짜 돌아가네" 1초 안에 인식.</p>
+ </div>
+</div>
+<footer>the-cli-devotee · Dev tooling = Track 3 강세 · OSS + 클라우드 hybrid · 한국 dev 30만 + 글로벌</footer>
+</div>
+</html>

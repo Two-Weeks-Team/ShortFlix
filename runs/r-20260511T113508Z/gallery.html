@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShortFlix → PIVOT · 26 Track-3 + APAC pivots · Gate H1</title>
+<style>
+  :root {
+    --bg:#0d1117; --fg:#e6edf3; --muted:#7d8590; --accent:#6e7eff;
+    --top:#3fb950; --strong:#d29922; --card:#161b22; --border:#30363d;
+    --frame-w:1280px; --frame-h:900px;
+    --card-w:380px; --card-frame-h:280px;
+    --scale: calc(var(--card-w) / var(--frame-w));
+  }
+  * { box-sizing: border-box; }
+  body { font: 14px/1.5 -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 24px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
+  .meta { background: var(--card); padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); line-height: 1.7; }
+  .meta strong { color: var(--top); }
+  .toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar input { background: var(--card); border: 1px solid var(--border); color: var(--fg); padding: 6px 12px; border-radius: 4px; font-size: 12px; min-width: 200px; }
+  .toolbar button { background: transparent; border: 1px solid var(--border); color: var(--fg); padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+  .toolbar button.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.15s, transform 0.15s; }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card.top-pick { border-color: var(--top); }
+  .card.top-pick .rank { color: var(--top); }
+  .card.strong { border-color: var(--strong); }
+  .card.strong .rank { color: var(--strong); }
+  .card.voted { border-color: gold; box-shadow: 0 0 0 2px gold inset; }
+  .card header { display: grid; grid-template-columns: auto auto 1fr; gap: 8px; align-items: baseline; }
+  .rank { font-weight: 600; color: var(--accent); font-size: 13px; }
+  .ev { font-family: ui-monospace, monospace; font-size: 11px; color: var(--top); font-weight: 600; }
+  .track { grid-column: 1/-1; font-family: ui-monospace, monospace; font-size: 10px; color: var(--muted); }
+  .card h3 { grid-column: 1/-1; margin: 2px 0 0; font-size: 14px; font-weight: 600; }
+  .persona { grid-column: 1/-1; font-size: 11px; color: var(--muted); font-style: italic; }
+  .preview-frame { position: relative; width: 100%; height: var(--card-frame-h); overflow: hidden; background: #fff; border: 1px solid var(--border); border-radius: 6px; }
+  .preview-frame iframe { width: var(--frame-w); height: var(--frame-h); transform: scale(var(--scale)); transform-origin: top left; border: 0; pointer-events: none; }
+  .preview-frame .overlay { position: absolute; inset: 0; cursor: pointer; z-index: 2; background: transparent; transition: background 0.15s; }
+  .preview-frame .overlay:hover { background: rgba(110,126,255,0.06); }
+  .framing { color: var(--fg); font-size: 12px; margin: 0; line-height: 1.5; min-height: 54px; }
+  .actions { display: flex; gap: 8px; }
+  .btn-open, .btn-vote { flex: 1; text-align: center; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; text-decoration: none; border: 1px solid var(--border); background: transparent; color: var(--fg); font-family: inherit; }
+  .btn-open { color: var(--accent); border-color: var(--accent); }
+  .btn-open:hover { background: var(--accent); color: white; }
+  .btn-vote:hover { border-color: gold; color: gold; }
+  .voted .btn-vote { background: gold; color: var(--bg); border-color: gold; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<h1>ShortFlix → PIVOT · 26 Track-3 + APAC pivots</h1>
+<p class="lead">Run <code>r-20260511T113508Z</code> · pivoted after ShortFlix Track 1 EV analysis revealed ~5% · 25 days to deadline · 1 dev × Korea (APAC eligible)</p>
+<div class="meta">
+  <div><strong>Strategy</strong>: target Track 3 Best $10K (~50-150 entrants, B2B + Vertex AI + A2A barrier) + Regional APAC $5K (~40-100, Korea bonus). Avoid Track 1 (~200-500 saturated).</div>
+  <div><strong>Stack locked</strong>: ADK + Gemini + MCP + Cloud Run + Vertex AI Search + A2A. Greenfield (ShortFlix code NOT reused).</div>
+  <div><strong>Diversity</strong>: Jaccard max-pair 0.18 / threshold 0.40 — 26 unique industries · 26 unique personas. 0 rewrites.</div>
+  <div><strong>Top-5 by stated EV</strong>: ClaimsRecon(22%) · RegTrials(19%) · FuneralOps(18%) · AgentLoom SDK(17%) · Chaebolt RFP(16%)</div>
+</div>
+<div class="toolbar">
+  <input type="search" id="search" placeholder="filter by slug, persona, or framing…">
+  <button data-filter="all" class="active">All 26</button>
+  <button data-filter="top5">Top 5 EV</button>
+  <button data-filter="strong">Strong (top 10)</button>
+  <button id="clearVotes">Clear my votes</button>
+</div>
+<div class="grid" id="grid">
+    <article class="card top-pick" data-slug="the-data-nerd">
+      <header>
+        <span class="rank">#1</span>
+        <span class="ev">EV 22%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-data-nerd</h3>
+        <span class="persona">정형외과·내과·안과 1차 의원 원장 (월 4,200건 청구)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-data-nerd/index.html" title="the-data-nerd" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-data-nerd/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">ClaimsRecon — 9.2× ROI, 22-day payback bench-verified on n=3 clinics, 6,840 claims. Reproducible numbers in repo.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-data-nerd/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-data-nerd">Vote</button>
+      </div>
+    </article>
+    <article class="card top-pick" data-slug="the-researcher">
+      <header>
+        <span class="rank">#2</span>
+        <span class="ev">EV 19%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-researcher</h3>
+        <span class="persona">KFDA 임상 CRA + CRO 의료기관 임상센터장</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-researcher/index.html" title="the-researcher" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-researcher/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">RegTrials — 5-agent clinical trial protocol amendment with reproducible ablation: 94.2% reg-fidelity, 0.04× cost vs human CRA.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-researcher/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-researcher">Vote</button>
+      </div>
+    </article>
+    <article class="card top-pick" data-slug="the-contrarian">
+      <header>
+        <span class="rank">#3</span>
+        <span class="ev">EV 18%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-contrarian</h3>
+        <span class="persona">30-인 규모 상조회사 운영팀장 + 1인 장례지도사</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-contrarian/index.html" title="the-contrarian" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-contrarian/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">FuneralOps — 한국 상조 8.7조원 시장의 56-hour 장례 워크플로 자동화. No competitor will dare to ship this industry.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-contrarian/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-contrarian">Vote</button>
+      </div>
+    </article>
+    <article class="card top-pick" data-slug="the-embedded">
+      <header>
+        <span class="rank">#4</span>
+        <span class="ev">EV 17%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-embedded</h3>
+        <span class="persona">한국 B2B SaaS·SI 회사 (FlexHR, 레터리, 테크스타즈 SI 등)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-embedded/index.html" title="the-embedded" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-embedded/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">AgentLoom SDK — 4줄 코드로 임베드 가능. 9 LOI / 2 베타. OSS + Cloud Pro/Enterprise.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-embedded/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-embedded">Vote</button>
+      </div>
+    </article>
+    <article class="card top-pick" data-slug="the-enterprise-buyer">
+      <header>
+        <span class="rank">#5</span>
+        <span class="ev">EV 16%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-enterprise-buyer</h3>
+        <span class="persona">중견 SI사 대표/제안팀장 (LG CNS, SK C&C 자회사 등 14개사)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-enterprise-buyer/index.html" title="the-enterprise-buyer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-enterprise-buyer/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">Chaebolt RFP — 한국 SI 1조 발주 시장의 RFP 응답 자동화. 5인 × 8일 → agent 12분. Win-prob 62%.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-enterprise-buyer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-enterprise-buyer">Vote</button>
+      </div>
+    </article>
+    <article class="card strong" data-slug="the-privacy-hawk">
+      <header>
+        <span class="rank">#6</span>
+        <span class="ev">EV 15%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-privacy-hawk</h3>
+        <span class="persona">한국 금융사 콜센터장 + 의료기관 CISO + 글로벌 SaaS DPO</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-privacy-hawk/index.html" title="the-privacy-hawk" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-privacy-hawk/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">RedactRail — 컴플라이언스 자체가 제품. PIPA·GDPR·HIPAA 동시 redaction. PIPA 과징금 매출 3% 위험 회피.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-privacy-hawk/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-privacy-hawk">Vote</button>
+      </div>
+    </article>
+    <article class="card strong" data-slug="the-reluctant-adopter">
+      <header>
+        <span class="rank">#7</span>
+        <span class="ev">EV 15%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-reluctant-adopter</h3>
+        <span class="persona">네이버 스마트스토어·Cafe24 셀러 (월 87건 문의 1인 운영)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-reluctant-adopter/index.html" title="the-reluctant-adopter" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-reluctant-adopter/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">StoreReply (FAQ-armored) — 'Gemini 프롬프트 아니냐'에 ablation 표로 미리 답. 회의론자가 변호한 idea가 가장 강함.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-reluctant-adopter/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-reluctant-adopter">Vote</button>
+      </div>
+    </article>
+    <article class="card strong" data-slug="the-pragmatist">
+      <header>
+        <span class="rank">#8</span>
+        <span class="ev">EV 14%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-pragmatist</h3>
+        <span class="persona">신라호텔/현대 등 한국 중견기업 회계팀장 (4-8명 AP팀 운영)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-pragmatist/index.html" title="the-pragmatist" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-pragmatist/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">Safest-to-ship ROI demo: invoice triage agent for Korean SMB AP teams replaces 4-person AR/AP work for ~₩38.5M/mo savings.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-pragmatist/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-pragmatist">Vote</button>
+      </div>
+    </article>
+    <article class="card strong" data-slug="the-cli-devotee">
+      <header>
+        <span class="rank">#9</span>
+        <span class="ev">EV 14%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-cli-devotee</h3>
+        <span class="persona">한국 IT/스타트업 dev team lead + 글로벌 OSS users</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-cli-devotee/index.html" title="the-cli-devotee" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-cli-devotee/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">codex-review — OSS CLI dev review agent. PR 1개 → 4 reviewer agent 병렬 30초. Apache 2.0 + Cloud Pro.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-cli-devotee/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-cli-devotee">Vote</button>
+      </div>
+    </article>
+    <article class="card strong" data-slug="the-ai-native">
+      <header>
+        <span class="rank">#10</span>
+        <span class="ev">EV 14%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-ai-native</h3>
+        <span class="persona">한국 SI/엔터프라이즈 사내 법무팀 + 중견기업 법무 1인 담당자</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-ai-native/index.html" title="the-ai-native" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-ai-native/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">ThinkBoard — Gemini thinking trace + tool call + A2A 호출이 라이브로 보이는 계약 검토. 채점관에게 'agent 가시성' 최대.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-ai-native/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-ai-native">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-ops-veteran">
+      <header>
+        <span class="rank">#11</span>
+        <span class="ev">EV 13%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-ops-veteran</h3>
+        <span class="persona">Hanwha·POSCO·현대모비스 등 한국 제조 공장장/MES 팀장</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-ops-veteran/index.html" title="the-ops-veteran" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-ops-veteran/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">NightShift — Manufacturing 24×7 on-call agent. 6.4 → 0.7 pages/night. ₩2.14B/yr 1공장 절감.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-ops-veteran/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-ops-veteran">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-mobile-first">
+      <header>
+        <span class="rank">#12</span>
+        <span class="ev">EV 13%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-mobile-first</h3>
+        <span class="persona">엘리베이터/HVAC/통신선 정비기사 (1인 출동)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-mobile-first/index.html" title="the-mobile-first" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-mobile-first/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">FieldPilot — 17만 정비기사 모바일 PWA. QR/음성/카메라 입력 → 4 agent. 심사관이 폰 설치로 즉시 시연.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-mobile-first/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-mobile-first">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-dreamer">
+      <header>
+        <span class="rank">#13</span>
+        <span class="ev">EV 13%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-dreamer</h3>
+        <span class="persona">구청 민원실장 + 시민 (B2G2C)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-dreamer/index.html" title="the-dreamer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-dreamer/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">SeoulCity OS — Year-1 Beachhead 마포구청 8 민원 자동화. 28일 → 3시간. 3-year horizon to ASEAN gov SaaS.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-dreamer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-dreamer">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-design-forward">
+      <header>
+        <span class="rank">#14</span>
+        <span class="ev">EV 12%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-design-forward</h3>
+        <span class="persona">D2C 창업자 (식음료·뷰티·패션 SMB 1-5인 팀)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-design-forward/index.html" title="the-design-forward" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-design-forward/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">Loomweave — 4 agents disagree on purpose to weave a complete D2C brand kit in 90 seconds. Demo 20% score saturated.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-design-forward/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-design-forward">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-community-builder">
+      <header>
+        <span class="rank">#15</span>
+        <span class="ev">EV 12%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-community-builder</h3>
+        <span class="persona">스마트스토어 셀러, 1인 개발자, 크리에이터, F&B 자영업자 (길드별)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-community-builder/index.html" title="the-community-builder" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-community-builder/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">GuildOps — 1인 사업자 길드 멀티테넌트. 익명 벤치마킹 + cross-guild A2A. Day-1 network effect.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-community-builder/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-community-builder">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-educator">
+      <header>
+        <span class="rank">#16</span>
+        <span class="ev">EV 12%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-educator</h3>
+        <span class="persona">중·대형 학원 원장 + 보조강사 (수학·영어·국어)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-educator/index.html" title="the-educator" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-educator/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">HagwonCoach — 한국 26조 학원시장. 진단고사 1장 → 30초 학생 맞춤 학습계획 + 학부모 카톡.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-educator/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-educator">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-indie-hacker">
+      <header>
+        <span class="rank">#17</span>
+        <span class="ev">EV 11%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-indie-hacker</h3>
+        <span class="persona">1인 사업자 (콘텐츠 라이선싱·SaaS 자영업자)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-indie-hacker/index.html" title="the-indie-hacker" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-indie-hacker/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">InboxLawyer — $10K MRR 6-month ladder. 한국 942만 1인 사업자 라이선스 답장 자동화. ARPU $14.20.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-indie-hacker/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-indie-hacker">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-slack-native">
+      <header>
+        <span class="rank">#18</span>
+        <span class="ev">EV 11%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-slack-native</h3>
+        <span class="persona">한국 IT/스타트업 영업팀장 (토스·네이버·카카오 모회사·자회사)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-slack-native/index.html" title="the-slack-native" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-slack-native/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">StandupGenie — Slack + 카카오톡 Work native. 100인 영업조직 23min → 1.4min standup.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-slack-native/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-slack-native">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-game-designer">
+      <header>
+        <span class="rank">#19</span>
+        <span class="ev">EV 11%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-game-designer</h3>
+        <span class="persona">1,000+ 인 기업 HR 컴플라이언스 담당 + CSO</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-game-designer/index.html" title="the-game-designer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-game-designer/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">QuestOps — RPG 컴플라이언스 교육. 완료율 41% → 88%. HR/CSO buyer. ₩4.2조 시장.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-game-designer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-game-designer">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-oss-maintainer">
+      <header>
+        <span class="rank">#20</span>
+        <span class="ev">EV 11%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-oss-maintainer</h3>
+        <span class="persona">한국 콘텐츠 마케팅 SMB + 글로벌 인디 블로거</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-oss-maintainer/index.html" title="the-oss-maintainer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-oss-maintainer/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">openseowriter — Apache 2.0 + Cloud Hosted. 4 disagreeing agents write SEO content. 2,148 stars projected.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-oss-maintainer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-oss-maintainer">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-cost-conscious">
+      <header>
+        <span class="rank">#21</span>
+        <span class="ev">EV 10%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-cost-conscious</h3>
+        <span class="persona">33만 부동산 중개사 + 80만 자영업자 (상가 임차 검토 필요)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-cost-conscious/index.html" title="the-cost-conscious" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-cost-conscious/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">LeaseLens — 상가임대차 계약 자동 검토 agent, 건당 ₩190 ($0.14) LLM 비용 · $500 크레딧으로 53개월 운영.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-cost-conscious/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-cost-conscious">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-speed-obsessed">
+      <header>
+        <span class="rank">#22</span>
+        <span class="ev">EV 10%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-speed-obsessed</h3>
+        <span class="persona">Cafe24·네이버 스마트스토어 1-5인 셀러</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-speed-obsessed/index.html" title="the-speed-obsessed" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-speed-obsessed/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">FlashSupport — p50 1.84s 한국어 L1 CS agent. Cafe24 36만 SMB beachhead.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-speed-obsessed/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-speed-obsessed">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-anti-ai">
+      <header>
+        <span class="rank">#23</span>
+        <span class="ev">EV 10%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-anti-ai</h3>
+        <span class="persona">1인 사업자/프리랜서 (디자인·번역·코칭·1인 콘텐츠 등)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-anti-ai/index.html" title="the-anti-ai" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-anti-ai/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">QuietBooks — UI에는 agent 흔적 없음. 1인 사장 942만 회계장부 자동완성. 결과로만 존재.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-anti-ai/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-anti-ai">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-solo-founder">
+      <header>
+        <span class="rank">#24</span>
+        <span class="ev">EV 10%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-solo-founder</h3>
+        <span class="persona">중대형 교회 부장/사무장 (행정 SaaS 도입 14,200곳)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-solo-founder/index.html" title="the-solo-founder" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-solo-founder/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">ZeroCare — 한국 7만 교회. 출품 후 0.5h/주 maintain으로 ARR ₩240M 가능. lifestyle ARR pitch.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-solo-founder/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-solo-founder">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-spreadsheet-jockey">
+      <header>
+        <span class="rank">#25</span>
+        <span class="ev">EV 9%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-spreadsheet-jockey</h3>
+        <span class="persona">F&B·소매·소형 도매 자영업자 (재고/판매 분석 엑셀 의존)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-spreadsheet-jockey/index.html" title="the-spreadsheet-jockey" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-spreadsheet-jockey/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">SheetsAgent — 한국 자영업 360만 + Cafe24 36만의 엑셀 매크로 직접 대체. Google Sheets 안에서 4 agent.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-spreadsheet-jockey/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-spreadsheet-jockey">Vote</button>
+      </div>
+    </article>
+    <article class="card candidate" data-slug="the-designer">
+      <header>
+        <span class="rank">#26</span>
+        <span class="ev">EV 9%</span>
+        <span class="track">Track 3 · APAC</span>
+        <h3>the-designer</h3>
+        <span class="persona">한복 대여샵 사장 (북촌·전주·경주 등)</span>
+      </header>
+      <div class="preview-frame">
+        <iframe loading="lazy" src="mockups/the-designer/index.html" title="the-designer" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+        <a class="overlay" href="mockups/the-designer/index.html" target="_blank"></a>
+      </div>
+      <p class="framing">한복·dev — 브랜드 자체가 진입장벽. 2,840 한복샵 시장. 시각·이름·voice 시스템 demo에 압도적.</p>
+      <div class="actions">
+        <a class="btn-open" href="mockups/the-designer/index.html" target="_blank">Full ↗</a>
+        <button class="btn-vote" data-slug="the-designer">Vote</button>
+      </div>
+    </article>
+</div>
+<script>
+  const VOTE_KEY = 'shortflix_pivot_h1_votes';
+  let votes = JSON.parse(localStorage.getItem(VOTE_KEY) || '[]');
+  function rerender() {
+    document.querySelectorAll('.card').forEach(c => c.classList.toggle('voted', votes.includes(c.dataset.slug)));
+  }
+  rerender();
+  document.querySelectorAll('.btn-vote').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const slug = btn.dataset.slug;
+      const i = votes.indexOf(slug);
+      if (i >= 0) votes.splice(i, 1); else votes.push(slug);
+      localStorage.setItem(VOTE_KEY, JSON.stringify(votes));
+      rerender();
+    });
+  });
+  document.getElementById('clearVotes').addEventListener('click', () => {
+    if (confirm('Clear all your votes?')) { votes = []; localStorage.removeItem(VOTE_KEY); rerender(); }
+  });
+  document.querySelectorAll('.toolbar button[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.toolbar button[data-filter]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      document.querySelectorAll('.card').forEach(c => {
+        if (f === 'all') c.classList.remove('hidden');
+        else if (f === 'top5') c.classList.toggle('hidden', !c.classList.contains('top-pick'));
+        else if (f === 'strong') c.classList.toggle('hidden', !(c.classList.contains('top-pick') || c.classList.contains('strong')));
+      });
+    });
+  });
+  document.getElementById('search').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.card').forEach(c => {
+      c.classList.toggle('hidden', q && !c.textContent.toLowerCase().includes(q));
+    });
+  });
+</script>
+</body>
+</html>

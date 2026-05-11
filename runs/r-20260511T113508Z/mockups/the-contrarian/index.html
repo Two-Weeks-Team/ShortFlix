@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>FuneralOps — agent for Korean funeral home logistics</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.55 'Noto Serif KR',Georgia,serif;color:#1a1a1a;background:#f4efe7}
+.wrap{max-width:980px;margin:0 auto;padding:24px}
+.head{border-bottom:2px solid #1a1a1a;padding-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end}
+.head h1{margin:0;font-size:24px;letter-spacing:-.01em}.subtitle{color:#5d5d5d;font-size:13px}
+.tag{font-size:11px;background:#1a1a1a;color:#f4efe7;padding:2px 10px;border-radius:0;letter-spacing:.08em}
+.deceased{margin-top:18px;background:#fff;border:1px solid #d6cfc1;padding:18px}
+.deceased h2{margin:0 0 6px;font-size:18px;font-weight:600}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-top:16px}
+.panel{background:#fff;border:1px solid #d6cfc1;padding:16px}
+.panel h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:#5d5d5d}
+.task{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ebe5d8;font-size:13px}
+.task:last-child{border:0}.task .who{color:#6e6e6e;font-size:12px}
+.status{font-size:11px;padding:1px 6px;border-radius:0}
+.done{background:#c4d9c4;color:#234223}.run{background:#d9d2c4;color:#4a3e1c}.todo{background:#e3d3d3;color:#572222}
+.dialogue{font-size:13px;line-height:1.7;background:#faf6ee;padding:12px;border-left:3px solid #8a6e3b;margin-top:10px}
+.dialogue b{color:#8a6e3b}
+.metrics{font-size:12px;color:#5d5d5d;margin-top:14px}
+.metrics span{display:inline-block;margin-right:14px}
+.metrics b{color:#1a1a1a;font-size:14px}
+footer{margin-top:20px;font-size:11px;color:#7a7a7a;text-align:center;font-family:sans-serif}
+</style>
+<div class="wrap">
+<div class="head">
+  <div><h1>FuneralOps</h1>
+    <div class="subtitle">상조회사 / 장례식장 운영 자동화 — the workflow nobody else will build</div>
+  </div>
+  <div><span class="tag">TRACK 3 · APAC</span></div>
+</div>
+
+<div class="deceased">
+  <h2>故 박○○ 님 · 2026-05-11 03:42 · 빈소 2호</h2>
+  <div class="subtitle">유족 측 상주: 박OO (장남, 010-XXXX-XXXX) · 발인 5/13 06:30</div>
+</div>
+
+<div class="grid">
+  <div class="panel">
+    <h3>56-Hour Workflow · auto-orchestrated</h3>
+    <div class="task"><span>① 사망진단서 → 사망신고 동사무소 접수 양식</span><span class="status done">완료</span></div>
+    <div class="task"><span>② 빈소 배정 · 식대 발주 (300인분 추정)</span><span class="status done">완료</span></div>
+    <div class="task"><span>③ 부고 문구 생성 (5개 톤 변형)</span><span class="status done">완료</span></div>
+    <div class="task"><span>④ 화장장 예약 (서울추모공원 5/13 09:00)</span><span class="status run">A2A 진행중</span></div>
+    <div class="task"><span>⑤ 영정사진 보정 · 액자 인쇄 주문</span><span class="status run">대기</span></div>
+    <div class="task"><span>⑥ 상조보험 청구 서류 (현대해상)</span><span class="status todo">유족 서명 필요</span></div>
+    <div class="task"><span>⑦ 답례품 발주 (참석자 추정 240명)</span><span class="status todo">상주 확인</span></div>
+
+    <div class="dialogue">
+      <b>IntakeAgent (Gemini 2.5 Pro):</b> 사망진단서 OCR 완료. 사인: 노환. 종교: 불교.<br>
+      <b>RitualAgent (MCP → 불교 의례 DB):</b> 49재 일정 자동 산출 → 6/30 첫 칠일재.<br>
+      <b>VendorAgent (A2A):</b> 답례품 업체 3곳에 동시 견적 요청. 견적 회신 8분 내 예상.<br>
+      <b>FamilyAgent:</b> 상주에게 카톡 "참석 예상 인원만 확인해 주세요" — 답변 대기 중.
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>왜 이게 우승하는가</h3>
+    <p style="font-size:13px;margin:0 0 10px">아무도 이 산업에 agent를 안 짓는다. 한국 상조 시장 8.7조 원. 1인 장례지도사가 56시간 동안 47개 외부 업체와 폰으로 조율하는 워크플로. ROI 수치가 명백하다.</p>
+    <div class="metrics">
+      <div><b>1,840만 원</b> <span>장례 1건 평균 매출</span></div>
+      <div><b>56h → 14h</b> <span>지도사 1인 노동시간</span></div>
+      <div><b>+2.3건/월</b> <span>지도사당 처리 가능 수</span></div>
+      <div><b>₩3.4억/년</b> <span>30인 규모 상조회사 GP 증가</span></div>
+    </div>
+    <hr style="border:0;border-top:1px solid #e3d8c2;margin:14px 0">
+    <h3 style="margin-bottom:6px">Demo hook (30초)</h3>
+    <p style="font-size:12px;line-height:1.6;margin:0;color:#3a3a3a">새벽 3:42, 입원실에서 사망진단서 사진 1장이 카톡으로 도착. 8분 뒤 상조 매니저 폰에 "발인까지 56시간 워크플로 47/47 task 자동 배정 완료, 유족 확인 필요 항목 3개" 카드. 심사관이 손에 꼽을 만큼 강렬한 industry choice.</p>
+  </div>
+</div>
+
+<footer>the-contrarian · ADK + Gemini + MCP (불교 의례 DB · 화장장 API · 상조보험 청구) + A2A + Cloud Run · APAC + Track 3</footer>
+</div>
+</html>

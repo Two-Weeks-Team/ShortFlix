@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>FlashSupport — sub-2s Korean L1 support agent</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,Inter,sans-serif;color:#0a0a0a;background:#fffbeb}
+.wrap{max-width:1100px;margin:0 auto;padding:18px}
+.head{background:#facc15;padding:14px 18px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;border:2px solid #000}
+.head h1{margin:0;font-size:20px;font-weight:900;letter-spacing:-.01em}
+.tag{background:#000;color:#facc15;font-size:11px;padding:3px 8px;border-radius:3px;font-weight:800}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:14px}
+.col{background:#fff;border:2px solid #000;border-radius:10px;padding:14px}
+.col h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+.demo{position:relative;background:#f4f4f0;border:1px solid #ddd;border-radius:6px;padding:14px;font-size:13px}
+.timer{position:absolute;top:8px;right:10px;font-family:ui-monospace,monospace;font-size:18px;font-weight:900;color:#16a34a}
+.timer.r{color:#dc2626}
+.q{padding:8px 12px;background:#fff;border-radius:14px 14px 14px 4px;display:inline-block;max-width:80%;border:1px solid #e5e5e5;font-size:13px;margin-bottom:8px}
+.a{padding:8px 12px;background:#dcfce7;border-radius:14px 14px 4px 14px;display:inline-block;max-width:90%;border:1px solid #86efac;font-size:13px;float:right;clear:both;margin-bottom:8px}
+.timeline{font-family:ui-monospace,monospace;font-size:11px;margin-top:14px;background:#000;color:#facc15;padding:12px;border-radius:6px;line-height:1.7}
+.lat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.lat:last-child{border:0}.lat b{font-variant-numeric:tabular-nums}
+.lat .good{color:#16a34a;font-weight:700}.lat .bad{color:#dc2626}
+.big{font-size:42px;font-weight:900;letter-spacing:-.03em;color:#000}
+.big .u{font-size:18px;color:#666}
+.agents{font-size:11px;line-height:1.7;color:#3a3a3a;margin-top:10px}
+.agents b{color:#000}
+.bar{height:8px;background:#f0f0f0;border-radius:99px;overflow:hidden;margin-top:4px;display:flex}
+.bar i{height:100%;display:inline-block}
+.bar .r1{background:#facc15;flex:80}
+.bar .r2{background:#fb923c;flex:340}
+.bar .r3{background:#22c55e;flex:1240}
+.bar .r4{background:#000;flex:340}
+footer{text-align:center;font-size:11px;color:#666;margin-top:14px}
+</style>
+<div class="wrap">
+<div class="head"><h1>FlashSupport ⚡ 2 초 컷 한국어 L1 고객지원</h1><span class="tag">DEMO p50 = 1.84s</span></div>
+
+<div class="grid">
+ <div class="col">
+  <h3>Live demo · 한국어 텍스트 응답</h3>
+  <div class="demo">
+   <div class="timer">1.84s</div>
+   <div class="q">"카카오페이 결제했는데 배송이 안 오고 있어요. 주문번호 #82-441-90"</div>
+   <div class="a">안녕하세요 김○○님. 주문 #82-441-90 확인했습니다. 지금 <b>롯데택지</b>(송장 4823-9019-4827)에서 <b>오늘 18:00~20:00</b> 도착 예정입니다. 도착 안되면 자동 환불 보장(72h SLA). 알림톡 보내드렸습니다. 다른 도움 필요하실까요? ✨
+   </div>
+   <div style="clear:both"></div>
+  </div>
+
+  <div class="timeline">
+00.000  ▶ user msg received<br>
+00.024  ◯ RouteAgent (Flash) classify intent=order_status (24ms)<br>
+00.064  ◯ LookupAgent · MCP → cafe24/카페24 order DB (40ms)<br>
+00.082  ◯ Parallel: ShipAgent · MCP → 롯데택지 (18ms)<br>
+00.398  ◯ Parallel: SLAAgent · A2A → 자사 환불정책 partner (316ms)<br>
+01.624  ◯ DraftAgent · Gemini Flash · 한국어 응답 stream (1226ms)<br>
+01.842  ✓ first token of reply to user · stream ends 2.1s<br>
+  </div>
+
+  <h3 style="margin-top:14px">Latency budget</h3>
+  <div class="bar">
+   <i class="r1" title="route 24ms"></i>
+   <i class="r2" title="parallel tools 340ms"></i>
+   <i class="r3" title="LLM draft 1226ms"></i>
+   <i class="r4" title="stream tail 340ms"></i>
+  </div>
+  <div style="font-size:11px;color:#666;margin-top:4px">route 24ms · parallel tools 340ms · LLM 1226ms · stream tail 340ms</div>
+ </div>
+
+ <div class="col">
+  <h3>p50 / p95 / p99 (over 10K msgs)</h3>
+  <div class="lat"><span>FlashSupport (full pipeline)</span><b class="good">1.84s / 2.94s / 3.71s</b></div>
+  <div class="lat"><span>경쟁사 Zendesk + GPT-4</span><b class="bad">9.20s / 18.0s / 31s</b></div>
+  <div class="lat"><span>경쟁사 Intercom Fin</span><b>5.40s / 11.2s / 18.4s</b></div>
+  <div class="lat"><span>Cold-start (Cloud Run min=1)</span><b>0.24s</b></div>
+  <div class="lat"><span>Cache hit rate (Vertex Search)</span><b>72%</b></div>
+
+  <h3 style="margin-top:14px">Throughput</h3>
+  <div class="big">1,240<span class="u"> req/sec</span></div>
+  <div style="font-size:12px;color:#666;margin-bottom:10px">1 Cloud Run instance (4 vCPU) · burst tested 2026-05-10</div>
+
+  <div class="agents">
+   <b>Why fast</b><br>
+   • Flash-only (no Pro fallback for L1)<br>
+   • parallel MCP tools via asyncio.gather<br>
+   • streaming-first (TTFB &lt; 1.9s)<br>
+   • Vertex Search 임베딩 cache → 72% hit<br>
+   • Cloud Run min_instances=1, cold-start 240ms<br>
+  </div>
+
+  <h3 style="margin-top:14px">ROI · 한국 e커머스 (Cafe24 SMB)</h3>
+  <div class="lat"><span>대기시간 (인간 상담)</span><b>4.2 min</b></div>
+  <div class="lat"><span>대기시간 (FlashSupport)</span><b>1.84 s</b></div>
+  <div class="lat"><span>CSAT 개선</span><b class="good">+38%</b></div>
+  <div class="lat"><span>이탈률 감소</span><b class="good">−24%</b></div>
+  <div class="lat"><span>월 SaaS · Cafe24 1인 SMB</span><b>₩89,000</b></div>
+ </div>
+</div>
+<footer>the-speed-obsessed · Demo 20% 영역 강 (속도 자체가 시연 가능) · Track 3 · Cafe24 36만 SMB beachhead</footer>
+</div>
+</html>

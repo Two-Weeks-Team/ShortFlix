@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Hanbok.dev — brand-first agent for hanbok rental shops (visual system)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.55 'Nanum Myeongjo',Georgia,serif;color:#2c1810;background:#f5ede0}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}
+.brand{text-align:center;padding:30px 0 24px;border-bottom:1px solid #d4c4a8}
+.logo{font-size:54px;font-weight:400;letter-spacing:-.04em;margin:0}
+.logo .dot{color:#a83c2c;font-size:42px}
+.tagline{font-size:14px;color:#6b5839;font-style:italic;margin-top:4px;letter-spacing:.04em}
+.tag{display:inline-block;background:#2c1810;color:#f5ede0;font-size:11px;padding:3px 10px;border-radius:0;letter-spacing:.08em;margin-top:8px;font-family:sans-serif}
+.system{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+.card{background:#fff;border:1px solid #d4c4a8;padding:18px;border-radius:0}
+.card h3{margin:0 0 12px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#a83c2c;font-family:sans-serif;font-weight:700;border-bottom:1px solid #d4c4a8;padding-bottom:6px}
+.swatches{display:flex;gap:6px;margin-bottom:8px}
+.sw{flex:1;aspect-ratio:1;border:1px solid #d4c4a8;position:relative}
+.sw .name{position:absolute;bottom:4px;left:6px;font-size:10px;color:#fff;font-family:sans-serif;letter-spacing:.04em}
+.sw .name.d{color:#2c1810}
+.type-h{font-size:28px;color:#2c1810;margin:6px 0 4px;font-weight:400}
+.type-b{font-family:'Pretendard',-apple-system,sans-serif;font-size:13px;line-height:1.6;color:#3a2a18}
+.story{font-family:'Nanum Myeongjo',serif;font-size:13.5px;line-height:1.85;color:#3a2a18}
+.story p{margin:6px 0}
+.scene{background:linear-gradient(135deg,#a83c2c,#5a1e15);color:#f5ede0;padding:18px;margin-top:8px;font-family:sans-serif}
+.scene h4{margin:0 0 6px;font-size:12px;color:#fce5c0;text-transform:uppercase;letter-spacing:.08em}
+.scene p{font-size:13px;line-height:1.55;margin:4px 0;font-family:'Nanum Myeongjo',serif}
+.agents{font-family:sans-serif;font-size:12px;line-height:1.7;color:#3a2a18}
+.agents b{color:#a83c2c}
+.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ebe0c8;font-family:sans-serif;font-size:12px}
+.row:last-child{border:0}.row b{color:#2c1810;font-variant-numeric:tabular-nums}
+footer{text-align:center;font-size:11px;color:#6b5839;margin-top:24px;font-family:sans-serif}
+</style>
+<div class="wrap">
+<div class="brand">
+  <h1 class="logo">한복<span class="dot">·</span>dev</h1>
+  <div class="tagline">"옷이 손님을 고른다" — 한복 대여샵을 위한 brand-first agent</div>
+  <span class="tag">TRACK 3 · APAC · DESIGN-LED GTM</span>
+</div>
+
+<div class="system">
+ <div class="card">
+  <h3>색 시스템</h3>
+  <div class="swatches">
+   <div class="sw" style="background:#a83c2c"><span class="name">단심 #A83C2C</span></div>
+   <div class="sw" style="background:#5a1e15"><span class="name">자두 #5A1E15</span></div>
+   <div class="sw" style="background:#f5ede0"><span class="name d">한지 #F5EDE0</span></div>
+   <div class="sw" style="background:#2c5e3e"><span class="name">송엽 #2C5E3E</span></div>
+   <div class="sw" style="background:#2c1810"><span class="name">옻칠 #2C1810</span></div>
+  </div>
+  <h3 style="margin-top:14px">타이포그래피</h3>
+  <div class="type-h">서체는 시간이다.</div>
+  <div class="type-b">제목: 나눔명조 Bold · 본문: Pretendard Regular · 데이터: Iosevka. 영문 동등 매칭: Cormorant Garamond + Inter.</div>
+ </div>
+
+ <div class="card">
+  <h3>브랜드 보이스</h3>
+  <div class="story">
+   <p>"손님이 7번 시착하다 지쳐서 떠나신다.<br>한 시간 안에 두 분이 그렇다."</p>
+   <p>북촌의 한복 대여샵 사장님이 우리에게 들려주신 말씀이다. 옷장에 240벌이 있어도 손님의 인생 한 컷에 맞는 옷은 4벌뿐. 그 4벌을 5분 안에 찾아드리는 것이 한복·dev의 일이다.</p>
+   <p style="color:#a83c2c;font-style:italic">에이전트가 점원처럼 다정하되, 점원보다 정확하다.</p>
+  </div>
+ </div>
+</div>
+
+<div class="system">
+ <div class="card">
+  <h3>Demo Scene (30 초 데모 hook)</h3>
+  <div class="scene">
+   <h4>09:14 · 종로구 한복샵 · 손님 한 분</h4>
+   <p style="font-style:italic">"오빠 생일이라서… 단풍 들 때 사진 찍을 거예요. 키 158cm, 좀 점잖아 보이는 색으로요."</p>
+  </div>
+  <div class="agents" style="margin-top:10px">
+   <b>StyleAgent (Vision + Gemini):</b> 손님 톤 분석 → cool undertone · 가을 컬러 추천<br>
+   <b>InventoryAgent (MCP → 자체 ERP):</b> 158cm 사이즈 + 가을톤 4벌 슬롯 매칭<br>
+   <b>SeasonAgent (A2A → 기상청 partner):</b> 5/11~5/18 단풍 시기 ✗ → 가을엔 단풍, 5월엔 모란 권장<br>
+   <b>BookingAgent:</b> 카카오톡으로 예약 + 한복 + 헤어 패키지 + 사진관 예약 묶음
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>한복샵 시장</h3>
+  <div class="row"><span>전국 한복 대여샵</span><b>2,840곳</b></div>
+  <div class="row"><span>1샵 평균 매출/월</span><b>₩28M</b></div>
+  <div class="row"><span>월 손님 이탈률 (시착 피로)</span><b>−38%</b></div>
+  <div class="row"><span>한복·dev 도입 후</span><b>이탈률 −12%, 매출 +24%</b></div>
+  <div class="row"><span>월 SaaS 요금</span><b>₩290,000</b></div>
+  <div class="row"><span>국내 잠재 ARR (10% 침투)</span><b>₩0.99B</b></div>
+  <div class="row"><span>Demo 강점</span><b>심사관이 "브랜드"를 기억함</b></div>
+ </div>
+</div>
+
+<footer>the-designer · Demo 20% 채점 · 브랜드 자체가 진입장벽 · Track 3 SMB B2B + APAC · 한국 문화 콘텐츠 차별화</footer>
+</div>
+</html>

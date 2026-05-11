@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>QuietBooks — 1인 사장님 회계장부 자동완성 (agent invisible)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,'Noto Sans KR',sans-serif;color:#1a1a1a;background:#faf9f6}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}
+.head{border-bottom:1px solid #ddd6c8;padding-bottom:14px}
+.head h1{margin:0 0 4px;font-size:22px;font-weight:600;letter-spacing:-.01em}
+.head .sub{font-size:13px;color:#6e6e6e}
+.tag{font-size:11px;background:#1a1a1a;color:#fff;padding:2px 8px;border-radius:2px;letter-spacing:.06em}
+.line{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ebe7da;font-size:14px;align-items:center}
+.line:last-child{border:0}
+.line .who{flex:1}
+.line .amt{font-variant-numeric:tabular-nums;font-size:15px;font-weight:500;text-align:right}
+.line .lbl{display:block;font-size:11px;color:#6e6e6e;margin-top:2px}
+.section-ttl{font-size:11px;color:#6e6e6e;text-transform:uppercase;letter-spacing:.08em;margin:18px 0 6px}
+.book{background:#fff;border:1px solid #ebe7da;border-radius:4px;padding:18px;margin-top:14px}
+.fin{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.fin .box{background:#fff;border:1px solid #ebe7da;padding:14px;border-radius:4px}
+.fin .lbl{font-size:11px;color:#6e6e6e;text-transform:uppercase;letter-spacing:.06em}
+.fin .val{font-size:22px;font-weight:600;margin-top:4px;letter-spacing:-.01em}
+.fin .val .u{font-size:13px;color:#6e6e6e}
+.fin .delta{font-size:11px;color:#16a34a;margin-top:2px}
+.note{background:#fffaee;border-left:3px solid #c89a3f;padding:10px 12px;margin-top:18px;font-size:13px;line-height:1.6;color:#3a3a3a}
+.note b{color:#1a1a1a}
+.btn{display:inline-block;padding:8px 16px;background:#1a1a1a;color:#fff;border-radius:2px;font-size:13px;font-weight:500;border:0;cursor:pointer;margin-top:6px}
+.flow{font-size:11px;color:#6e6e6e;background:#f4f1e8;padding:10px 12px;border-radius:4px;margin-top:18px;line-height:1.7}
+.flow b{color:#1a1a1a}
+footer{text-align:center;font-size:11px;color:#8a8a8a;margin-top:18px}
+</style>
+<div class="wrap">
+<div class="head">
+  <h1>QuietBooks · 5월 장부</h1>
+  <div class="sub">홍○○ · 1인 디자인 스튜디오 · 사업자등록 124-31-XXXXX <span class="tag" style="margin-left:8px">Track 3 · APAC</span></div>
+</div>
+
+<div class="book">
+ <div class="section-ttl">매출 (5월 1일 ~ 11일)</div>
+ <div class="line"><div class="who">㈜커커몸</div><div class="amt">₩3,200,000<span class="lbl">로고 디자인 · 5/3 입금</span></div></div>
+ <div class="line"><div class="who">㈜플레이타임</div><div class="amt">₩1,650,000<span class="lbl">웹배너 4종 · 5/7 입금</span></div></div>
+ <div class="line"><div class="who">박○○ (개인)</div><div class="amt">₩440,000<span class="lbl">소셜프로필 · 5/9 카카오페이</span></div></div>
+
+ <div class="section-ttl">비용 (자동 분류)</div>
+ <div class="line"><div class="who">스타벅스 강남점</div><div class="amt">₩6,800<span class="lbl">접대비 (간이 영수증 OCR · 5/2)</span></div></div>
+ <div class="line"><div class="who">Adobe Creative Cloud</div><div class="amt">₩28,400<span class="lbl">소모품비 (해외카드 자동 환산)</span></div></div>
+ <div class="line"><div class="who">아이맥 분할납부</div><div class="amt">₩140,000<span class="lbl">감가상각 (자동 인식 · 60개월 정액)</span></div></div>
+ <div class="line"><div class="who">한국전력</div><div class="amt">₩42,800<span class="lbl">공과금</span></div></div>
+ <div class="line"><div class="who">국민건강보험</div><div class="amt">₩280,000<span class="lbl">사회보험료</span></div></div>
+</div>
+
+<div class="fin">
+ <div class="box"><div class="lbl">5월 매출 (To-Date)</div><div class="val">₩5,290,000</div><div class="delta">▲ 4월 대비 +12%</div></div>
+ <div class="box"><div class="lbl">5월 비용</div><div class="val">₩498,000</div><div class="delta">▼ 4월 대비 −8%</div></div>
+ <div class="box"><div class="lbl">예상 종소세 (1~5월)</div><div class="val">₩2,140,000</div><div class="delta">납부일 D-186</div></div>
+ <div class="box"><div class="lbl">예상 부가세 (2분기)</div><div class="val">₩1,840,000</div><div class="delta">납부일 D-65</div></div>
+</div>
+
+<div class="note">
+ <b>📩 한 줄 알림:</b> ㈜커커몸과의 다음 송장(원래 5/15 발송 예정) 일주일 늦췄어요 — 7월 부가세 신고 분기로 자연스럽게 분산되어 절세 ₩84,000. 동의하시면 송장 발송 일정 자동 변경.
+ <br><button class="btn">동의</button> &nbsp; <button class="btn" style="background:#fff;color:#1a1a1a;border:1px solid #1a1a1a">유지</button>
+</div>
+
+<div class="flow">
+ <b>UI에는 'agent' 글자가 없다.</b> 하지만 뒤에서는 4 agent가 일한다:<br>
+ <b>BankAgent</b> · MCP → 케이뱅크/신한 거래내역 (오픈뱅킹)<br>
+ <b>OCRAgent</b> · Gemini Vision · 영수증 자동 분류<br>
+ <b>TaxOptimizerAgent</b> · A2A → 자체 세무 partner · 절세 시뮬레이션<br>
+ <b>FilingAgent (홈택스 MCP)</b> · 부가세·종소세 자동 신고 초안<br>
+ 산출물은 장부 한 페이지. agent와 대화하지 않고도 한 사장님이 회계사 없이 운영한다.
+</div>
+
+<footer>the-anti-ai · 사용자는 chatbot을 보지 않음 · agent는 결과로만 존재 · 1인 사장님 942만명 · Track 3 + APAC</footer>
+</div>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>HagwonCoach — 학원 onboarding & training agent (한국 학원)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.55 'Pretendard',-apple-system,sans-serif;color:#1a1a1a;background:#fffdf5}
+.wrap{max-width:1080px;margin:0 auto;padding:18px}
+.head{background:#f97316;color:#fff;padding:14px 18px;border-radius:14px;display:flex;justify-content:space-between;align-items:center}
+.head h1{margin:0;font-size:19px}
+.tag{background:#fff;color:#f97316;font-size:11px;padding:3px 8px;border-radius:99px;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.card{background:#fff;border:1px solid #fde7c8;border-radius:14px;padding:16px}
+.card h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;color:#9a4d04;letter-spacing:.06em}
+.student{background:#fff7ec;border:1px solid #fde7c8;border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center}
+.av{width:48px;height:48px;border-radius:99px;background:#f97316;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px}
+.student .name{font-weight:700}.student .meta{font-size:12px;color:#7a5a32}
+.chip{display:inline-block;padding:2px 8px;border-radius:99px;background:#fff7ec;color:#9a4d04;font-size:11px;margin-right:4px;border:1px solid #fde7c8}
+.lesson{font-size:13px;background:#fff7ec;border-radius:8px;padding:10px;margin-top:8px;line-height:1.6;color:#3a2a08}
+.lesson b{color:#9a4d04}
+.q{background:#f3f4f6;padding:8px 10px;border-radius:8px;font-size:13px;margin-bottom:6px;color:#1f2937}
+.q .who{font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.ans{background:#ecfdf5;border-left:3px solid #10b981;padding:8px 10px;border-radius:0 6px 6px 0;font-size:13px;line-height:1.55;color:#1a1a1a}
+.ans b{color:#047857}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #fde7c8;font-size:13px}
+.row:last-child{border:0}.row b{font-variant-numeric:tabular-nums}
+.flow{font-size:12px;line-height:1.7;color:#5b4520;background:#fff7ec;padding:10px;border-radius:8px}
+.flow b{color:#9a4d04}
+.report{background:#fffaef;border:1px dashed #f97316;padding:12px;border-radius:10px;font-size:12px;color:#3a2a08;line-height:1.6}
+.report .badge{background:#10b981;color:#fff;font-size:10px;padding:2px 6px;border-radius:99px;display:inline-block;margin-right:4px}
+footer{text-align:center;font-size:11px;color:#7a5a32;margin-top:14px}
+</style>
+<div class="wrap">
+<div class="head"><h1>HagwonCoach · 한국 학원 1:1 보조강사 agent</h1><span class="tag">Track 3 · APAC · 학원 buyer</span></div>
+
+<div class="grid">
+ <div class="card">
+  <h3>학생 onboarding · 5분 만에 맞춤 학습계획</h3>
+  <div class="student">
+   <div class="av">유</div>
+   <div>
+    <div class="name">유서연 · 중2 · 강남청솔학원</div>
+    <div class="meta">수학 / 수학경시반 / 입학 1주차</div>
+    <div style="margin-top:4px"><span class="chip">진단고사 72점</span><span class="chip">취약: 함수</span><span class="chip">VARK: 시각형</span></div>
+   </div>
+  </div>
+
+  <div class="lesson">
+   <b>📚 1주차 학습계획 (auto-generated):</b><br>
+   • 월 (5/12) 함수의 정의 — 그래프 시각화 5문제<br>
+   • 수 (5/14) 일차함수 응용 — 실생활 7문제<br>
+   • 금 (5/16) 함수 응용 진단테스트 (강사 채점)<br>
+   • 토 (5/17) 부모 리포트 자동 전송 (카톡)
+  </div>
+
+  <div style="margin-top:10px">
+   <div class="q"><span class="who">서연 (월 19:14)</span> y=2x+3 그래프에서 y절편이 뭐예요?</div>
+   <div class="ans"><b>🎓 HagwonCoach:</b> 서연이가 시각형 학습자라서 그래프로 설명할게요.<br>
+   y절편은 그래프가 <b>y축과 만나는 점의 y값</b>이에요. y=2x+3에서 x=0을 넣으면 y=3.<br>
+   👉 그래서 (0, 3)에서 y축과 만남. 강사가 어제 보여준 좌표평면 시각화 떠올려보세요.<br>
+   비슷한 5문제 더 풀어볼까요?</div>
+  </div>
+
+  <div class="flow" style="margin-top:10px">
+   <b>DiagnoseAgent</b> · 진단고사 OCR + 취약점 추출 (Gemini Vision)<br>
+   <b>CurriculumAgent</b> · 학원 교재 RAG (Vertex Search · 4,200문항 인덱스)<br>
+   <b>TutorAgent</b> · 학생 VARK 스타일 반영한 1:1 답변 (Gemini Pro)<br>
+   <b>ParentReportAgent (A2A)</b> · 카카오톡 부모 partner에게 주간 리포트
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>학원 운영자 대시보드 (안 길섭 원장)</h3>
+  <div class="report">
+   <span class="badge">완료</span><b>강사 22명 onboarding</b> — 강사가 학원 운영 매뉴얼·교재·시험출제 가이드를 agent에게 음성으로 질문 가능 (24h 응답)<br><br>
+   <span class="badge">진행</span><b>학생 386명 자동 케어</b> — 결석·과제 미제출·점수 하락 자동 감지 → 강사에게 푸시 + 학부모 톡<br><br>
+   <span class="badge">자동</span><b>월 등록·하원 처리</b> — 학원관리시스템(클라스팅·아이엠스쿨) 연동 (MCP)
+  </div>
+
+  <h3 style="margin-top:14px">왜 학원 시장</h3>
+  <div class="row"><span>한국 학원수</span><b>83,200곳 (2024)</b></div>
+  <div class="row"><span>시장 규모</span><b>₩26조/년</b></div>
+  <div class="row"><span>학원당 평균 학생</span><b>148명</b></div>
+  <div class="row"><span>학원당 강사</span><b>5.7명</b></div>
+  <div class="row"><span>강사 onboarding 시간</span><b>−68%</b></div>
+  <div class="row"><span>월 SaaS (학원당)</span><b>₩290,000</b></div>
+  <div class="row"><span>잠재 ARR (5% 침투)</span><b>₩14.5B</b></div>
+
+  <h3 style="margin-top:14px">Demo hook (30s)</h3>
+  <p style="font-size:12px;color:#5b4520">진단고사 종이 1장 카메라 촬영 → 30초 안에 학생 맞춤 1주 학습계획 + 학부모 카톡 리포트 발송. 한국 교육 + 학부모 = 청중 공감 강함.</p>
+ </div>
+</div>
+<footer>the-educator · 학원시장 26조 · Track 3 buyer 명확 · APAC · Demo: 학부모·심사관 즉시 공감</footer>
+</div>
+</html>

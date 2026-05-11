@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>NightShift — 24×7 운영 인계 agent (manufacturing)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:13px/1.5 ui-monospace,'JetBrains Mono',Menlo,monospace;color:#cfd8e3;background:#0b1220}
+.wrap{max-width:1200px;margin:0 auto;padding:14px}
+.bar{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:#0d1830;border:1px solid #20304c;border-radius:6px}
+.bar h1{margin:0;font-size:15px;color:#e6edf7}
+.tag{font-size:11px;background:#16a34a;color:#031b0a;padding:2px 8px;border-radius:3px;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 380px;gap:14px;margin-top:12px}
+.card{background:#0d1830;border:1px solid #20304c;border-radius:6px;padding:14px}
+.card h3{margin:0 0 10px;font-size:11px;color:#6e84a8;text-transform:uppercase;letter-spacing:.08em;font-family:sans-serif}
+.handoff{font-family:sans-serif;font-size:13px;line-height:1.65;color:#e6edf7}
+.handoff h4{margin:14px 0 4px;color:#94e2d5;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.event{font-size:12px;padding:6px 8px;margin-bottom:4px;border-left:3px solid #4ade80;background:#0a1426;font-family:sans-serif}
+.event.warn{border-color:#fbbf24}.event.err{border-color:#f87171}
+.event .t{color:#6e84a8;font-size:11px}.event b{color:#fff}
+.runbook{font-size:12px;background:#0a1426;border:1px dashed #2d4060;padding:10px;border-radius:4px;color:#cfd8e3;line-height:1.7}
+.runbook b{color:#94e2d5}.kbd{background:#1c2942;padding:1px 5px;border-radius:3px;font-size:11px}
+.stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1c2942;font-family:sans-serif;font-size:12px}
+.stat:last-child{border:0}.stat b{color:#fff;font-variant-numeric:tabular-nums}
+.cost{background:#0a1426;border:1px solid #16a34a;padding:10px 12px;border-radius:6px;margin-top:10px;font-family:sans-serif;font-size:12px}
+.cost b{font-size:22px;color:#4ade80;display:block}
+footer{text-align:center;font-size:11px;color:#6e84a8;margin-top:12px;font-family:sans-serif}
+</style>
+<div class="wrap">
+<div class="bar"><h1>NightShift · 24×7 공장 운영 자동 인계 (Hanwha 화성공장 · Line 4)</h1><span class="tag">TRACK 3 · APAC · PAGER-MEAN-FREE</span></div>
+
+<div class="grid">
+ <div class="card">
+  <h3>야간조 → 주간조 자동 작성 인계서 (06:00 KST)</h3>
+  <div class="handoff">
+   <h4>야간 23:00 - 06:00 요약</h4>
+   <div class="event">
+    <span class="t">23:14</span> Line 4 #3-press 진동 0.42mm 알람 (임계 0.35mm). <b>WatchAgent</b> 진단 → 베어링 마모 75%, 7일 내 교체 권고.
+   </div>
+   <div class="event warn">
+    <span class="t">01:42</span> Conveyor #2 모터 온도 72°C (정상 ≤65°C). <b>RemediationAgent</b> 자동 RPM 12% 감속 → 정상 회복. <b>알람 없음.</b>
+   </div>
+   <div class="event err">
+    <span class="t">03:28</span> PLC tag 'oven_temp_z3' NaN 15초. <b>SignalAgent</b> 모드버스 reconnect 1회 → 복구. 데이터 갭 8s, 품질 영향 없음.
+   </div>
+   <div class="event">
+    <span class="t">05:11</span> 생산량 17,420 unit (목표 17,800 −2.1%). <b>RootCauseAgent</b> → conveyor 감속(01:42 사건) 영향, 단발성.
+   </div>
+
+   <h4>주간조가 해야 할 일 3건</h4>
+   <ol style="margin:0;padding-left:18px">
+    <li><b>09:00</b> #3-press 베어링 발주 (재고 0, 한화기계 ASIA-PR-007, 납기 5일)</li>
+    <li><b>11:00</b> Conveyor #2 정기점검 일정 앞당기기 (5/18 → 5/14)</li>
+    <li><b>14:00</b> PLC 모드버스 재시도 회수 카운터 리셋 (월간 23회 → 권장 ≤10회)</li>
+   </ol>
+
+   <h4>이번 주 한 줄</h4>
+   <p style="background:#0a1426;border-left:3px solid #94e2d5;padding:8px 10px;margin:6px 0">
+   <b>지금 매우 안정.</b> 베어링 1건만 발주하면 7일 무중단. 콜 안 받아도 됨.
+   </p>
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>Agent topology</h3>
+  <div class="runbook">
+<b>WatchAgent</b> · Vertex AI Search · MES/SCADA 시계열 (Cloud Pub/Sub)<br>
+<b>SignalAgent</b> · MCP → modbus/opc-ua/PLC<br>
+<b>RemediationAgent</b> · A2A → PLC 제어 partner (안전 가드)<br>
+<b>RootCauseAgent</b> · Gemini Pro · 인과 그래프<br>
+<b>HandoffAgent</b> · 24h 요약 + Slack/카카오톡 push
+  </div>
+
+  <h3 style="margin-top:14px">On-call 비용 절감</h3>
+  <div class="stat"><span>야간 호출 (before)</span><b>6.4/night</b></div>
+  <div class="stat"><span>야간 호출 (NightShift)</span><b>0.7/night</b></div>
+  <div class="stat"><span>오탐률</span><b>3.1% → 0.4%</b></div>
+  <div class="stat"><span>인계서 작성</span><b>42min → 0.2min</b></div>
+  <div class="stat"><span>MTTR (단순 알람)</span><b>14m → 0m (자동)</b></div>
+
+  <div class="cost">
+   <span style="color:#6e84a8">공장 1개 (300인) 연간 절감</span>
+   <b>₩2.14B</b>
+   야간 인력 4→2 · 오탐 출동비 · 베어링 사전감지
+  </div>
+
+  <h3 style="margin-top:14px">왜 ops-veteran이 좋아하는가</h3>
+  <div class="runbook" style="font-size:11px">
+   • 모든 자동조치는 <span class="kbd">dry-run + 2-step approval</span><br>
+   • 알람은 항상 <b>"왜 깨웠는지"</b> 1줄 + runbook 링크<br>
+   • Agent 자체 SLO 99.5% — 다운돼도 기존 SCADA가 fallback
+  </div>
+ </div>
+</div>
+<footer>the-ops-veteran · Tech30 강 (multi-agent + MCP + A2A 명확) · Innovation: 한국 제조 PLC modbus tool · APAC</footer>
+</div>
+</html>
