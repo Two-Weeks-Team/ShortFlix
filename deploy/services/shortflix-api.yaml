@@ -21,6 +21,7 @@ spec:
         run.googleapis.com/cpu-throttling: "true"
         run.googleapis.com/execution-environment: gen2
         run.googleapis.com/startup-cpu-boost: "true"
+        run.googleapis.com/cloudsql-instances: PROJECT_ID:REGION:shortflix-db
     spec:
       serviceAccountName: sa-api@PROJECT_ID.iam.gserviceaccount.com
       containerConcurrency: 80
@@ -37,14 +38,30 @@ spec:
           env:
             - name: NODE_ENV
               value: production
-            - name: ORCHESTRATOR_URL
-              value: https://shortflix-orchestrator-PROJECT_NUMBER.REGION.run.app
             - name: FIRESTORE_PROJECT_ID
               value: PROJECT_ID
-          envFrom: []
-          # Secret Manager refs (do NOT commit values)
-          # Mounted via env at deploy time: --set-secrets is the gcloud-side equivalent
-          # See deploy/iam.yaml for the SA binding.
+            - name: ORCHESTRATOR_URL
+              value: https://shortflix-orchestrator-PLACEHOLDER.run.app
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: DATABASE_URL
+                  key: latest
+            - name: JWT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: JWT_SIGNING_KEY
+                  key: latest
+            - name: GOOGLE_OAUTH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: GOOGLE_OAUTH_CLIENT_ID
+                  key: latest
+            - name: GOOGLE_OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: GOOGLE_OAUTH_CLIENT_SECRET
+                  key: latest
           startupProbe:
             httpGet:
               path: /api/health
