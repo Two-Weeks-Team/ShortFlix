@@ -1,5 +1,6 @@
 # Preview Forge internal state
 .pf-current-run
+.pf-gcp-project
 runs/*/blackboard.db
 runs/*/trace.log
 

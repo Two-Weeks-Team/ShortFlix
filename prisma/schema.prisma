@@ -22,7 +22,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  // PostgreSQL (Cloud SQL in prod, local Postgres via docker for dev) — required
+  // because the schema uses 4 enums (Platform, PickEventType, QuestId, AgentName)
+  // which SQLite doesn't support. The standard-profile SQLite hint in the run
+  // metadata is superseded by Cloud Run production needs.
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
