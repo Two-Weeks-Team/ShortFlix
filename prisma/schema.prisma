@@ -16,8 +16,9 @@
 //   datasource db { provider = "postgresql" url = env("DATABASE_URL") } ← prod (Cloud SQL)
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearchPostgres"]
+  provider = "prisma-client-js"
+  // Note: Postgres full-text search uses tsvector/tsquery directly via raw SQL
+  // queries — no Prisma preview feature needed in 5.22+.
 }
 
 datasource db {

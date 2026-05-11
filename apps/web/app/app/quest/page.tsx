@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Streak + 4-quest taste leveling.",
 };
 
+export const dynamic = "force-dynamic";
+
 /**
  * `/app/quest` — full quest dashboard (Gate H1 user decision: "full" scope).
  *

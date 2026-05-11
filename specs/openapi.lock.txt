@@ -11,5 +11,6 @@
 #
 # SHA-256 of locked artifacts:
 034ba875d80f1cbd7feb47e3081ecbf578a8dc6c0da0d3d1a8250446d1324339  specs/openapi.yaml
-25788902115b850e03974648243323da1f8bd4a8f17d503d2fde56f300df4a14  prisma/schema.prisma
+724463a36d9f7380a6377119822f72f0b0653889243d3681f2d8eb3002861e62  prisma/schema.prisma
+# (prev hash 25788902115b850e03974648243323da1f8bd4a8f17d503d2fde56f300df4a14 — invalidated 2026-05-11: removed deprecated Prisma 5.22+ preview feature 'fullTextSearchPostgres' to unblock Cloud Build; full-text search now via raw SQL)
 7c425a4f6477c47c4e9094902130588a5dd721fc3e7303a229b844e98c623011  specs/SPEC.md

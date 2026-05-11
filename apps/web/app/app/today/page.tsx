@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: copy.hero.subhead,
 };
 
+export const dynamic = "force-dynamic";
+
 /**
  * `/app/today` — primary daily-use surface (mobile-first composition).
  *

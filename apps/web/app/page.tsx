@@ -7,6 +7,10 @@ import { TrustStrip } from "@/components/landing/trust-strip";
 import { PersonaRotator } from "@/components/landing/persona-rotator";
 import { StreakStrip } from "@/components/quest/streak-strip";
 
+// Client components below use React Query; skip SSG to avoid prerender-time
+// "No QueryClient set" — pages render at request time with the provider mounted.
+export const dynamic = "force-dynamic";
+
 /**
  * `/` — Landing (game-designer composition; anti-ai voice).
  *
