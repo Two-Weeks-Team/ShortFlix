@@ -3,6 +3,7 @@ import Link from "next/link";
 import { copy } from "@/lib/copy";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ClientOnly } from "@/components/client-only";
 import { TrustStrip } from "@/components/landing/trust-strip";
 import { PersonaRotator } from "@/components/landing/persona-rotator";
 // StreakStrip removed from landing — it requires React Query context which fails
@@ -67,7 +68,15 @@ export default function LandingPage() {
                 <Link href="/app/today#why">{copy.hero.ctaSecondary}</Link>
               </Button>
             </div>
-            <PersonaRotator />
+            <ClientOnly
+              fallback={
+                <p className="font-mono text-xs uppercase tracking-widest text-muted">
+                  e.g. Maya in Berlin · en / de
+                </p>
+              }
+            >
+              <PersonaRotator />
+            </ClientOnly>
           </div>
 
           <aside className="space-y-4">

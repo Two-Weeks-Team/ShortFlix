@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 
+import { AppShellFrame } from "@/components/app-shell/app-shell-frame";
 import { copy } from "@/lib/copy";
 
 export const metadata: Metadata = { title: "Search" };
 
-/**
- * `/app/search` — bottom-nav stub. Wires up to POST /api/search once the
- * unified-search agent is real (D+16 per composite-plan §10).
- */
 export default function SearchPage() {
   return (
-    <section className="space-y-4">
+    <AppShellFrame>
+      <section className="space-y-4">
       <h1 className="font-editorial text-2xl font-bold tracking-tight md:text-3xl">
         {copy.nav.search}
       </h1>
@@ -38,6 +36,7 @@ export default function SearchPage() {
         </button>
       </form>
       <p className="text-sm text-muted">{copy.states.empty}</p>
-    </section>
+      </section>
+    </AppShellFrame>
   );
 }

@@ -2,11 +2,10 @@ import { BottomNav } from "@/components/app-shell/bottom-nav";
 import { InstallPrompt } from "@/components/app-shell/install-prompt";
 import { copy } from "@/lib/copy";
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// Shared frame for /app/* pages. Used to be apps/web/app/app/layout.tsx but
+// Next.js mis-applied it to / (the root path) because of the duplicate `app`
+// path segment. Now an explicit import keeps the wiring scoped.
+export function AppShellFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-30 border-b border-border bg-bg/95 backdrop-blur-md">
