@@ -186,9 +186,11 @@ steps:
       - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/shortflix-mcp-tt:latest
       - .
 
-  # ---- Deploy step (replaces 8 services) ----
-  - id: deploy-all
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+  # ---- Push step (push all 9 images so deploy can find them) ----
+  # Cloud Build's `images:` block only pushes at end of successful build, but
+  # deploy needs them earlier. Explicit push step here breaks the cycle.
+  - id: push-all
+    name: gcr.io/cloud-builders/docker
     entrypoint: bash
     waitFor:
       - build-web
@@ -200,6 +202,24 @@ steps:
       - build-mcp-yt
       - build-mcp-ig
       - build-mcp-tt
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        for svc in shortflix-web shortflix-api shortflix-orchestrator shortflix-curator \
+                   shortflix-search shortflix-trend-safety shortflix-mcp-yt shortflix-mcp-ig shortflix-mcp-tt; do
+          IMG="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${svc}"
+          echo ">>> Pushing $IMG:$SHORT_SHA and :latest"
+          docker push "${IMG}:$SHORT_SHA"
+          docker push "${IMG}:latest"
+        done
+
+  # ---- Deploy step (replaces 9 services) ----
+  - id: deploy-all
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    waitFor:
+      - push-all
     args:
       - -c
       - |
