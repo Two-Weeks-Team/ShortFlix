@@ -1,0 +1,45 @@
+# Cloud Build context exclusions — these files exist in the repo but are not
+# needed to build any of the 9 services. Reduces upload size from 390 MB → ~5 MB.
+
+# Preview Forge artifacts (mockups, plans, standups, gallery)
+runs/
+
+# Documentation
+docs/
+*.md
+!apps/*/README.md
+!agents/*/README.md
+!deploy/README.md
+
+# Plugin memory
+.pf-current-run
+.pf-gcp-project
+
+# Git / IDE / OS
+.git/
+.github/
+.vscode/
+.idea/
+.DS_Store
+
+# Node deps & build outputs (Dockerfiles do their own install/build)
+**/node_modules/
+**/.next/
+**/dist/
+**/build/
+**/coverage/
+
+# Python venvs
+**/.venv/
+**/__pycache__/
+**/*.pyc
+
+# Logs
+**/*.log
+
+# Local env (NEVER upload)
+.env
+.env.local
+.env.*.local
+apps/*/.env
+agents/*/.env
